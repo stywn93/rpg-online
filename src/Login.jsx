@@ -1,5 +1,5 @@
 import {useState} from "react"
-import {useNavigate} from "react-router"
+import {Link, useNavigate} from "react-router"
 import {userLogin} from "./lib/api/User.js";
 import {useLocalStorage} from "react-use";
 import {useForm} from "react-hook-form"
@@ -72,11 +72,12 @@ export default function Login() {
                                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
                             <input type="password" name="password" id="password" placeholder="••••••••"
                                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-indigo-600 focus:border-indigo-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                   required="" value={password} {...register("thePassword", {required: true})} onChange={(e) => setPassword(e.target.value)}/>
+                                   required="" value={password} {...register("thePassword", {required: true})}
+                                   onChange={(e) => setPassword(e.target.value)}/>
                         </div>
                         <div className="flex justify-end">
                             <a href="#"
-                               className="text-sm font-medium text-indigo-600 dark:text-indigo-100 hover:underline ">Forgot
+                               className="text-sm font-medium text-indigo-600 dark:text-indigo-100 hover:underline ">Lupa
                                 password?</a>
                         </div>
                         <button type="submit"
@@ -84,8 +85,8 @@ export default function Login() {
                             in
                         </button>
                         <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                            Don’t have an account yet? <a href="#" className="font-medium hover:underline">Sign
-                            up</a>
+                            Belum punya akun?
+                            <Link to="/register" className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-200">Daftar di sini</Link>
                         </p>
                     </form>
                 </div>
