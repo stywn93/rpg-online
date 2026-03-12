@@ -1,8 +1,9 @@
-import {useState} from "react"
 import {Link, useNavigate} from "react-router"
-import {userLogin} from "./lib/api/User.js";
-import {useLocalStorage} from "react-use";
-import {useForm} from "react-hook-form"
+import {userLogin} from "./lib/api/User.js"
+import {useLocalStorage} from "react-use"
+import {set, useForm} from "react-hook-form"
+import toast, {Toaster} from 'react-hot-toast';
+
 
 export default function Login() {
     const {
@@ -10,43 +11,36 @@ export default function Login() {
     } = useForm()
 
 
-    // const onSubmit = (e) => console.log(data)
-
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-
     const navigate = useNavigate()
     const [_, setToken] = useLocalStorage("token", "")
 
-
-    const onSubmit = async (e) => {
-
+    const onSubmit = async (data) => {
+        const toastId = toast.loading("Logging in...")
         const response = await userLogin({
-            email: email, password: password,
+            email: data.theEmail,
+            password: data.thePassword
         });
-        const responseBody = await response.json();
-        console.log(responseBody);
+        const responseBody = await response.json()
+        console.log(responseBody)
         if (response.status === 200) {
-            //save token ke localStorage
-            const token = responseBody.data.token;
-            setToken(token);
-            // await navigate({
-            //     pathname: "/dashboard/contacts"
-            // });
-            console.log(token);
+            const token = responseBody.data.token
+            setToken(token)
+            toast.success("Logged in successfully", {id: toastId})
         } else {
-            await alert(responseBody.errors);
+            toast.error(responseBody.messages.error, {id: toastId})
         }
-
     }
 
     return (<section>
-        <borderbg-div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+        <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
             <a href="#" className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
                 <img className="w-8 h-8 mr-2" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg"
                      alt="logo"/>
                 RPG Online
             </a>
+            <div>
+                <Toaster/>
+            </div>
             <div
                 className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                 <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
@@ -59,12 +53,14 @@ export default function Login() {
                                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
                             <input type="email" name="email" id="email"
                                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-indigo-600 focus:border-indigo-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                   placeholder="john@doe.com" value={email} {...register("theEmail", {
-                                required: true, pattern: {
-                                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, // Standard email regex
-                                    message: "Invalid email address"
-                                }
-                            })} onChange={(e) => setEmail(e.target.value)}/>
+                                   placeholder="john@doe.com"
+                                   {...register("theEmail", {
+                                       required: true, pattern: {
+                                           value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, // Standard email regex
+                                           message: "Invalid email address"
+                                       }
+                                   })}
+                            />
                             {errors.theEmail && <span className="text-red-500 text-sm">{errors.theEmail.message}</span>}
                         </div>
                         <div>
@@ -72,8 +68,8 @@ export default function Login() {
                                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
                             <input type="password" name="password" id="password" placeholder="••••••••"
                                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-indigo-600 focus:border-indigo-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                   required="" value={password} {...register("thePassword", {required: true})}
-                                   onChange={(e) => setPassword(e.target.value)}/>
+                                   {...register("thePassword", {required: true})}
+                            />
                         </div>
                         <div className="flex justify-end">
                             <a href="#"
@@ -86,11 +82,13 @@ export default function Login() {
                         </button>
                         <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                             Belum punya akun?
-                            <Link to="/register" className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-200">Daftar di sini</Link>
+                            <Link to="/register"
+                                  className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-200">Daftar
+                                di sini</Link>
                         </p>
                     </form>
                 </div>
             </div>
-        </borderbg-div>
+        </div>
     </section>)
 }
