@@ -1,8 +1,9 @@
 import {Link, useNavigate} from "react-router"
 import {userLogin} from "./lib/api/User.js"
 import {useLocalStorage} from "react-use"
-import {set, useForm} from "react-hook-form"
+import {useForm} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast';
+import {useState} from "react";
 
 
 export default function Login() {
@@ -13,22 +14,32 @@ export default function Login() {
 
     const navigate = useNavigate()
     const [_, setToken] = useLocalStorage("token", "")
+    const [isLoading, setIsLoading] = useState(false)
 
     const onSubmit = async (data) => {
         const toastId = toast.loading("Logging in...")
-        const response = await userLogin({
-            email: data.theEmail,
-            password: data.thePassword
-        });
-        const responseBody = await response.json()
-        console.log(responseBody)
-        if (response.status === 200) {
-            const token = responseBody.data.token
-            setToken(token)
-            toast.success("Logged in successfully", {id: toastId})
-        } else {
-            toast.error(responseBody.messages.error, {id: toastId})
+        setIsLoading(true)
+        try {
+            const response = await userLogin({
+                email: data.theEmail,
+                password: data.thePassword
+            });
+            const responseBody = await response.json()
+            console.log(responseBody)
+            if (response.status === 200) {
+                const token = responseBody.data.token
+                setToken(token)
+                toast.success("Logged in successfully", {id: toastId})
+                navigate("/dashboard")
+            } else {
+                toast.error(responseBody.messages.error, {id: toastId})
+            }
+        } catch (error) {
+            toast.error("Terjadi kesalahan, coba lagi.", {id: toastId})
+        } finally {
+            setIsLoading(false)
         }
+
     }
 
     return (<section>
@@ -70,20 +81,21 @@ export default function Login() {
                                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-indigo-600 focus:border-indigo-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                    {...register("thePassword", {required: true})}
                             />
+                            {errors.thePassword &&
+                                <span className="text-red-500 text-sm">{errors.thePassword.message}</span>}
                         </div>
                         <div className="flex justify-end">
                             <a href="#"
                                className="text-sm font-medium text-indigo-600 dark:text-indigo-100 hover:underline ">Lupa
                                 password?</a>
                         </div>
-                        <button type="submit"
-                                className="cursor-pointer w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800">Sign
-                            in
+                        <button type="submit" disabled={isLoading}
+                                className="cursor-pointer w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed">{isLoading ? "Logging in..." : "Sign in"}
                         </button>
                         <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                             Belum punya akun?
                             <Link to="/register"
-                                  className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-200">Daftar
+                                  className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-200"> Daftar
                                 di sini</Link>
                         </p>
                     </form>
