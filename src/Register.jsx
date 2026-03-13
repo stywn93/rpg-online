@@ -1,5 +1,5 @@
 import {Link, useNavigate} from "react-router"
-import {userLogin} from "./lib/api/User.js"
+import {userRegister} from "./lib/api/User.js"
 import {useLocalStorage} from "react-use"
 import {useForm} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast';
@@ -18,11 +18,13 @@ export default function Register() {
     const [isLoading, setIsLoading] = useState(false)
 
     const onSubmit = async (data) => {
-        const toastId = toast.loading("Logging in...")
+        const toastId = toast.loading("Signing up...")
         setIsLoading(true)
         try {
-            const response = await userLogin({
+            const response = await userRegister({
+                name: data.fullName,
                 email: data.theEmail,
+                phone: data.phone,
                 password: data.thePassword
             });
             const responseBody = await response.json()
@@ -30,8 +32,8 @@ export default function Register() {
             if (response.status === 200) {
                 const token = responseBody.data.token
                 setToken(token)
-                toast.success("Logged in successfully", {id: toastId})
-                navigate("/dashboard")
+                toast.success("Signed up successfully", {id: toastId})
+                // navigate("/dashboard")
             } else {
                 toast.error(responseBody.messages.error, {id: toastId})
             }
@@ -111,7 +113,11 @@ export default function Register() {
                                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
                             <input type="password" name="password" id="password" placeholder="••••••••"
                                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-indigo-600 focus:border-indigo-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                   {...register("thePassword", {required: true})}
+                                   {...register("thePassword", {required: true,
+                                       minLength: {
+                                           value: 6,
+                                           message: "Password minimal 6 karakter"
+                                       }})}
                             />
                             {errors.thePassword &&
                                 <span className="text-red-500 text-sm">{errors.thePassword.message}</span>}

@@ -1,12 +1,12 @@
-export const userRegister = async ({username, password, name}) => {
-    return await fetch(`${import.meta.env.VITE_API_PATH}/users`, {
+export const userRegister = async ({name, email, phone, password}) => {
+    return await fetch(`${import.meta.env.VITE_API_PATH}/auth/register`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         },
         body: JSON.stringify({
-            username, password, name
+            name, email, phone, password
         })
     })
 }

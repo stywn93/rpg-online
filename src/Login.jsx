@@ -30,7 +30,7 @@ export default function Login() {
                 const token = responseBody.data.token
                 setToken(token)
                 toast.success("Logged in successfully", {id: toastId})
-                navigate("/dashboard")
+                // navigate("/dashboard")
             } else {
                 toast.error(responseBody.messages.error, {id: toastId})
             }
