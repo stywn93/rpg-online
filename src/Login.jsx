@@ -5,6 +5,7 @@ import {useForm} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast';
 import {useState} from "react";
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export default function Login() {
     const {
@@ -15,10 +16,12 @@ export default function Login() {
     const navigate = useNavigate()
     const [_, setToken] = useLocalStorage("token", "")
     const [isLoading, setIsLoading] = useState(false)
+    const logoUrl = import.meta.env.VITE_APP_LOGO_URL
 
     const onSubmit = async (data) => {
         const toastId = toast.loading("Logging in...")
         setIsLoading(true)
+        await new Promise(requestAnimationFrame)
         try {
             const response = await userLogin({
                 email: data.theEmail,
@@ -30,7 +33,8 @@ export default function Login() {
                 const token = responseBody.data.token
                 setToken(token)
                 toast.success("Logged in successfully", {id: toastId})
-                // navigate("/dashboard")
+                await sleep(500)
+                navigate("/")
             } else {
                 toast.error(responseBody.messages.error, {id: toastId})
             }
@@ -45,7 +49,7 @@ export default function Login() {
     return (<section>
         <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
             <a href="#" className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-                <img className="w-8 h-8 mr-2" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg"
+                <img className="w-8 h-8 mr-2" src={logoUrl}
                      alt="logo"/>
                 RPG Online
             </a>
