@@ -3,12 +3,14 @@
 // Dependensi: npm install lucide-react
 
 import {
-  LayoutGrid,
-  CalendarDays,
-  Users,
-  Home,
-  BarChart2,
-  Settings,
+    LayoutGrid,
+    CalendarDays,
+    CalendarPlus,
+    Users,
+    UserRound,
+    UserRoundCog,
+    BarChart2,
+    Settings,
 } from "lucide-react";
 
 /**
@@ -18,17 +20,22 @@ import {
  * - icon    : komponen Lucide icon
  * - badge   : (opsional) angka notifikasi
  * - section : grup label sidebar; null = ikut grup item sebelumnya
+ * - link    : anchor to link
  */
 export const NAV_ITEMS = [
-  // ── Grup Utama ──
-  { key: "dashboard",    label: "Dasbor",    icon: LayoutGrid,   section: "Utama" },
-  { key: "reservations", label: "Reservasi", icon: CalendarDays, badge: 4, section: null },
-  { key: "guests",       label: "Tamu",      icon: Users,        section: null },
-  { key: "rooms",        label: "Ruangan",   icon: Home,         section: null },
+    // ── Grup Utama ──
+    {key: "dashboard", label: "Dasboard", icon: LayoutGrid, section: "Utama", link: "/"},
+    {key: "reservations", label: "Reservasi", icon: CalendarDays, badge: 4, section: null, link: "/reservation"},
+    {key: "schedules", label: "Jadwal", icon: CalendarPlus, section: null, link: "/schedules"},
 
-  // ── Grup Laporan ──
-  { key: "analytics", label: "Analitik",   icon: BarChart2, section: "Laporan" },
-  { key: "settings",  label: "Pengaturan", icon: Settings,  section: null },
+    // ── Grup Master Data ──
+    {key: "patients", label: "Pasien", icon: UserRound, section: "Master", link: "/patients"},
+    {key: "users", label: "Pengguna", icon: UserRoundCog, link: "/users"},
+
+    // ── Grup Laporan ──
+    {key: "analytics", label: "Analitik", icon: BarChart2, section: "Laporan"},
+    {key: "settings", label: "Pengaturan", icon: Settings, section: null},
+
 ];
 
 /**
@@ -36,9 +43,9 @@ export const NAV_ITEMS = [
  * Gunakan key yang sama dengan NAV_ITEMS agar active state sinkron.
  */
 export const BOTTOM_NAV_ITEMS = [
-  { key: "dashboard",    label: "Dasbor",     icon: LayoutGrid   },
-  { key: "reservations", label: "Reservasi",  icon: CalendarDays, badge: 4 },
-  { key: "guests",       label: "Tamu",       icon: Users        },
-  { key: "analytics",    label: "Laporan",    icon: BarChart2    },
-  { key: "settings",     label: "Pengaturan", icon: Settings     },
+    {key: "dashboard", label: "Dasbor", icon: LayoutGrid, link: "/"},
+    {key: "reservations", label: "Reservasi", icon: CalendarDays, badge: 4, link: "/reservasi"},
+    {key: "guests", label: "Tamu", icon: Users},
+    {key: "analytics", label: "Laporan", icon: BarChart2},
+    {key: "settings", label: "Pengaturan", icon: Settings},
 ];
