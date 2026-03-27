@@ -3,7 +3,7 @@
 @source "../.flowbite-react/class-list.json";
 
 @theme {
-    --color-accent: #2D6A4F;
-    --color-accent-light: #E8F5EE;
-    --color-accent-border: #A8D8BC;
+    --color-accent: #004FFF;
+    --color-accent-light: #D8E4FF;
+    --color-accent-border: #FF007F;
 }

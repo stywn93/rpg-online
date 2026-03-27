@@ -88,7 +88,7 @@ export default function Sidebar({activeKey, onNavigate, user}) {
                 <button
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors duration-150">
                     <div
-                        className="w-8 h-8 rounded-full bg-[#D8EDDE] flex items-center justify-center text-xs font-medium text-accent shrink-0">
+                        className="w-8 h-8 rounded-full bg-[#D8E4FF] flex items-center justify-center text-xs font-medium text-accent shrink-0">
                         {user.initials}
                     </div>
                     <div className="flex-1 min-w-0 text-left">
