@@ -20,7 +20,7 @@ export default function BottomNav({activeKey, onNavigate}) {
                         <>
                             {item.badge && (
                                 <span
-                                    className="absolute top-1 right-2.5 min-w-[15px] h-[15px] bg-accent text-white text-[9px] font-semibold rounded-full flex items-center justify-center px-1 border-[1.5px] border-white">
+                                    className="absolute top-1 right-2.5 min-w-[15px] h-[15px] bg-accent-border text-white text-[9px] font-semibold rounded-full flex items-center justify-center px-1 border-[1.5px] border-white">
                                     {item.badge}
                                 </span>
                             )}

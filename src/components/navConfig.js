@@ -6,11 +6,11 @@ import {
     LayoutGrid,
     CalendarDays,
     CalendarPlus,
-    Users,
     UserRound,
     UserRoundCog,
     BarChart2,
     Settings,
+    Sheet
 } from "lucide-react";
 
 /**
@@ -24,9 +24,10 @@ import {
  */
 export const NAV_ITEMS = [
     // ── Grup Utama ──
-    {key: "dashboard", label: "Dasboard", icon: LayoutGrid, section: "Utama", link: "/"},
-    {key: "reservations", label: "Reservasi", icon: CalendarDays, badge: 4, section: null, link: "/reservation"},
+    // {key: "dashboard", label: "Dasboard", icon: LayoutGrid, section: "Utama", link: "/"},
+    {key: "reservations", label: "Reservasi", icon: CalendarDays, badge: 4, section: "Utama", link: "/reservation"},
     {key: "schedules", label: "Jadwal", icon: CalendarPlus, section: null, link: "/schedules"},
+    {key: "sampleTable", label: "Sample Table", icon: Sheet, section: null, link: "/table"},
 
     // ── Grup Master Data ──
     {key: "patients", label: "Pasien", icon: UserRound, section: "Master", link: "/patients"},
@@ -43,9 +44,7 @@ export const NAV_ITEMS = [
  * Gunakan key yang sama dengan NAV_ITEMS agar active state sinkron.
  */
 export const BOTTOM_NAV_ITEMS = [
-    {key: "dashboard", label: "Dasbor", icon: LayoutGrid, link: "/"},
-    {key: "reservations", label: "Reservasi", icon: CalendarDays, badge: 4, link: "/reservasi"},
-    {key: "guests", label: "Tamu", icon: Users},
-    {key: "analytics", label: "Laporan", icon: BarChart2},
+    {key: "dashboard", label: "Dasboard", badge:4, icon: LayoutGrid, link: "/"},
+    {key: "users", label: "Data", icon: UserRoundCog, link: "/users"},
     {key: "settings", label: "Pengaturan", icon: Settings},
 ];

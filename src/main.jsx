@@ -9,6 +9,7 @@ import Reservasi from "./Reservasi.jsx"
 import Jadwal from "./Jadwal.jsx"
 import Pasien from "./Pasien.jsx"
 import Pengguna from "./Pengguna.jsx"
+import Table from "./Table.jsx"
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
@@ -17,6 +18,7 @@ createRoot(document.getElementById('root')).render(
                 <Route path='/login' element={<Login/>}/>
                 <Route path='/register' element={<Register/>}/>
                 <Route path='/' element={<Dashboard/>}>
+                    <Route path='table' element={<Table />}/>
                     <Route path='reservation' element={<Reservasi />}/>
                     <Route path='schedules' element={<Jadwal />}/>
                     <Route path='patients' element={<Pasien/>}/>

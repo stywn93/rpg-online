@@ -28,14 +28,14 @@ export default function Dashboard(
     });
 
     const fallbackTitle = normalizedPath === "/"
-        ? "Dasbor"
+        ? "Dasboard"
         : normalizedPath
             .split("/")
             .filter(Boolean)
             .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
             .join(" / ");
 
-    const resolvedActivePage = activePage ?? currentNavItem?.key ?? "dashboard";
+    const resolvedActivePage = activePage ?? currentNavItem?.key ?? "reservations";
     const resolvedPageTitle = pageTitle ?? currentNavItem?.label ?? fallbackTitle;
 
     return (
@@ -45,7 +45,9 @@ export default function Dashboard(
 
             <div className="flex flex-1 flex-col overflow-hidden">
                 <Topbar title={resolvedPageTitle} onNewReservation={onNewReservation}/>
-                <main className="flex-1 overflow-y-auto p-5"><Outlet/></main>
+                <main className="flex-1 overflow-y-auto p-5">
+                    <Outlet/>
+                </main>
                 <BottomNav activeKey={resolvedActivePage} onNavigate={onNavigate}/>
             </div>
         </div>

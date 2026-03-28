@@ -72,7 +72,7 @@ export default function Sidebar({activeKey, onNavigate, user}) {
                   </span>
                                     {item.badge && (
                                         <span
-                                            className="text-[10px] font-medium bg-accent text-white px-1.5 py-0.5 rounded-full leading-none">
+                                            className="text-[10px] font-medium bg-accent-border text-white px-1.5 py-0.5 rounded-full leading-none">
                       {item.badge}
                     </span>
                                     )}
