@@ -10,6 +10,7 @@ import Jadwal from "./Jadwal.jsx"
 import Pasien from "./Pasien.jsx"
 import Pengguna from "./Pengguna.jsx"
 import Table from "./Table.jsx"
+import ReservasiBaru from "./ReservasiBaru.jsx";
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')).render(
                     <Route path='schedules' element={<Jadwal />}/>
                     <Route path='patients' element={<Pasien/>}/>
                     <Route path='users' element={<Pengguna/>}/>
+                    <Route path='reservation/new' element={<ReservasiBaru/>}/>
                 </Route>
             </Routes>
         </BrowserRouter>

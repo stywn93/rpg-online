@@ -9,7 +9,7 @@ const data = [
 const columns = [
     {accessorKey: 'name', header: 'Name'},
     {accessorKey: 'age', header: 'Age'},
-    {accessorKey: 'age', header: 'Age'},
+
 ]
 
 export default function Table(props) {

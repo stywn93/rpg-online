@@ -27,7 +27,7 @@ export default function Sidebar({activeKey, onNavigate, user}) {
 
             {/* Logo */}
             <Link to={"/"} className="flex items-center gap-2.5 px-5 py-5 border-b border-black/[0.08]">
-                <div className="w-10 h-10 rounded-[9px] bg-accent flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-[9px] bg-blue-600 flex items-center justify-center shrink-0">
                     <CalendarDays color="#ffffff"/>
                 </div>
                 <div>
@@ -58,21 +58,21 @@ export default function Sidebar({activeKey, onNavigate, user}) {
                                     className={cn(
                                         "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg mb-0.5 transition-colors duration-150 text-left",
                                         active
-                                            ? "bg-accent-light text-accent"
+                                            ? "bg-blue-100 text-blue-600"
                                             : "text-gray-700 hover:bg-gray-50"
                                     )}
                                 >
                                     <Icon
                                         size={16}
                                         strokeWidth={2}
-                                        className={active ? "text-accent" : "text-gray-400"}
+                                        className={active ? "text-blue-600" : "text-gray-400"}
                                     />
                                     <span className={cn("flex-1 text-sm", active ? "font-medium" : "font-normal")}>
                     {item.label}
                   </span>
                                     {item.badge && (
                                         <span
-                                            className="text-[10px] font-medium bg-accent-border text-white px-1.5 py-0.5 rounded-full leading-none">
+                                            className="text-[10px] font-medium bg-fuchsia-500 text-white px-1.5 py-0.5 rounded-full leading-none">
                       {item.badge}
                     </span>
                                     )}
@@ -88,7 +88,7 @@ export default function Sidebar({activeKey, onNavigate, user}) {
                 <button
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors duration-150">
                     <div
-                        className="w-8 h-8 rounded-full bg-[#D8E4FF] flex items-center justify-center text-xs font-medium text-accent shrink-0">
+                        className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-xs font-medium text-blue-600 shrink-0">
                         {user.initials}
                     </div>
                     <div className="flex-1 min-w-0 text-left">

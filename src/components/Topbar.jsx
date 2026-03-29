@@ -1,4 +1,5 @@
 import { Bell, Plus, MoreVertical } from "lucide-react";
+import {Link} from "react-router-dom";
 
 export default function Topbar({ title, onNewReservation }) {
     return (
@@ -11,13 +12,13 @@ export default function Topbar({ title, onNewReservation }) {
                 >
                     <Bell size={15} strokeWidth={2} />
                 </button>
-                <button
+                <Link to={"reservation/new"}
                     onClick={onNewReservation}
-                    className="h-[34px] px-3.5 rounded-lg bg-accent text-white text-[13px] font-medium flex items-center gap-1.5 hover:bg-accent/90 transition-colors whitespace-nowrap"
+                    className="h-[34px] px-3.5 rounded-lg bg-blue-600 text-white text-[13px] font-medium flex items-center gap-1.5 hover:bg-blue-800 transition-colors whitespace-nowrap"
                 >
                     <Plus size={13} strokeWidth={2.5} />
                     Buat Reservasi
-                </button>
+                </Link>
             </div>
         </div>
     );
