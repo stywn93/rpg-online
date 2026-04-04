@@ -1,9 +1,9 @@
 import {Link, useNavigate} from "react-router"
-import {userLogin} from "./lib/api/User.js"
+import {listService} from "./lib/api/ServiceTypes.js"
 import {useLocalStorage} from "react-use"
 import {Controller, useForm} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast'
-import {useState} from "react"
+import {useEffect, useState} from "react"
 import {Datepicker} from "flowbite-react"
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -18,41 +18,71 @@ export default function ReservasiBaru() {
         }
     })
 
-
     const navigate = useNavigate()
-    const [_, setToken] = useLocalStorage("token", "")
+    const [token, _] = useLocalStorage("token", "")
     const [isLoading, setIsLoading] = useState(false)
+    const [serviceOptions, setServiceOptions] = useState([])
+    const [isLoadingServices, setIsLoadingServices] = useState(false)
 
+    useEffect(() => {
+        const fetchServices = async () => {
+            setIsLoadingServices(true)
+
+            try {
+                const response = await listService(token)
+                const responseBody = await response.json()
+
+                if (!response.ok) {
+                    throw new Error(responseBody?.messages?.error || "Gagal memuat daftar layanan.")
+                }
+                console.log(responseBody)
+
+                const services = Array.isArray(responseBody?.data)
+                    ? responseBody.data
+                    : Array.isArray(responseBody?.data?.data)
+                        ? responseBody.data.data
+                        : Array.isArray(responseBody)
+                            ? responseBody
+                            : []
+
+                setServiceOptions(services)
+            } catch (error) {
+                toast.error(error.message || "Terjadi kesalahan saat memuat layanan.")
+                setServiceOptions([])
+            } finally {
+                setIsLoadingServices(false)
+            }
+        }
+
+        if (token) {
+            fetchServices()
+        }
+    }, [token])
 
     const onSubmit = async (data) => {
-        const toastId = toast.loading("Logging in...")
+        const toastId = toast.loading("Memproses...")
         setIsLoading(true)
-        console.log(data)
-        // await new Promise(requestAnimationFrame)
+        await new Promise(requestAnimationFrame)
         /**
-         try {
-         const response = await userLogin({
-         email: data.theEmail,
-         password: data.thePassword
-         });
-         const responseBody = await response.json()
-         console.log(responseBody)
-         if (response.status === 200) {
-         const token = responseBody.data.token
-         setToken(token)
-         toast.success("Logged in successfully", {id: toastId})
-         await sleep(500)
-         navigate("/")
-         } else {
-         toast.error(responseBody.messages.error, {id: toastId})
-         }
-         } catch (error) {
-         toast.error("Terjadi kesalahan, coba lagi.", {id: toastId})
-         } finally {
-         setIsLoading(false)
-         }
-         */
-
+        try {
+            const response = await listService(token)
+            const responseBody = await response.json()
+            // console.log(responseBody)
+            if (response.status === 200) {
+                const token = responseBody.data.token
+                setToken(token)
+                toast.success("Logged in successfully", {id: toastId})
+                await sleep(500)
+                navigate("/")
+            } else {
+                toast.error(responseBody.messages.error, {id: toastId})
+            }
+        } catch (error) {
+            toast.error("Terjadi kesalahan, coba lagi.", {id: toastId})
+        } finally {
+            setIsLoading(false)
+        }
+    */
     }
 
     return (<section>
@@ -89,11 +119,17 @@ export default function ReservasiBaru() {
                                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Jenis
                                 Layanan</label>
                             <select id="services"
-                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" {...register("services", {required: true})}>
+                                    disabled={isLoadingServices}
+                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 disabled:cursor-not-allowed disabled:bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" {...register("services", {required: true})}>
                                 <option value="">Pilih Layanan</option>
-                                <option value="AP">Akupuntur</option>
-                                <option value="AK">Akupressure</option>
-                                <option value="FR">Fisioterapi</option>
+                                {serviceOptions.map((service) => (
+                                    <option
+                                        key={service.id}
+                                        value={service.id}
+                                    >
+                                        {service.deskripsi}
+                                    </option>
+                                ))}
                             </select>
                             {errors.services &&
                                 <span className="text-red-500 text-sm">{errors.services.message}</span>}

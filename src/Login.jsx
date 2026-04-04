@@ -2,21 +2,26 @@ import {Link, useNavigate} from "react-router"
 import {userLogin} from "./lib/api/User.js"
 import {useLocalStorage} from "react-use"
 import {useForm} from "react-hook-form"
-import toast, {Toaster} from 'react-hot-toast';
-import {useState} from "react";
+import toast, {Toaster} from 'react-hot-toast'
+import {useEffect, useState} from "react";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export default function Login() {
     const {
-        register, handleSubmit, formState: {errors},
+        register, handleSubmit, setFocus, formState: {errors},
     } = useForm()
 
 
     const navigate = useNavigate()
     const [_, setToken] = useLocalStorage("token", "")
+    const [__, setUserDetails] = useLocalStorage("userDetails", null)
     const [isLoading, setIsLoading] = useState(false)
     const logoUrl = import.meta.env.VITE_APP_LOGO_URL
+
+    // useEffect(() => {
+    //     setFocus("theEmail")
+    // }, [setFocus])
 
     const onSubmit = async (data) => {
         const toastId = toast.loading("Logging in...")
@@ -28,10 +33,12 @@ export default function Login() {
                 password: data.thePassword
             });
             const responseBody = await response.json()
-            console.log(responseBody)
             if (response.status === 200) {
-                const token = responseBody.data.token
+                const token = responseBody?.data?.token
+                const details = responseBody?.data?.details ?? null
+
                 setToken(token)
+                // setUserDetails(details)
                 toast.success("Logged in successfully", {id: toastId})
                 await sleep(500)
                 navigate("/")
