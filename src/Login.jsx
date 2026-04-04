@@ -9,19 +9,20 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export default function Login() {
     const {
-        register, handleSubmit, setFocus, formState: {errors},
+        register, handleSubmit, formState: {errors}, setFocus
     } = useForm()
 
 
     const navigate = useNavigate()
     const [_, setToken] = useLocalStorage("token", "")
-    const [__, setUserDetails] = useLocalStorage("userDetails", null)
+    const [userDetails, setUserDetails] = useState("userDetails", [])
     const [isLoading, setIsLoading] = useState(false)
     const logoUrl = import.meta.env.VITE_APP_LOGO_URL
 
-    // useEffect(() => {
-    //     setFocus("theEmail")
-    // }, [setFocus])
+    useEffect(() => {
+        setFocus("theEmail")
+    }, [setFocus])
+
 
     const onSubmit = async (data) => {
         const toastId = toast.loading("Logging in...")
@@ -34,11 +35,14 @@ export default function Login() {
             });
             const responseBody = await response.json()
             if (response.status === 200) {
-                const token = responseBody?.data?.token
-                const details = responseBody?.data?.details ?? null
+                const token = responseBody?.data?.token ?? responseBody?.token ?? null
 
-                setToken(token)
-                // setUserDetails(details)
+                if (!token) {
+                    throw new Error("Token login tidak ditemukan pada response API.")
+                }
+                console.log(responseBody.data.details)
+                setUserDetails(responseBody.data.details)
+                // setToken(String(token))
                 toast.success("Logged in successfully", {id: toastId})
                 await sleep(500)
                 navigate("/")
