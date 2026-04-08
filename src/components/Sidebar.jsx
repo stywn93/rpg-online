@@ -2,14 +2,33 @@ import {CalendarFold} from "lucide-react"
 import {MoreVertical} from "lucide-react"
 import {CalendarDays} from 'lucide-react'
 import {NAV_ITEMS} from "./navConfig"
-import {Link} from "react-router-dom";
+import {Link} from "react-router-dom"
 
+
+function getInitials(name) {
+    if (!name) {
+        return "GU"
+    }
+
+    return name
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() ?? "")
+        .join("")
+}
 
 function cn(...classes) {
     return classes.filter(Boolean).join(" ");
 }
 
 export default function Sidebar({activeKey, onNavigate, user}) {
+    const resolvedUser = {
+        name: user?.name ?? "Guest User",
+        role: user?.role ?? user?.email ?? "Belum login",
+        initials: user?.initials ?? getInitials(user?.name),
+    }
+
     // Kelompokkan item berdasarkan section
     const sections = [];
     let current = null;
@@ -89,11 +108,11 @@ export default function Sidebar({activeKey, onNavigate, user}) {
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors duration-150">
                     <div
                         className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-xs font-medium text-blue-600 shrink-0">
-                        {user.initials}
+                        {resolvedUser.initials}
                     </div>
                     <div className="flex-1 min-w-0 text-left">
-                        <p className="text-[13px] font-medium text-gray-900 truncate">{user.name}</p>
-                        <p className="text-[11px] text-gray-400">{user.role}</p>
+                        <p className="text-[13px] font-medium text-gray-900 truncate">{resolvedUser.name}</p>
+                        <p className="text-[11px] text-gray-400">{resolvedUser.role}</p>
                     </div>
                     <MoreVertical size={14} className="text-gray-300 shrink-0"/>
                 </button>

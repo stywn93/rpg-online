@@ -3,6 +3,7 @@ import BottomNav from "./components/BottomNav"
 import Sidebar from "./components/Sidebar"
 import { Outlet, useLocation } from "react-router-dom"
 import { NAV_ITEMS } from "./components/navConfig"
+import useAuth from "./UseAuth.js"
 
 export default function Dashboard(
     {
@@ -11,10 +12,10 @@ export default function Dashboard(
         },
         onNewReservation = () => {
         },
-        user = {name: "Hasan Abdul Muhsin", role: "Admin", initials: "HA"},
         pageTitle,
     }
 ) {
+    const { user } = useAuth()
     const { pathname } = useLocation();
     const normalizedPath = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
     const currentNavItem = NAV_ITEMS.find((item) => {

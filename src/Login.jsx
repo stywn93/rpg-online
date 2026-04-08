@@ -1,23 +1,33 @@
 import {Link, useNavigate} from "react-router"
 import {userLogin} from "./lib/api/User.js"
-import {useLocalStorage} from "react-use"
+// import {useLocalStorage} from "react-use"
 import {useForm} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast'
-import {useEffect, useState} from "react";
+import {useEffect, useState} from "react"
+import useAuth from "./UseAuth.js"
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export default function Login() {
     const {
-        register, handleSubmit, formState: {errors}, setFocus
+        register,
+        handleSubmit,
+        formState: {errors},
+        setFocus
     } = useForm()
 
+    const { login, token } = useAuth()
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const navigate = useNavigate()
-    const [_, setToken] = useLocalStorage("token", "")
-    const [userDetails, setUserDetails] = useState("userDetails", [])
-    const [isLoading, setIsLoading] = useState(false)
+    // const [token, setToken] = useLocalStorage("token", "")
     const logoUrl = import.meta.env.VITE_APP_LOGO_URL
+
+    /**
+    useEffect(() => {
+        if (token) navigate("/", {replace: true})
+    }, [token, navigate])
+    */
 
     useEffect(() => {
         setFocus("theEmail")
@@ -25,9 +35,14 @@ export default function Login() {
 
 
     const onSubmit = async (data) => {
+        if (isSubmitting) {
+            return
+        }
+
+        setIsSubmitting(true)
         const toastId = toast.loading("Logging in...")
-        setIsLoading(true)
-        await new Promise(requestAnimationFrame)
+
+        // await new Promise(requestAnimationFrame)
         try {
             const response = await userLogin({
                 email: data.theEmail,
@@ -35,24 +50,24 @@ export default function Login() {
             });
             const responseBody = await response.json()
             if (response.status === 200) {
-                const token = responseBody?.data?.token ?? responseBody?.token ?? null
-
+                const {token, expires_in, ...user} = responseBody.data ?? {}
                 if (!token) {
-                    throw new Error("Token login tidak ditemukan pada response API.")
+                    throw new Error("Token tidak ditemukan pada response.")
                 }
-                console.log(responseBody.data.details)
-                setUserDetails(responseBody.data.details)
-                // setToken(String(token))
-                toast.success("Logged in successfully", {id: toastId})
+                if (!user?.id) {
+                    throw new Error("Data user tidak ditemukan pada response.")
+                }
+                login(user, token)
+                toast.success("Berhasil Login", {id: toastId})
                 await sleep(500)
-                navigate("/")
+                navigate("/", {replace: true})
             } else {
                 toast.error(responseBody.messages.error, {id: toastId})
             }
         } catch (error) {
             toast.error("Terjadi kesalahan, coba lagi.", {id: toastId})
         } finally {
-            setIsLoading(false)
+            setIsSubmitting(false)
         }
 
     }
@@ -64,9 +79,6 @@ export default function Login() {
                      alt="logo"/>
                 RPG Online
             </a>
-            <div>
-                <Toaster/>
-            </div>
             <div
                 className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                 <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
@@ -104,8 +116,10 @@ export default function Login() {
                                className="text-sm font-medium text-indigo-600 dark:text-indigo-100 hover:underline ">Lupa
                                 password?</a>
                         </div>
-                        <button type="submit" disabled={isLoading}
-                                className="cursor-pointer w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed">{isLoading ? "Logging in..." : "Sign in"}
+                        <button type="submit"
+                                disabled={isSubmitting}
+                                className="cursor-pointer w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed">
+                            {isSubmitting ? "Signing in..." : "Sign in"}
                         </button>
                         <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                             Belum punya akun?
