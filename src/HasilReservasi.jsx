@@ -92,8 +92,8 @@ export default function HasilReservasi() {
     const reservation = state?.reservation ?? fallbackReservation
 
     return (
-        <section className="flex min-h-full items-center justify-center bg-[#eef1f7] px-4 py-8 sm:px-6">
-            <div className="w-full max-w-sm rounded-[34px] bg-white px-7 py-8 text-center shadow-[0_24px_60px_rgba(15,23,42,0.08)] sm:px-8">
+        <section className="flex min-h-full items-center justify-center px-4 py-8 sm:px-6">
+            <div className="w-full max-w-sm rounded-lg bg-white px-7 py-8 text-center shadow-[0_24px_60px_rgba(15,23,42,0.08)] sm:px-8">
                 <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-fuchsia-100">
                     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-fuchsia-500 text-white shadow-[0_12px_24px_rgba(111,134,255,0.35)]">
                         <Check size={30} strokeWidth={3} />
@@ -131,7 +131,7 @@ export default function HasilReservasi() {
 
                 <Link
                     to="/"
-                    className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-blue-600 px-5 py-4 text-sm font-medium text-white transition hover:bg-blue-800"
+                    className="mt-8 inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-5 py-4 text-sm font-medium text-white transition hover:bg-blue-800"
                 >
                     Kembali ke Beranda
                 </Link>
