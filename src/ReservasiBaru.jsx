@@ -5,6 +5,18 @@ import {Controller, useForm} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast'
 import {useEffect, useState} from "react"
 import {Datepicker} from "flowbite-react"
+import useAuth from "./UseAuth.js"
+import {userLogin} from "./lib/api/User.js";
+import {
+    LayoutGrid,
+    CalendarDays,
+    CalendarPlus,
+    UserRound,
+    UserRoundCog,
+    BarChart2,
+    Settings,
+    Sheet
+} from "lucide-react";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -13,8 +25,7 @@ export default function ReservasiBaru() {
         register, control, handleSubmit, formState: {errors},
     } = useForm({
         defaultValues: {
-            visitDate: new Date(),
-            services: ""
+            visitDate: new Date(), services: ""
         }
     })
 
@@ -23,6 +34,8 @@ export default function ReservasiBaru() {
     const [isLoading, setIsLoading] = useState(false)
     const [serviceOptions, setServiceOptions] = useState([])
     const [isLoadingServices, setIsLoadingServices] = useState(false)
+    const {logout} = useAuth()
+
 
     useEffect(() => {
         const fetchServices = async () => {
@@ -31,19 +44,17 @@ export default function ReservasiBaru() {
             try {
                 const response = await listService(token)
                 const responseBody = await response.json()
+                console.log(responseBody)
 
                 if (!response.ok) {
-                    throw new Error(responseBody?.messages?.error || "Gagal memuat daftar layanan.")
+                    logout()
+                    navigate("/login", {replace: true})
+                    throw new Error(responseBody.message)
+
                 }
                 console.log(responseBody)
 
-                const services = Array.isArray(responseBody?.data)
-                    ? responseBody.data
-                    : Array.isArray(responseBody?.data?.data)
-                        ? responseBody.data.data
-                        : Array.isArray(responseBody)
-                            ? responseBody
-                            : []
+                const services = Array.isArray(responseBody?.data) ? responseBody.data : Array.isArray(responseBody?.data?.data) ? responseBody.data.data : Array.isArray(responseBody) ? responseBody : []
 
                 setServiceOptions(services)
             } catch (error) {
@@ -64,25 +75,25 @@ export default function ReservasiBaru() {
         setIsLoading(true)
         await new Promise(requestAnimationFrame)
         /**
-        try {
-            const response = await listService(token)
-            const responseBody = await response.json()
-            // console.log(responseBody)
-            if (response.status === 200) {
-                const token = responseBody.data.token
-                setToken(token)
-                toast.success("Logged in successfully", {id: toastId})
-                await sleep(500)
-                navigate("/")
-            } else {
-                toast.error(responseBody.messages.error, {id: toastId})
-            }
-        } catch (error) {
-            toast.error("Terjadi kesalahan, coba lagi.", {id: toastId})
-        } finally {
-            setIsLoading(false)
-        }
-    */
+         try {
+         const response = await listService(token)
+         const responseBody = await response.json()
+         // console.log(responseBody)
+         if (response.status === 200) {
+         const token = responseBody.data.token
+         setToken(token)
+         toast.success("Logged in successfully", {id: toastId})
+         await sleep(500)
+         navigate("/")
+         } else {
+         toast.error(responseBody.messages.error, {id: toastId})
+         }
+         } catch (error) {
+         toast.error("Terjadi kesalahan, coba lagi.", {id: toastId})
+         } finally {
+         setIsLoading(false)
+         }
+         */
     }
 
     return (<section>
@@ -99,6 +110,49 @@ export default function ReservasiBaru() {
                     </h1>
                     <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit(onSubmit)}>
                         <div>
+                            <label htmlFor="fullname"
+                                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nama
+                                Pasien</label>
+                            <input readOnly type="text" name="fullname" id="fullname"
+                                   className="read-only:cursor-not-allowed bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                   placeholder="Budi Santoso" required=""/>
+                        </div>
+                        <div>
+                            <label htmlFor="gender"
+                                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Jenis
+                                Kelamin</label>
+                            <input readOnly type="text" name="gender" id="gender"
+                                   className="read-only:cursor-not-allowed bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                   placeholder="Laki-laki" required=""/>
+                        </div>
+                        <div>
+                            <label htmlFor="age"
+                                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usia</label>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="flex w-full rounded-base">
+                                    <input readOnly type="text" id="ageYear"
+                                           className="read-only:cursor-not-allowed w-full bg-gray-50 border-gray-300 rounded-none rounded-s-base px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm focus:ring-brand focus:border-brand placeholder:text-body"
+                                           placeholder="3"/>
+                                    <span
+                                        className="bg-gray-50 border-gray-300 inline-flex items-center px-3 text-sm text-body bg-neutral-tertiary border rounded-e-0 border-default-medium rounded-e-base">thn</span>
+                                </div>
+                                <div className="flex w-full rounded-base">
+                                    <input readOnly type="text" id="ageMonth"
+                                           className="read-only:cursor-not-allowed w-full bg-gray-50 border-gray-300 rounded-none rounded-s-base px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm focus:ring-brand focus:border-brand placeholder:text-body"
+                                           placeholder="10"/>
+                                    <span
+                                        className="bg-gray-50 border-gray-300 inline-flex items-center px-3 text-sm text-body bg-neutral-tertiary border rounded-e-0 border-default-medium rounded-e-base">bln</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label htmlFor="lastVisit"
+                                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kunjungan Terakhir</label>
+                            <input readOnly type="text" name="lastVisit" id="lastVisit"
+                                   className="read-only:cursor-not-allowed bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                   placeholder="3 November 2025" required=""/>
+                        </div>
+                        <div>
                             <label htmlFor="visitDate"
                                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tanggal
                                 Rencana Berkunjung</label>
@@ -109,33 +163,10 @@ export default function ReservasiBaru() {
                                                             field.onChange(date)
                                                             console.log("Tanggal dipilih :", date)
                                                         }}
-                                            />
-                                        )}/>
+                                            />)}/>
                             {errors.visitDate &&
                                 <span className="text-red-500 text-sm">{errors.visitDate.message}</span>}
                         </div>
-                        <div>
-                            <label htmlFor="services"
-                                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Jenis
-                                Layanan</label>
-                            <select id="services"
-                                    disabled={isLoadingServices}
-                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 disabled:cursor-not-allowed disabled:bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" {...register("services", {required: true})}>
-                                <option value="">Pilih Layanan</option>
-                                {serviceOptions.map((service) => (
-                                    <option
-                                        key={service.id}
-                                        value={service.id}
-                                    >
-                                        {service.deskripsi}
-                                    </option>
-                                ))}
-                            </select>
-                            {errors.services &&
-                                <span className="text-red-500 text-sm">{errors.services.message}</span>}
-
-                        </div>
-
 
                         <button type="submit" disabled={isLoading}
                                 className="cursor-pointer w-full text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed">{isLoading ? "Memproses..." : "Simpan"}

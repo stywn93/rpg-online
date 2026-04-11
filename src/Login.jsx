@@ -20,14 +20,12 @@ export default function Login() {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const navigate = useNavigate()
-    // const [token, setToken] = useLocalStorage("token", "")
     const logoUrl = import.meta.env.VITE_APP_LOGO_URL
 
-    /**
     useEffect(() => {
         if (token) navigate("/", {replace: true})
     }, [token, navigate])
-    */
+
 
     useEffect(() => {
         setFocus("theEmail")
@@ -50,7 +48,7 @@ export default function Login() {
             });
             const responseBody = await response.json()
             if (response.status === 200) {
-                const {token, expires_in, ...user} = responseBody.data ?? {}
+                const {token, expires_in, ...user} = responseBody.data ?? {} //spread variables
                 if (!token) {
                     throw new Error("Token tidak ditemukan pada response.")
                 }

@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useLocalStorage } from "react-use"
 import { AuthContext } from "./AuthContext"
 
+
 export default function AuthProvider({ children }) {
     const [token, setToken, removeToken] = useLocalStorage("token", "")
 

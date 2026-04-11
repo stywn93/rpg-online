@@ -1,7 +1,7 @@
+import { Outlet, useLocation } from "react-router-dom"
 import Topbar from "./components/Topbar"
 import BottomNav from "./components/BottomNav"
 import Sidebar from "./components/Sidebar"
-import { Outlet, useLocation } from "react-router-dom"
 import { NAV_ITEMS } from "./components/navConfig"
 import useAuth from "./UseAuth.js"
 

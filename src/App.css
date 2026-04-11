@@ -1,3 +1,21 @@
 @import "tailwindcss";
 @import "flowbite-react/plugin/tailwindcss";
 @source "../.flowbite-react/class-list.json";
+
+@theme {
+  --radius-base: 0.5rem;
+}
+
+@utility rounded-base {
+  border-radius: var(--radius-base);
+}
+
+@utility rounded-s-base {
+  border-start-start-radius: var(--radius-base);
+  border-end-start-radius: var(--radius-base);
+}
+
+@utility rounded-e-base {
+  border-start-end-radius: var(--radius-base);
+  border-end-end-radius: var(--radius-base);
+}
