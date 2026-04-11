@@ -7,16 +7,7 @@ import {useEffect, useState} from "react"
 import {Datepicker} from "flowbite-react"
 import useAuth from "./UseAuth.js"
 import {userLogin} from "./lib/api/User.js";
-import {
-    LayoutGrid,
-    CalendarDays,
-    CalendarPlus,
-    UserRound,
-    UserRoundCog,
-    BarChart2,
-    Settings,
-    Sheet
-} from "lucide-react";
+
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -36,7 +27,7 @@ export default function ReservasiBaru() {
     const [isLoadingServices, setIsLoadingServices] = useState(false)
     const {logout} = useAuth()
 
-
+/*
     useEffect(() => {
         const fetchServices = async () => {
             setIsLoadingServices(true)
@@ -69,31 +60,12 @@ export default function ReservasiBaru() {
             fetchServices()
         }
     }, [token])
+    */
 
     const onSubmit = async (data) => {
         const toastId = toast.loading("Memproses...")
         setIsLoading(true)
         await new Promise(requestAnimationFrame)
-        /**
-         try {
-         const response = await listService(token)
-         const responseBody = await response.json()
-         // console.log(responseBody)
-         if (response.status === 200) {
-         const token = responseBody.data.token
-         setToken(token)
-         toast.success("Logged in successfully", {id: toastId})
-         await sleep(500)
-         navigate("/")
-         } else {
-         toast.error(responseBody.messages.error, {id: toastId})
-         }
-         } catch (error) {
-         toast.error("Terjadi kesalahan, coba lagi.", {id: toastId})
-         } finally {
-         setIsLoading(false)
-         }
-         */
     }
 
     return (<section>
@@ -103,7 +75,7 @@ export default function ReservasiBaru() {
                 <Toaster/>
             </div>
             <div
-                className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+                className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
                 <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                     <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                         Buat Rencana Kunjungan

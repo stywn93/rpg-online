@@ -17,7 +17,7 @@ export default function Topbar({ title, onNewReservation }) {
                     className="h-[34px] px-3.5 rounded-lg bg-blue-600 text-white text-[13px] font-medium flex items-center gap-1.5 hover:bg-blue-800 transition-colors whitespace-nowrap"
                 >
                     <Plus size={13} strokeWidth={2.5} />
-                    Buat Reservasi
+                    Buat Rencana Kunjungan
                 </Link>
             </div>
         </div>
