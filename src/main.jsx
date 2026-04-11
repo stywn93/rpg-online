@@ -14,6 +14,7 @@ import ReservasiBaru from "./ReservasiBaru.jsx"
 import {Toaster} from "react-hot-toast"
 import AuthProvider from "./AuthProvider.jsx"
 import HasilReservasi from "./HasilReservasi.jsx"
+import AntrianKunjungan from "./AntrianKunjungan.jsx"
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
@@ -25,12 +26,13 @@ createRoot(document.getElementById('root')).render(
                     <Route path='/register' element={<Register/>}/>
                     <Route path='/' element={<Dashboard/>}>
                         <Route path='table' element={<Table/>}/>
-                        <Route path='reservation' element={<Reservasi/>}/>
+                        <Route path='reservation' element={<AntrianKunjungan/>}/>
                         <Route path='schedules' element={<Jadwal/>}/>
                         <Route path='patients' element={<Pasien/>}/>
                         <Route path='users' element={<Pengguna/>}/>
                         <Route path='reservation/new' element={<ReservasiBaru/>}/>
                         <Route path='reservation/confirm' element={<HasilReservasi/>}/>
+
                     </Route>
                 </Routes>
             </BrowserRouter>
