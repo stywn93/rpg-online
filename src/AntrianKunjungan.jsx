@@ -6,6 +6,7 @@ const queueData = [
         age: "3 tahun 10 bulan",
         visitDate: "15 April 2026",
         referenceCode: "RPG9976315",
+        status: "examining",
     },
     {
         id: 2,
@@ -14,6 +15,7 @@ const queueData = [
         age: "5 tahun 2 bulan",
         visitDate: "15 April 2026",
         referenceCode: "RPG9976316",
+        status: "waiting",
     },
     {
         id: 3,
@@ -22,6 +24,7 @@ const queueData = [
         age: "2 tahun 8 bulan",
         visitDate: "16 April 2026",
         referenceCode: "RPG9976317",
+        status: "absent",
     },
     {
         id: 4,
@@ -30,13 +33,20 @@ const queueData = [
         age: "4 tahun 1 bulan",
         visitDate: "16 April 2026",
         referenceCode: "RPG9976318",
+        status: "waiting",
     },
 ]
 
+const rowStyles = {
+    examining: "bg-blue-50",
+    absent: "bg-red-50",
+    waiting: "bg-white",
+}
+
 function ActionButton({ children, variant = "primary" }) {
     const variants = {
-        primary: "bg-blue-600 text-white hover:bg-blue-800",
-        secondary: "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
+        primary: "bg-blue-600 text-white hover:bg-blue-800 cursor-pointer",
+        secondary: "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 cursor-pointer",
     }
 
     return (
@@ -80,7 +90,7 @@ export default function AntrianKunjungan() {
                         </thead>
                         <tbody>
                             {queueData.map((item, index) => (
-                                <tr key={item.referenceCode} className="odd:bg-slate-50/60">
+                                <tr key={item.referenceCode} className={rowStyles[item.status] ?? rowStyles.waiting}>
                                     <td className="border-b border-slate-100 px-4 py-4 font-medium text-slate-900">
                                         {index + 1}
                                     </td>
@@ -103,14 +113,32 @@ export default function AntrianKunjungan() {
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4">
                                         <div className="flex flex-wrap gap-2">
-                                            <ActionButton variant="secondary">Detail</ActionButton>
                                             <ActionButton>Check-in</ActionButton>
+                                            <ActionButton variant="secondary">Tidak Hadir</ActionButton>
                                         </div>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+                </div>
+
+                <div className="mt-5 rounded-2xl bg-slate-50 px-4 py-4">
+                    <p className="text-sm font-semibold text-slate-700">Keterangan</p>
+                    <div className="mt-3 flex flex-col gap-3 text-sm text-slate-600 sm:flex-row sm:flex-wrap sm:gap-5">
+                        <div className="flex items-center gap-3">
+                            <span className="h-3 w-3 rounded-full bg-blue-500" />
+                            <span>Warna biru artinya Sedang Dalam Pemeriksaan</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <span className="h-3 w-3 rounded-full bg-red-500" />
+                            <span>Warna merah artinya Tidak Hadir</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <span className="h-3 w-3 rounded-full border border-slate-300 bg-white" />
+                            <span>Tanpa warna artinya Dalam Antrian</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
