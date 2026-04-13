@@ -17,6 +17,7 @@ import HasilReservasi from "./HasilReservasi.jsx"
 import AntrianKunjungan from "./AntrianKunjungan.jsx"
 import Profile from "./Profile.jsx"
 import Pemeriksaan from "./Pemeriksaan.jsx"
+import RencanaKunjunganUlang from "./RencanaKunjunganUlang.jsx"
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
@@ -36,6 +37,7 @@ createRoot(document.getElementById('root')).render(
                         <Route path='reservation/new' element={<ReservasiBaru/>}/>
                         <Route path='reservation/confirm' element={<HasilReservasi/>}/>
                         <Route path='pemeriksaan' element={<Pemeriksaan/>}/>
+                        <Route path='reservation/revisit' element={<RencanaKunjunganUlang/>}/>
                     </Route>
                 </Routes>
             </BrowserRouter>
