@@ -65,7 +65,9 @@ export default function AntrianKunjungan() {
             <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                        <h2 className="text-lg font-semibold text-slate-900">Antrian Kunjungan</h2>
+                        <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
+                            Antrian Kunjungan
+                        </h1>
                         <p className="text-sm text-slate-500">
                             Daftar pasien yang sudah memiliki rencana kunjungan.
                         </p>
