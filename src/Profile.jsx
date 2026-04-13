@@ -5,7 +5,7 @@ function resolveValue(...values) {
     return validValue ?? "-"
 }
 
-function InfoRow({ label, value }) {
+function InfoRow({label, value}) {
     return (
         <div className="grid gap-1 sm:grid-cols-[140px_1fr] sm:gap-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">{label}</p>
@@ -27,18 +27,24 @@ export default function Profile() {
     }
 
     return (
-        <section className="mx-auto rounded-xl bg-white px-6 py-7 sm:px-8 sm:py-9">
-            <div className="border-b border-slate-200 pb-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-sky-500">About</p>
-                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">{profile.nama}</h2>
-            </div>
+        <section>
+            <div className="flex flex-col items-center px-6 mx-auto md:h-screen lg:py-0">
+                <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
+                    <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
+                        <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
+                            About
+                        </h1>
 
-            <div className="mt-6 space-y-5">
-                <InfoRow label="Nama" value={profile.nama} />
-                <InfoRow label="Usia" value={profile.usia} />
-                <InfoRow label="Jenis Kelamin" value={profile.jenisKelamin} />
-                <InfoRow label="Golongan Darah" value={profile.golonganDarah} />
-                <InfoRow label="Alamat" value={profile.alamat} />
+
+                        <div className="mt-6 space-y-5">
+                            <InfoRow label="Nama" value={profile.nama}/>
+                            <InfoRow label="Usia" value={profile.usia}/>
+                            <InfoRow label="Jenis Kelamin" value={profile.jenisKelamin}/>
+                            <InfoRow label="Golongan Darah" value={profile.golonganDarah}/>
+                            <InfoRow label="Alamat" value={profile.alamat}/>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
     )
