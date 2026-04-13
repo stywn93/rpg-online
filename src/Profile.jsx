@@ -8,7 +8,7 @@ function resolveValue(...values) {
 function InfoRow({label, value}) {
     return (
         <div className="grid gap-1 sm:grid-cols-[140px_1fr] sm:gap-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">{label}</p>
+            <p className="text-xs font-semibold tracking-[0.22em] text-slate-400">{label}</p>
             <p className="text-sm leading-6 text-slate-700">{value}</p>
         </div>
     )
@@ -32,7 +32,7 @@ export default function Profile() {
                 <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
                     <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                         <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
-                            About
+                            Data Pribadi
                         </h1>
 
 
