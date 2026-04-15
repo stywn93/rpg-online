@@ -33,7 +33,7 @@ export default function RiwayatAnamnesa() {
 
                     </div>
                     <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700">
-                        Total {queueData.length} pasien
+                        Total {queueData.length} pemeriksaan
                     </div>
                 </div>
 
