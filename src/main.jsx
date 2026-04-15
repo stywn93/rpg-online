@@ -29,17 +29,22 @@ createRoot(document.getElementById('root')).render(
                 <Routes>
                     <Route path='/login' element={<Login/>}/>
                     <Route path='/register' element={<Register/>}/>
-                    <Route path='/' element={<Dashboard/>}>
+                    <Route path='/'>
+                        <Route index element={<Dashboard/>}/>
                         <Route path='table' element={<Table/>}/>
-                        <Route path='reservation' element={<AntrianKunjungan/>}/>
+                        <Route path='reservation'>
+                            <Route index element={<AntrianKunjungan/>} />
+                            <Route path='new' element={<ReservasiBaru/>}/>
+                            <Route path='confirm' element={<HasilReservasi/>}/>
+                            <Route path='revisit' element={<RencanaKunjunganUlang/>}/>
+                        </Route>
                         <Route path='schedules' element={<Jadwal/>}/>
                         <Route path='patients' element={<Pasien/>}/>
                         <Route path='users' element={<Pengguna/>}/>
                         <Route path='profile' element={<Profile/>}/>
-                        <Route path='reservation/new' element={<ReservasiBaru/>}/>
-                        <Route path='reservation/confirm' element={<HasilReservasi/>}/>
+
                         <Route path='pemeriksaan' element={<Pemeriksaan/>}/>
-                        <Route path='reservation/revisit' element={<RencanaKunjunganUlang/>}/>
+
                         <Route path='riwayat-anamnesa' element={<RiwayatAnamnesa/>}/>
                         <Route path='pendaftaran' element={<Pendaftaran/>} />
                     </Route>

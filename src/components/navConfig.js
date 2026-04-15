@@ -25,7 +25,7 @@ import {
 export const NAV_ITEMS = [
     // ── Grup Utama ──
     // {key: "dashboard", label: "Dasboard", icon: LayoutGrid, section: "Utama", link: "/"},
-    {key: "reservations", label: "Reservasi", icon: CalendarDays, badge: 4, section: "Utama", link: "/reservation"},
+    {key: "reservation", label: "Kunjungan", icon: CalendarDays, section: "Utama", link: "/reservation"},
     {key: "schedules", label: "Jadwal", icon: CalendarPlus, section: null, link: "/schedules"},
     {key: "sampleTable", label: "Sample Table", icon: Sheet, section: null, link: "/table"},
 
