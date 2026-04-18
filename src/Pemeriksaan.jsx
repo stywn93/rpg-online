@@ -51,25 +51,14 @@ export default function Pemeriksaan() {
         })
     }
 
-    return (<section>
-        <div className="flex flex-col items-center px-6 mx-auto md:h-screen lg:py-0">
+    return (<section className="w-full">
+        <div className="mx-auto w-full">
             <div
-                className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
+                className="w-full rounded-lg bg-white shadow xl:p-0">
                 <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                     <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
                         Pemeriksaan Pasien
                     </h1>
-                    {state?.patientName && (
-                        <div className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-slate-700">
-                            <p className="font-semibold text-slate-900">{state.patientName}</p>
-                            <p className="mt-1">
-                                {state.gender} • {state.age} • {state.visitDate}
-                            </p>
-                            <p className="mt-1 text-xs tracking-[0.08em] text-slate-500">
-                                {state.referenceCode}
-                            </p>
-                        </div>
-                    )}
                     <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit(onSubmit)}>
                         <div>
                             <label htmlFor="height"

@@ -27,9 +27,9 @@ export default function Profile() {
     }
 
     return (
-        <section>
-            <div className="flex flex-col items-center px-6 mx-auto md:h-screen lg:py-0">
-                <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
+        <section className="w-full">
+            <div className="mx-auto w-full">
+                <div className="w-full rounded-lg bg-white shadow xl:p-0">
                     <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                         <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
                             Data Pribadi
