@@ -78,9 +78,19 @@ export default function AntrianKunjungan() {
         )
     }
 
+    const handleAbsent = (referenceCode) => {
+        setQueueData((currentQueue) =>
+            currentQueue.map((item) =>
+                item.referenceCode === referenceCode
+                    ? { ...item, status: "absent" }
+                    : item
+            )
+        )
+    }
+
     const handlePrimaryAction = (item) => {
         if (item.status === "examining") {
-            navigate("/service/assesment", {
+            navigate("/reservation/assesment", {
                 state: {
                     patientName: item.patientName,
                     gender: item.gender,
@@ -150,14 +160,21 @@ export default function AntrianKunjungan() {
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4">
                                         <div className="flex flex-wrap gap-2">
-                                            <ActionButton
-                                                variant={item.status === "examining" ? "accent" : "primary"}
-                                                onClick={() => handlePrimaryAction(item)}
-                                            >
-                                                {item.status === "examining" ? "Melayani" : "Check-in"}
-                                            </ActionButton>
-                                            {item.status !== "examining" && (
-                                                <ActionButton variant="secondary">Tidak Hadir</ActionButton>
+                                            {item.status !== "absent" && (
+                                                <ActionButton
+                                                    variant={item.status === "examining" ? "accent" : "primary"}
+                                                    onClick={() => handlePrimaryAction(item)}
+                                                >
+                                                    {item.status === "examining" ? "Melayani" : "Check-in"}
+                                                </ActionButton>
+                                            )}
+                                            {item.status !== "examining" && item.status !== "absent" && (
+                                                <ActionButton
+                                                    variant="secondary"
+                                                    onClick={() => handleAbsent(item.referenceCode)}
+                                                >
+                                                    Tidak Hadir
+                                                </ActionButton>
                                             )}
                                         </div>
                                     </td>

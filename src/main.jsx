@@ -37,6 +37,7 @@ createRoot(document.getElementById('root')).render(
                             <Route path='new' element={<ReservasiBaru/>}/>
                             <Route path='confirm' element={<HasilReservasi/>}/>
                             <Route path='revisit' element={<RencanaKunjunganUlang/>}/>
+                            <Route path="assesment" element={<Pemeriksaan/>}/>
                         </Route>
                         <Route path={"patients"}>
                             <Route index element={<Pasien/>}/>
@@ -46,7 +47,7 @@ createRoot(document.getElementById('root')).render(
                         </Route>
                         <Route path={"service"}>
                             <Route index element={<Jadwal/>}/>
-                            <Route path="assesment" element={<Pemeriksaan/>}/>
+
                         </Route>
                         <Route path='users' element={<Pengguna/>}/>
                         <Route path='profile' element={<Profile/>}/>
