@@ -1,4 +1,4 @@
-import {Link, useNavigate} from "react-router"
+import {Link, useLocation, useNavigate} from "react-router"
 import {useLocalStorage} from "react-use"
 import {Controller, useForm} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast'
@@ -30,6 +30,7 @@ export default function Pemeriksaan() {
     })
 
     const navigate = useNavigate()
+    const { state } = useLocation()
     const [token, _] = useLocalStorage("token", "")
     const [isLoading, setIsLoading] = useState(false)
     const [serviceOptions, setServiceOptions] = useState([])
@@ -58,6 +59,17 @@ export default function Pemeriksaan() {
                     <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
                         Pemeriksaan Pasien
                     </h1>
+                    {state?.patientName && (
+                        <div className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-slate-700">
+                            <p className="font-semibold text-slate-900">{state.patientName}</p>
+                            <p className="mt-1">
+                                {state.gender} • {state.age} • {state.visitDate}
+                            </p>
+                            <p className="mt-1 text-xs tracking-[0.08em] text-slate-500">
+                                {state.referenceCode}
+                            </p>
+                        </div>
+                    )}
                     <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit(onSubmit)}>
                         <div>
                             <label htmlFor="height"
@@ -150,6 +162,10 @@ export default function Pemeriksaan() {
 
                         <button type="submit" disabled={isLoading}
                                 className="cursor-pointer w-full text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-50 disabled:cursor-not-allowed">{isLoading ? "Memproses..." : "Simpan"}
+                        </button>
+
+                        <button type="button" onClick={() => navigate(-1)}
+                                className="cursor-pointer w-full text-white bg-rose-600 hover:bg-rose-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-50 disabled:cursor-not-allowed">Kembali
                         </button>
 
                     </form>

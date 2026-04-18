@@ -20,6 +20,7 @@ import RencanaKunjunganUlang from "./RencanaKunjunganUlang.jsx"
 import RiwayatAnamnesa from "./RiwayatAnamnesa.jsx";
 import Pendaftaran from "./Pendaftaran.jsx"
 import DetailPasien from "./DetailPasien.jsx"
+import UbahPasien from "./UbahPasien.jsx"
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
@@ -41,6 +42,7 @@ createRoot(document.getElementById('root')).render(
                             <Route index element={<Pasien/>}/>
                             <Route path={"registration"} element={<Pendaftaran/>}></Route>
                             <Route path={":patientId"} element={<DetailPasien/>}/>
+                            <Route path={":patientId/edit"} element={<UbahPasien/>}/>
                         </Route>
                         <Route path={"service"}>
                             <Route index element={<Jadwal/>}/>

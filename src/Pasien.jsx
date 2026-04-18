@@ -1,47 +1,5 @@
 import { Link } from "react-router-dom"
-
-const patientData = [
-    {
-        id: "PSN-0001",
-        name: "Budi Santoso",
-        birthDate: "12 Januari 2021",
-        age: "5 tahun",
-        birthPlace: "Situbondo",
-        parentName: "Andi Santoso",
-        bloodType: "O",
-        address: "Jl. Melati No. 8, Situbondo",
-    },
-    {
-        id: "PSN-0002",
-        name: "Nabila Putri",
-        birthDate: "23 Maret 2020",
-        age: "6 tahun",
-        birthPlace: "Bondowoso",
-        parentName: "Rina Wulandari",
-        bloodType: "A",
-        address: "Jl. Kenanga No. 14, Bondowoso",
-    },
-    {
-        id: "PSN-0003",
-        name: "Raka Pratama",
-        birthDate: "8 Juli 2022",
-        age: "3 tahun 9 bulan",
-        birthPlace: "Jember",
-        parentName: "Dedi Pratama",
-        bloodType: "B",
-        address: "Perum Griya Asri Blok C2, Jember",
-    },
-    {
-        id: "PSN-0004",
-        name: "Citra Maharani",
-        birthDate: "30 November 2019",
-        age: "6 tahun 4 bulan",
-        birthPlace: "Banyuwangi",
-        parentName: "Siska Maharani",
-        bloodType: "AB",
-        address: "Dusun Krajan RT 03 RW 01, Banyuwangi",
-    },
-]
+import { patientData } from "./data/patients.js"
 
 function ActionButton({ children, variant = "primary", to }) {
     const variants = {
@@ -135,7 +93,7 @@ export default function Pasien() {
                                     <td className="border-b border-slate-100 px-4 py-4">
                                         <div className="flex flex-wrap gap-2">
                                             <ActionButton to={`/patients/${patient.id}`}>Detail</ActionButton>
-                                            <ActionButton variant="secondary">Ubah</ActionButton>
+                                            <ActionButton variant="secondary" to={`/patients/${patient.id}/edit`}>Ubah</ActionButton>
                                         </div>
                                     </td>
                                 </tr>

@@ -1,4 +1,7 @@
-const queueData = [
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+
+const initialQueueData = [
     {
         id: 1,
         patientName: "Budi Santoso",
@@ -43,15 +46,17 @@ const rowStyles = {
     waiting: "bg-white",
 }
 
-function ActionButton({ children, variant = "primary" }) {
+function ActionButton({ children, variant = "primary", onClick }) {
     const variants = {
         primary: "bg-blue-600 text-white hover:bg-blue-800 cursor-pointer",
+        accent: "bg-fuchsia-600 text-white hover:bg-fuchsia-800 cursor-pointer",
         secondary: "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 cursor-pointer",
     }
 
     return (
         <button
             type="button"
+            onClick={onClick}
             className={`inline-flex items-center justify-center rounded-lg px-3 py-2 text-xs font-medium transition ${variants[variant]}`}
         >
             {children}
@@ -60,6 +65,36 @@ function ActionButton({ children, variant = "primary" }) {
 }
 
 export default function AntrianKunjungan() {
+    const navigate = useNavigate()
+    const [queueData, setQueueData] = useState(initialQueueData)
+
+    const handleCheckIn = (referenceCode) => {
+        setQueueData((currentQueue) =>
+            currentQueue.map((item) =>
+                item.referenceCode === referenceCode
+                    ? { ...item, status: "examining" }
+                    : item
+            )
+        )
+    }
+
+    const handlePrimaryAction = (item) => {
+        if (item.status === "examining") {
+            navigate("/service/assesment", {
+                state: {
+                    patientName: item.patientName,
+                    gender: item.gender,
+                    age: item.age,
+                    visitDate: item.visitDate,
+                    referenceCode: item.referenceCode,
+                },
+            })
+            return
+        }
+
+        handleCheckIn(item.referenceCode)
+    }
+
     return (
         <section className="space-y-5">
             <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -115,8 +150,15 @@ export default function AntrianKunjungan() {
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4">
                                         <div className="flex flex-wrap gap-2">
-                                            <ActionButton>Check-in</ActionButton>
-                                            <ActionButton variant="secondary">Tidak Hadir</ActionButton>
+                                            <ActionButton
+                                                variant={item.status === "examining" ? "accent" : "primary"}
+                                                onClick={() => handlePrimaryAction(item)}
+                                            >
+                                                {item.status === "examining" ? "Melayani" : "Check-in"}
+                                            </ActionButton>
+                                            {item.status !== "examining" && (
+                                                <ActionButton variant="secondary">Tidak Hadir</ActionButton>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>
