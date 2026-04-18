@@ -9,7 +9,6 @@ import Reservasi from "./Reservasi.jsx"
 import Jadwal from "./Jadwal.jsx"
 import Pasien from "./Pasien.jsx"
 import Pengguna from "./Pengguna.jsx"
-import Table from "./Table.jsx"
 import ReservasiBaru from "./ReservasiBaru.jsx"
 import {Toaster} from "react-hot-toast"
 import AuthProvider from "./AuthProvider.jsx"
@@ -20,6 +19,7 @@ import Pemeriksaan from "./Pemeriksaan.jsx"
 import RencanaKunjunganUlang from "./RencanaKunjunganUlang.jsx"
 import RiwayatAnamnesa from "./RiwayatAnamnesa.jsx";
 import Pendaftaran from "./Pendaftaran.jsx"
+import DetailPasien from "./DetailPasien.jsx"
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
@@ -29,24 +29,28 @@ createRoot(document.getElementById('root')).render(
                 <Routes>
                     <Route path='/login' element={<Login/>}/>
                     <Route path='/register' element={<Register/>}/>
-                    <Route path='/'>
-                        <Route index element={<Dashboard/>}/>
-                        <Route path='table' element={<Table/>}/>
+                    <Route path='/' element={<Dashboard/>}>
+
                         <Route path='reservation'>
-                            <Route index element={<AntrianKunjungan/>} />
+                            <Route index element={<AntrianKunjungan/>}/>
                             <Route path='new' element={<ReservasiBaru/>}/>
                             <Route path='confirm' element={<HasilReservasi/>}/>
                             <Route path='revisit' element={<RencanaKunjunganUlang/>}/>
                         </Route>
-                        <Route path='schedules' element={<Jadwal/>}/>
-                        <Route path='patients' element={<Pasien/>}/>
+                        <Route path={"patients"}>
+                            <Route index element={<Pasien/>}/>
+                            <Route path={"registration"} element={<Pendaftaran/>}></Route>
+                            <Route path={":patientId"} element={<DetailPasien/>}/>
+                        </Route>
+                        <Route path={"service"}>
+                            <Route index element={<Jadwal/>}/>
+                            <Route path="assesment" element={<Pemeriksaan/>}/>
+                        </Route>
                         <Route path='users' element={<Pengguna/>}/>
                         <Route path='profile' element={<Profile/>}/>
 
-                        <Route path='pemeriksaan' element={<Pemeriksaan/>}/>
-
                         <Route path='riwayat-anamnesa' element={<RiwayatAnamnesa/>}/>
-                        <Route path='pendaftaran' element={<Pendaftaran/>} />
+
                     </Route>
                 </Routes>
             </BrowserRouter>

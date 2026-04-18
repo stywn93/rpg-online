@@ -26,11 +26,13 @@ export const NAV_ITEMS = [
     // ── Grup Utama ──
     // {key: "dashboard", label: "Dasboard", icon: LayoutGrid, section: "Utama", link: "/"},
     {key: "reservation", label: "Kunjungan", icon: CalendarDays, section: "Utama", link: "/reservation"},
+    // ── Grup Master Data ──
+    {key: "patients", label: "Pasien", icon: UserRound, section: "Master", link: "/patients"},
+    {key: "service", label: "Pelayanan", icon: Sheet, section: "On Progress", link: "/service"},
     {key: "schedules", label: "Jadwal", icon: CalendarPlus, section: null, link: "/schedules"},
     {key: "sampleTable", label: "Sample Table", icon: Sheet, section: null, link: "/table"},
 
-    // ── Grup Master Data ──
-    {key: "patients", label: "Pasien", icon: UserRound, section: "Master", link: "/patients"},
+
     {key: "users", label: "Pengguna", icon: UserRoundCog, link: "/users"},
 
     // ── Grup Laporan ──

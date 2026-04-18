@@ -1,7 +1,22 @@
-import { Bell, Plus, MoreVertical } from "lucide-react";
-import {Link} from "react-router-dom";
+import { Bell, Plus } from "lucide-react";
+import {Link, useLocation} from "react-router-dom";
 
 export default function Topbar({ title, onNewReservation }) {
+    const { pathname } = useLocation()
+    const normalizedPath = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname
+
+    const actionConfig = normalizedPath.startsWith("/reservation")
+        ? {
+            to: "/reservation/new",
+            label: "Buat Rencana Kunjungan",
+        }
+        : normalizedPath.startsWith("/patients")
+            ? {
+                to: "/patients/registration",
+                label: "Buat Pasien Baru",
+            }
+            : null
+
     return (
         <div className="flex items-center justify-between gap-3 px-5 py-4 bg-white border-b border-black/[0.08]">
             <h1 className="text-base font-semibold text-gray-900 tracking-tight">{title}</h1>
@@ -12,13 +27,16 @@ export default function Topbar({ title, onNewReservation }) {
                 >
                     <Bell size={15} strokeWidth={2} />
                 </button>
-                <Link to={"reservation/new"}
-                    onClick={onNewReservation}
-                    className="h-[34px] px-3.5 rounded-lg bg-blue-600 text-white text-[13px] font-medium flex items-center gap-1.5 hover:bg-blue-800 transition-colors whitespace-nowrap"
-                >
-                    <Plus size={13} strokeWidth={2.5} />
-                    Buat Rencana Kunjungan
-                </Link>
+                {actionConfig && (
+                    <Link
+                        to={actionConfig.to}
+                        onClick={onNewReservation}
+                        className="h-[34px] px-3.5 rounded-lg bg-blue-600 text-white text-[13px] font-medium flex items-center gap-1.5 hover:bg-blue-800 transition-colors whitespace-nowrap"
+                    >
+                        <Plus size={13} strokeWidth={2.5} />
+                        {actionConfig.label}
+                    </Link>
+                )}
             </div>
         </div>
     );
