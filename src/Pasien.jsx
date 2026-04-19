@@ -67,8 +67,8 @@ export default function Pasien() {
                 </div>
 
                 <div className="mt-5 flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div className="w-full space-y-1 sm:max-w-md">
-                        <label htmlFor="patient-search" className="text-sm font-medium text-slate-700">
+                    <div className="space-y-1">
+                        <label htmlFor="patient-search" className="text-sm font-medium text-slate-700 mr-3">
                             Cari pasien
                         </label>
                         <input
@@ -77,7 +77,7 @@ export default function Pasien() {
                             value={searchTerm}
                             onChange={(event) => setSearchTerm(event.target.value)}
                             placeholder="Cari nama pasien, ID, orang tua, atau alamat"
-                            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none"
+                            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none sm:w-56"
                         />
                     </div>
                 </div>

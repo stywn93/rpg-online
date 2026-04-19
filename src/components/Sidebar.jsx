@@ -1,8 +1,9 @@
-import {CalendarFold} from "lucide-react"
-import {MoreVertical} from "lucide-react"
+import {useEffect, useRef, useState} from "react"
+import {LogOut, MoreVertical} from "lucide-react"
 import {CalendarDays} from 'lucide-react'
 import {NAV_ITEMS} from "./navConfig"
-import {Link} from "react-router-dom"
+import {Link, useNavigate} from "react-router-dom"
+import useAuth from "../UseAuth.js"
 
 
 function getInitials(name) {
@@ -23,6 +24,10 @@ function cn(...classes) {
 }
 
 export default function Sidebar({activeKey, onNavigate, user}) {
+    const navigate = useNavigate()
+    const { logout } = useAuth()
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+    const userMenuRef = useRef(null)
     const resolvedUser = {
         name: user?.name ?? "Guest User",
         role: user?.role ?? user?.email ?? "Belum login",
@@ -40,6 +45,26 @@ export default function Sidebar({activeKey, onNavigate, user}) {
             current.items.push(item);
         }
     });
+
+    const handleLogout = () => {
+        setIsUserMenuOpen(false)
+        logout()
+        navigate("/login", { replace: true })
+    }
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (!userMenuRef.current?.contains(event.target)) {
+                setIsUserMenuOpen(false)
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside)
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside)
+        }
+    }, [])
 
     return (
         <aside className="hidden md:flex w-60 shrink-0 flex-col bg-white border-r border-black/[0.08]">
@@ -103,8 +128,10 @@ export default function Sidebar({activeKey, onNavigate, user}) {
             </nav>
 
             {/* Footer: user profile */}
-            <div className="border-t border-black/[0.08] p-2.5">
+            <div ref={userMenuRef} className="relative border-t border-black/[0.08] p-2.5">
                 <button
+                    type="button"
+                    onClick={() => setIsUserMenuOpen((current) => !current)}
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors duration-150">
                     <div
                         className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-xs font-medium text-blue-600 shrink-0">
@@ -116,6 +143,18 @@ export default function Sidebar({activeKey, onNavigate, user}) {
                     </div>
                     <MoreVertical size={14} className="text-gray-300 shrink-0"/>
                 </button>
+                {isUserMenuOpen && (
+                    <div className="absolute bottom-[calc(100%-0.25rem)] left-2.5 right-2.5 rounded-lg border border-slate-200 bg-white p-1 shadow-lg">
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-red-600 transition-colors duration-150 hover:bg-red-50"
+                        >
+                            <LogOut size={16} className="shrink-0" />
+                            <span>Logout</span>
+                        </button>
+                    </div>
+                )}
             </div>
         </aside>
     );

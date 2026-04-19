@@ -159,7 +159,7 @@ export default function AntrianKunjungan() {
 
                 <div className="mt-5 flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-end sm:justify-between">
                     <div className="space-y-1">
-                        <label htmlFor="visit-date-filter" className="text-sm font-medium text-slate-700">
+                        <label htmlFor="visit-date-filter" className="text-sm font-medium text-slate-700 mr-3">
                             Filter tanggal kunjungan
                         </label>
                         <input

@@ -17,6 +17,19 @@ const queueData = [
     },
 ]
 
+function StatusBadge({ value }) {
+    const isLowStatus = value.toLowerCase() === "kurang"
+
+    return (
+        <span
+            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold capitalize ${
+                isLowStatus ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-700"
+            }`}
+        >
+            {value}
+        </span>
+    )
+}
 
 export default function RiwayatAnamnesa() {
     return (
@@ -63,10 +76,10 @@ export default function RiwayatAnamnesa() {
                                         {item.weight}
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                        {item.gizi}
+                                        <StatusBadge value={item.gizi} />
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                        {item.ku}
+                                        <StatusBadge value={item.ku} />
                                     </td>
 
 
