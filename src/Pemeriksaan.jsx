@@ -22,7 +22,12 @@ const formatSingleDecimalInput = (value) => {
 
 export default function Pemeriksaan() {
     const {
-        register, control, handleSubmit, setValue, formState: {errors},
+        register,
+        control,
+        handleSubmit,
+        setValue,
+        formState: {errors},
+        setFocus
     } = useForm({
         defaultValues: {
             visitDate: new Date(), services: "", height: "", weight: ""
@@ -50,6 +55,11 @@ export default function Pemeriksaan() {
             shouldDirty: true, shouldTouch: true, shouldValidate: true
         })
     }
+
+    useEffect(() => {
+        setFocus("height")
+    }, [setFocus])
+
 
     return (<section className="w-full">
         <div className="mx-auto w-full">

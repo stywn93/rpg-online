@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 const initialQueueData = [
@@ -46,6 +46,32 @@ const rowStyles = {
     waiting: "bg-white",
 }
 
+const monthMap = {
+    januari: "01",
+    februari: "02",
+    maret: "03",
+    april: "04",
+    mei: "05",
+    juni: "06",
+    juli: "07",
+    agustus: "08",
+    september: "09",
+    oktober: "10",
+    november: "11",
+    desember: "12",
+}
+
+function normalizeVisitDate(value) {
+    const [day, monthName, year] = value.split(" ")
+    const month = monthMap[monthName?.toLowerCase()]
+
+    if (!day || !month || !year) {
+        return ""
+    }
+
+    return `${year}-${month}-${day.padStart(2, "0")}`
+}
+
 function ActionButton({ children, variant = "primary", onClick }) {
     const variants = {
         primary: "bg-blue-600 text-white hover:bg-blue-800 cursor-pointer",
@@ -67,6 +93,15 @@ function ActionButton({ children, variant = "primary", onClick }) {
 export default function AntrianKunjungan() {
     const navigate = useNavigate()
     const [queueData, setQueueData] = useState(initialQueueData)
+    const [selectedDate, setSelectedDate] = useState("")
+
+    const filteredQueueData = useMemo(() => {
+        if (!selectedDate) {
+            return queueData
+        }
+
+        return queueData.filter((item) => normalizeVisitDate(item.visitDate) === selectedDate)
+    }, [queueData, selectedDate])
 
     const handleCheckIn = (referenceCode) => {
         setQueueData((currentQueue) =>
@@ -118,8 +153,31 @@ export default function AntrianKunjungan() {
                         </p>
                     </div>
                     <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700">
-                        Total {queueData.length} pasien
+                        Total {filteredQueueData.length} pasien
                     </div>
+                </div>
+
+                <div className="mt-5 flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="space-y-1">
+                        <label htmlFor="visit-date-filter" className="text-sm font-medium text-slate-700">
+                            Filter tanggal kunjungan
+                        </label>
+                        <input
+                            id="visit-date-filter"
+                            type="date"
+                            value={selectedDate}
+                            onChange={(event) => setSelectedDate(event.target.value)}
+                            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none sm:w-56"
+                        />
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setSelectedDate("")}
+                        disabled={!selectedDate}
+                        className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        Reset filter
+                    </button>
                 </div>
 
                 <div className="mt-5 overflow-x-auto">
@@ -136,7 +194,7 @@ export default function AntrianKunjungan() {
                             </tr>
                         </thead>
                         <tbody>
-                            {queueData.map((item, index) => (
+                            {filteredQueueData.map((item, index) => (
                                 <tr key={item.referenceCode} className={rowStyles[item.status] ?? rowStyles.waiting}>
                                     <td className="border-b border-slate-100 px-4 py-4 font-medium text-slate-900">
                                         {index + 1}
@@ -180,6 +238,13 @@ export default function AntrianKunjungan() {
                                     </td>
                                 </tr>
                             ))}
+                            {filteredQueueData.length === 0 && (
+                                <tr>
+                                    <td colSpan={7} className="px-4 py-6 text-center text-sm text-slate-500">
+                                        Tidak ada data kunjungan pada tanggal yang dipilih.
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>

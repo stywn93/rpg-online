@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { patientData } from "./data/patients.js"
 
@@ -29,6 +30,25 @@ function ActionButton({ children, variant = "primary", to }) {
 }
 
 export default function Pasien() {
+    const [searchTerm, setSearchTerm] = useState("")
+
+    const filteredPatients = useMemo(() => {
+        const keyword = searchTerm.trim().toLowerCase()
+
+        if (!keyword) {
+            return patientData
+        }
+
+        return patientData.filter((patient) =>
+            [
+                patient.id,
+                patient.name,
+                patient.parentName,
+                patient.address,
+            ].some((value) => value.toLowerCase().includes(keyword))
+        )
+    }, [searchTerm])
+
     return (
         <section className="space-y-5">
             <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -42,7 +62,23 @@ export default function Pasien() {
                         </p>
                     </div>
                     <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700">
-                        Total {patientData.length} pasien
+                        Total {filteredPatients.length} pasien
+                    </div>
+                </div>
+
+                <div className="mt-5 flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="w-full space-y-1 sm:max-w-md">
+                        <label htmlFor="patient-search" className="text-sm font-medium text-slate-700">
+                            Cari pasien
+                        </label>
+                        <input
+                            id="patient-search"
+                            type="search"
+                            value={searchTerm}
+                            onChange={(event) => setSearchTerm(event.target.value)}
+                            placeholder="Cari nama pasien, ID, orang tua, atau alamat"
+                            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none"
+                        />
                     </div>
                 </div>
 
@@ -62,7 +98,7 @@ export default function Pasien() {
                             </tr>
                         </thead>
                         <tbody>
-                            {patientData.map((patient) => (
+                            {filteredPatients.map((patient) => (
                                 <tr key={patient.id} className="bg-white">
                                     <td className="border-b border-slate-100 px-4 py-4">
                                         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-slate-700">
@@ -98,6 +134,13 @@ export default function Pasien() {
                                     </td>
                                 </tr>
                             ))}
+                            {filteredPatients.length === 0 && (
+                                <tr>
+                                    <td colSpan={9} className="px-4 py-6 text-center text-sm text-slate-500">
+                                        Pasien tidak ditemukan.
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
