@@ -58,7 +58,7 @@ export default function Login() {
                 login(user, token)
                 toast.success("Berhasil Login", {id: toastId})
                 await sleep(500)
-                navigate("/", {replace: true})
+                navigate("/reservation", {replace: true})
             } else {
                 toast.error(responseBody.messages.error, {id: toastId})
             }

@@ -128,11 +128,11 @@ export default function Sidebar({activeKey, onNavigate, user}) {
             </nav>
 
             {/* Footer: user profile */}
-            <div ref={userMenuRef} className="relative border-t border-black/[0.08] p-2.5">
+            <div ref={userMenuRef} className="cursor-pointer relative border-t border-black/[0.08] p-2.5">
                 <button
                     type="button"
                     onClick={() => setIsUserMenuOpen((current) => !current)}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors duration-150">
+                    className="cursor-pointer w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors duration-150">
                     <div
                         className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-xs font-medium text-blue-600 shrink-0">
                         {resolvedUser.initials}
@@ -144,11 +144,11 @@ export default function Sidebar({activeKey, onNavigate, user}) {
                     <MoreVertical size={14} className="text-gray-300 shrink-0"/>
                 </button>
                 {isUserMenuOpen && (
-                    <div className="absolute bottom-[calc(100%-0.25rem)] left-2.5 right-2.5 rounded-lg border border-slate-200 bg-white p-1 shadow-lg">
+                    <div className="cursor-pointer absolute bottom-[calc(100%-0.25rem)] left-2.5 right-2.5 rounded-lg border border-slate-200 bg-white p-1 shadow-lg">
                         <button
                             type="button"
                             onClick={handleLogout}
-                            className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-red-600 transition-colors duration-150 hover:bg-red-50"
+                            className="cursor-pointer flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-red-600 transition-colors duration-150 hover:bg-red-50"
                         >
                             <LogOut size={16} className="shrink-0" />
                             <span>Logout</span>
