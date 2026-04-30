@@ -1,5 +1,7 @@
+import { apiBaseUrl } from "./baseUrl"
+
 export const userRegister = async ({name, email, phone, password}) => {
-    return await fetch(`${import.meta.env.VITE_API_PATH}/auth/register`, {
+    return await fetch(`${apiBaseUrl}/auth/register`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -12,7 +14,7 @@ export const userRegister = async ({name, email, phone, password}) => {
 }
 
 export const userLogin = async ({email, password}) => {
-    return await fetch(`${import.meta.env.VITE_API_PATH}/auth/login`, {
+    return await fetch(`${apiBaseUrl}/auth/login`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -25,7 +27,7 @@ export const userLogin = async ({email, password}) => {
 }
 
 export const userUpdateProfile = async (token, {name}) => {
-    return await fetch(`${import.meta.env.VITE_API_PATH}/users/current`, {
+    return await fetch(`${apiBaseUrl}/users/current`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -39,7 +41,7 @@ export const userUpdateProfile = async (token, {name}) => {
 }
 
 export const userUpdatePassword = async (token, {pass}) => {
-    return await fetch(`${import.meta.env.VITE_API_PATH}/users/current`, {
+    return await fetch(`${apiBaseUrl}/users/current`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -53,7 +55,7 @@ export const userUpdatePassword = async (token, {pass}) => {
 }
 
 export const userDetail = async (token) => {
-    return await fetch(`${import.meta.env.VITE_API_PATH}/users/current`, {
+    return await fetch(`${apiBaseUrl}/users/current`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -63,7 +65,7 @@ export const userDetail = async (token) => {
 }
 
 export const userLogout = async (token) => {
-    return await fetch(`${import.meta.env.VITE_API_PATH}/users/logout`, {
+    return await fetch(`${apiBaseUrl}/users/logout`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',

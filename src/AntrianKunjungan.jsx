@@ -1,5 +1,7 @@
-import { useMemo, useState } from "react"
+import {useEffect, useMemo, useState} from "react"
 import { useNavigate } from "react-router-dom"
+import {queueList} from "./lib/api/Queue.js"
+import {useLocalStorage} from "react-use"
 
 const initialQueueData = [
     {
@@ -91,6 +93,7 @@ function ActionButton({ children, variant = "primary", onClick }) {
 }
 
 export default function AntrianKunjungan() {
+    const [token, _] = useLocalStorage("token", "");
     const navigate = useNavigate()
     const [queueData, setQueueData] = useState(initialQueueData)
     const [selectedDate, setSelectedDate] = useState("")
@@ -102,6 +105,20 @@ export default function AntrianKunjungan() {
 
         return queueData.filter((item) => normalizeVisitDate(item.visitDate) === selectedDate)
     }, [queueData, selectedDate])
+
+    async function fetchQueue() {
+        const response = await queueList(token);
+        const responseBody = await response.json();
+        console.log(responseBody);
+
+        if (response.status === 200) {
+            // setContacts(responseBody.data);
+            // setTotalPage(responseBody.paging.total_page);
+            console.log("berhasil");
+        } else {
+            // await alertError(responseBody.errors);
+        }
+    }
 
     const handleCheckIn = (referenceCode) => {
         setQueueData((currentQueue) =>
@@ -139,6 +156,9 @@ export default function AntrianKunjungan() {
 
         handleCheckIn(item.referenceCode)
     }
+    useEffect(() => {
+        fetchQueue().then(() => console.log("contacts fetched"));
+    }, )
 
     return (
         <section className="space-y-5">

@@ -1,5 +1,7 @@
+import { apiBaseUrl } from "./baseUrl"
+
 export const listService = async (token, { paging = 10 } = {}) => {
-    return await fetch(`${import.meta.env.VITE_API_PATH}/servicetypes?perpage=${paging}`, {
+    return await fetch(`${apiBaseUrl}/servicetypes?perpage=${paging}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
