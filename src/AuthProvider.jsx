@@ -22,7 +22,7 @@ export default function AuthProvider({ children }) {
     })
 
     const login = (userData, tokenValue) => {
-        console.log("login() received", {userData, tokenValue})
+        // console.log("login() received", {userData, tokenValue})
         setToken(tokenValue)
         setUser(userData)
         localStorage.setItem("user", JSON.stringify(userData))
@@ -31,7 +31,8 @@ export default function AuthProvider({ children }) {
     const logout = () => {
         removeToken()
         setUser(null)
-        localStorage.removeItem("user")
+        localStorage.clear()
+        window.location.replace("/login")
     }
 
     return (

@@ -1,46 +1,9 @@
-import {useEffect, useMemo, useState} from "react"
-import { useNavigate } from "react-router-dom"
+import {useEffect, useEffectEvent, useMemo, useState} from "react"
+import {useNavigate} from "react-router-dom"
 import {queueList} from "./lib/api/Queue.js"
 import {useLocalStorage} from "react-use"
+import useAuth from "./UseAuth.js"
 
-const initialQueueData = [
-    {
-        id: 1,
-        patientName: "Budi Santoso",
-        gender: "Laki-laki",
-        age: "3 tahun 10 bulan",
-        visitDate: "15 April 2026",
-        referenceCode: "RPG9976315",
-        status: "examining",
-    },
-    {
-        id: 2,
-        patientName: "Nabila Putri",
-        gender: "Perempuan",
-        age: "5 tahun 2 bulan",
-        visitDate: "15 April 2026",
-        referenceCode: "RPG9976316",
-        status: "waiting",
-    },
-    {
-        id: 3,
-        patientName: "Raka Pratama",
-        gender: "Laki-laki",
-        age: "2 tahun 8 bulan",
-        visitDate: "16 April 2026",
-        referenceCode: "RPG9976317",
-        status: "absent",
-    },
-    {
-        id: 4,
-        patientName: "Citra Maharani",
-        gender: "Perempuan",
-        age: "4 tahun 1 bulan",
-        visitDate: "16 April 2026",
-        referenceCode: "RPG9976318",
-        status: "waiting",
-    },
-]
 
 const rowStyles = {
     examining: "bg-blue-50",
@@ -74,7 +37,14 @@ function normalizeVisitDate(value) {
     return `${year}-${month}-${day.padStart(2, "0")}`
 }
 
-function ActionButton({ children, variant = "primary", onClick }) {
+function getTodayDate() {
+    const now = new Date()
+    const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+
+    return localDate.toISOString().split("T")[0]
+}
+
+function ActionButton({children, variant = "primary", onClick}) {
     const variants = {
         primary: "bg-blue-600 text-white hover:bg-blue-800 cursor-pointer",
         accent: "bg-fuchsia-600 text-white hover:bg-fuchsia-800 cursor-pointer",
@@ -95,53 +65,59 @@ function ActionButton({ children, variant = "primary", onClick }) {
 export default function AntrianKunjungan() {
     const [token, _] = useLocalStorage("token", "");
     const navigate = useNavigate()
-    const [queueData, setQueueData] = useState(initialQueueData)
-    const [selectedDate, setSelectedDate] = useState("")
 
-    const filteredQueueData = useMemo(() => {
-        if (!selectedDate) {
-            return queueData
+    const [selectedDate, setSelectedDate] = useLocalStorage("tanggalKunjungan", getTodayDate())
+    const [queues, setQueues] = useState([])
+    const [totalPage, setTotalPage] = useState(1);
+    const {logout} = useAuth()
+
+
+
+    const updateQueue = useEffectEvent(async function fetchQueue() {
+        //useEffectEvent adalah hooks yang diperkenalkan sejak react 19 untuk memastikan useEffect mendapatkan state terbaru
+        try {
+            const response = await queueList(token, selectedDate)
+            const responseBody = await response.json();
+            // console.log(responseBody)
+            // console.log(selectedDate)
+
+            if (response.status === 200) {
+                setQueues(responseBody.data)
+            }
+            if (response.status === 401) {
+                // console.log("tidak punya otoritas")
+                logout()
+            }
+        } catch (error) {
+            console.log(error)
         }
 
-        return queueData.filter((item) => normalizeVisitDate(item.visitDate) === selectedDate)
-    }, [queueData, selectedDate])
+    })
 
-    async function fetchQueue() {
-        const response = await queueList(token);
-        const responseBody = await response.json();
-        console.log(responseBody);
-
-        if (response.status === 200) {
-            // setContacts(responseBody.data);
-            // setTotalPage(responseBody.paging.total_page);
-            console.log("berhasil");
-        } else {
-            // await alertError(responseBody.errors);
-        }
-    }
-
-    const handleCheckIn = (referenceCode) => {
-        setQueueData((currentQueue) =>
+    const handleCheckIn = (id) => {
+        console.log(id)
+        setQueues((currentQueue) =>
             currentQueue.map((item) =>
-                item.referenceCode === referenceCode
-                    ? { ...item, status: "examining" }
+                item.id === id
+                    ? {...item, status: "checked_in"}
                     : item
             )
         )
     }
 
     const handleAbsent = (referenceCode) => {
-        setQueueData((currentQueue) =>
+        setQueues((currentQueue) =>
             currentQueue.map((item) =>
                 item.referenceCode === referenceCode
-                    ? { ...item, status: "absent" }
+                    ? {...item, status: "absent"}
                     : item
             )
         )
     }
 
     const handlePrimaryAction = (item) => {
-        if (item.status === "examining") {
+        console.log("clicked")
+        if (item.status === "checked_in") {
             navigate("/reservation/assesment", {
                 state: {
                     patientName: item.patientName,
@@ -154,11 +130,11 @@ export default function AntrianKunjungan() {
             return
         }
 
-        handleCheckIn(item.referenceCode)
+        handleCheckIn(item.id)
     }
     useEffect(() => {
-        fetchQueue().then(() => console.log("contacts fetched"));
-    }, )
+        updateQueue()
+    }, [token, selectedDate])
 
     return (
         <section className="space-y-5">
@@ -173,11 +149,12 @@ export default function AntrianKunjungan() {
                         </p>
                     </div>
                     <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700">
-                        Total {filteredQueueData.length} pasien
+                        Total {queues.length} pasien
                     </div>
                 </div>
 
-                <div className="mt-5 flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-end sm:justify-between">
+                <div
+                    className="mt-5 flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-end sm:justify-between">
                     <div className="space-y-1">
                         <label htmlFor="visit-date-filter" className="text-sm font-medium text-slate-700 mr-3">
                             Filter tanggal kunjungan
@@ -185,7 +162,7 @@ export default function AntrianKunjungan() {
                         <input
                             id="visit-date-filter"
                             type="date"
-                            value={selectedDate}
+                            value={selectedDate ?? ""}
                             onChange={(event) => setSelectedDate(event.target.value)}
                             className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none sm:w-56"
                         />
@@ -203,68 +180,70 @@ export default function AntrianKunjungan() {
                 <div className="mt-5 overflow-x-auto">
                     <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
                         <thead>
-                            <tr className="text-slate-500">
-                                <th className="border-b border-slate-200 px-4 py-3 font-medium">Nomor</th>
-                                <th className="border-b border-slate-200 px-4 py-3 font-medium">Nama Pasien</th>
-                                <th className="border-b border-slate-200 px-4 py-3 font-medium">Jenis Kelamin</th>
-                                <th className="border-b border-slate-200 px-4 py-3 font-medium">Usia</th>
-                                <th className="border-b border-slate-200 px-4 py-3 font-medium">Tanggal Kunjungan</th>
-                                <th className="border-b border-slate-200 px-4 py-3 font-medium">Kode Referensi</th>
-                                <th className="border-b border-slate-200 px-4 py-3 font-medium">Aksi</th>
-                            </tr>
+                        <tr className="text-slate-500">
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Nomor</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Nama Pasien</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Jenis Kelamin</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Usia</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Tanggal Kunjungan</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Kode Referensi</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Aksi</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            {filteredQueueData.map((item, index) => (
-                                <tr key={item.referenceCode} className={rowStyles[item.status] ?? rowStyles.waiting}>
-                                    <td className="border-b border-slate-100 px-4 py-4 font-medium text-slate-900">
-                                        {index + 1}
-                                    </td>
-                                    <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                        {item.patientName}
-                                    </td>
-                                    <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                        {item.gender}
-                                    </td>
-                                    <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                        {item.age}
-                                    </td>
-                                    <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                        {item.visitDate}
-                                    </td>
-                                    <td className="border-b border-slate-100 px-4 py-4">
-                                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-slate-700">
-                                            {item.referenceCode}
+                        {queues.map(((queue, index) => (
+                            <tr key={queue.id} className={rowStyles[queue.status] ?? rowStyles.waiting}>
+                                <td className="border-b border-slate-100 px-4 py-4 font-medium text-slate-900">
+                                    {index + 1}
+                                </td>
+                                <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
+                                    {queue.nama_pasien}
+                                </td>
+                                <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
+                                    {queue.jenis_kelamin}
+                                </td>
+                                <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
+                                    {queue.usia}
+                                </td>
+                                <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
+                                    {queue.tanggal_kunjungan}
+                                </td>
+                                <td className="border-b border-slate-100 px-4 py-4">
+                                        <span
+                                            className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-slate-700">
+                                            {queue.kode_referensi}
                                         </span>
-                                    </td>
-                                    <td className="border-b border-slate-100 px-4 py-4">
-                                        <div className="flex flex-wrap gap-2">
-                                            {item.status !== "absent" && (
-                                                <ActionButton
-                                                    variant={item.status === "examining" ? "accent" : "primary"}
-                                                    onClick={() => handlePrimaryAction(item)}
-                                                >
-                                                    {item.status === "examining" ? "Melayani" : "Check-in"}
-                                                </ActionButton>
-                                            )}
-                                            {item.status !== "examining" && item.status !== "absent" && (
-                                                <ActionButton
-                                                    variant="secondary"
-                                                    onClick={() => handleAbsent(item.referenceCode)}
-                                                >
-                                                    Tidak Hadir
-                                                </ActionButton>
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                            {filteredQueueData.length === 0 && (
-                                <tr>
-                                    <td colSpan={7} className="px-4 py-6 text-center text-sm text-slate-500">
-                                        Tidak ada data kunjungan pada tanggal yang dipilih.
-                                    </td>
-                                </tr>
-                            )}
+                                </td>
+                                <td className="border-b border-slate-100 px-4 py-4">
+                                    <div className="flex flex-wrap gap-2">
+                                        {queue.status !== "no_show" && (
+                                            <ActionButton
+                                                variant={queue.status === "checked_in" ? "accent" : "primary"}
+                                                onClick={() => handlePrimaryAction(queue)}
+                                            >
+                                                {queue.status === "checked_in" ? "Melayani" : "Check-in"}
+                                            </ActionButton>
+                                        )}
+
+                                        {queue.status !== "examining" && queue.status !== "no_show" && (
+                                            <ActionButton
+                                                variant="secondary"
+                                                onClick={() => handleAbsent(queue.kode_referensi)}
+                                            >
+                                                Tidak Hadir
+                                            </ActionButton>
+                                        )}
+                                    </div>
+                                </td>
+                            </tr>
+                        )))}
+                        {queues.length === 0 && (
+                            <tr>
+                                <td colSpan={7} className="px-4 py-6 text-center text-sm text-slate-500">
+                                    Tidak ada data kunjungan pada tanggal yang dipilih.
+                                </td>
+                            </tr>
+                        )}
                         </tbody>
                     </table>
                 </div>
@@ -273,15 +252,15 @@ export default function AntrianKunjungan() {
                     <p className="text-sm font-semibold text-slate-700">Keterangan</p>
                     <div className="mt-3 flex flex-col gap-3 text-sm text-slate-600 sm:flex-row sm:flex-wrap sm:gap-5">
                         <div className="flex items-center gap-3">
-                            <span className="h-3 w-3 rounded-full bg-blue-500" />
+                            <span className="h-3 w-3 rounded-full bg-blue-500"/>
                             <span>Warna biru artinya Sedang Dalam Pemeriksaan</span>
                         </div>
                         <div className="flex items-center gap-3">
-                            <span className="h-3 w-3 rounded-full bg-red-500" />
+                            <span className="h-3 w-3 rounded-full bg-red-500"/>
                             <span>Warna merah artinya Tidak Hadir</span>
                         </div>
                         <div className="flex items-center gap-3">
-                            <span className="h-3 w-3 rounded-full border border-slate-300 bg-white" />
+                            <span className="h-3 w-3 rounded-full border border-slate-300 bg-white"/>
                             <span>Tanpa warna artinya Dalam Antrian</span>
                         </div>
                     </div>

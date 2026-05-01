@@ -1,7 +1,7 @@
 import { apiBaseUrl } from "./baseUrl"
 
-export const queueList = async(token) => {
-    const url = `${apiBaseUrl}/queues?per_page=10`
+export const queueList = async(token, tanggal) => {
+    const url = `${apiBaseUrl}/queues?tanggal=${tanggal}`
 
     return await fetch(url, {
         method: 'GET',
