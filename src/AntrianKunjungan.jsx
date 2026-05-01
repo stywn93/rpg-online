@@ -105,10 +105,10 @@ export default function AntrianKunjungan() {
         )
     }
 
-    const handleAbsent = (referenceCode) => {
+    const handleAbsent = (id) => {
         setQueues((currentQueue) =>
             currentQueue.map((item) =>
-                item.referenceCode === referenceCode
+                item.id === id
                     ? {...item, status: "absent"}
                     : item
             )
@@ -225,10 +225,10 @@ export default function AntrianKunjungan() {
                                             </ActionButton>
                                         )}
 
-                                        {queue.status !== "examining" && queue.status !== "no_show" && (
+                                        {queue.status !== "checked_in" && queue.status !== "no_show" && (
                                             <ActionButton
                                                 variant="secondary"
-                                                onClick={() => handleAbsent(queue.kode_referensi)}
+                                                onClick={() => handleAbsent(queue.id)}
                                             >
                                                 Tidak Hadir
                                             </ActionButton>
