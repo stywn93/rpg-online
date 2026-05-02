@@ -11,30 +11,31 @@ const rowStyles = {
     waiting: "bg-white",
 }
 
-const monthMap = {
-    januari: "01",
-    februari: "02",
-    maret: "03",
-    april: "04",
-    mei: "05",
-    juni: "06",
-    juli: "07",
-    agustus: "08",
-    september: "09",
-    oktober: "10",
-    november: "11",
-    desember: "12",
+const monthNames = {
+    "01": "Januari",
+    "02": "Februari",
+    "03": "Maret",
+    "04": "April",
+    "05": "Mei",
+    "06": "Juni",
+    "07": "Juli",
+    "08": "Agustus",
+    "09": "September",
+    "10": "Oktober",
+    "11": "November",
+    "12": "Desember",
 }
 
 function normalizeVisitDate(value) {
-    const [day, monthName, year] = value.split(" ")
-    const month = monthMap[monthName?.toLowerCase()]
+    const [year, month, day] = value.split("-")
+    const normalizedMonth = month?.padStart(2, "0")
+    const monthName = monthNames[normalizedMonth]
 
-    if (!day || !month || !year) {
+    if (!year || !normalizedMonth || !day || !monthName) {
         return ""
     }
 
-    return `${year}-${month}-${day.padStart(2, "0")}`
+    return `${day.padStart(2, "0")} ${monthName} ${year}`
 }
 
 function getTodayDate() {
@@ -181,7 +182,7 @@ export default function AntrianKunjungan() {
                     <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
                         <thead>
                         <tr className="text-slate-500">
-                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Nomor</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Nomor Antrian</th>
                             <th className="border-b border-slate-200 px-4 py-3 font-medium">Nama Pasien</th>
                             <th className="border-b border-slate-200 px-4 py-3 font-medium">Jenis Kelamin</th>
                             <th className="border-b border-slate-200 px-4 py-3 font-medium">Usia</th>
@@ -193,20 +194,20 @@ export default function AntrianKunjungan() {
                         <tbody>
                         {queues.map(((queue, index) => (
                             <tr key={queue.id} className={rowStyles[queue.status] ?? rowStyles.waiting}>
-                                <td className="border-b border-slate-100 px-4 py-4 font-medium text-slate-900">
-                                    {index + 1}
+                                <td className="border-b border-slate-100 px-4 py-4 font-bold text-slate-900">
+                                    {queue.nomor_antrian}
                                 </td>
                                 <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
                                     {queue.nama_pasien}
                                 </td>
                                 <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                    {queue.jenis_kelamin}
+                                    {queue.jenis_kelamin === "L" ? "Laki-laki" : "Perempuan"}
                                 </td>
                                 <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
                                     {queue.usia}
                                 </td>
                                 <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                    {queue.tanggal_kunjungan}
+                                    {normalizeVisitDate(queue.tanggal_kunjungan)}
                                 </td>
                                 <td className="border-b border-slate-100 px-4 py-4">
                                         <span
