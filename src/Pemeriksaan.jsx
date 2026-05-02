@@ -43,37 +43,6 @@ export default function Pemeriksaan() {
     const [isLoading, setIsLoading] = useState(false)
     const [serviceOptions, setServiceOptions] = useState([])
     const [isLoadingServices, setIsLoadingServices] = useState(false)
-    const {logout} = useAuth()
-    // const [assesmentData, setAssesmentData] = useState({})
-    const [name, setName] = useState("")
-    const [age, setAge] = useState("")
-    const [gender, setGender] = useState("")
-    const [parent, setParent] = useState("")
-    const [address, setAddress] = useState("")
-
-    const assesmentDetails = useEffectEvent(async function fetchDetail() {
-        try {
-            const response = await queueDetails(token, id)
-            const responseBody = await response.json()
-            console.log(responseBody.data)
-
-
-            if (response.status === 200) {
-                setName(responseBody.data.nama_lengkap)
-                setAge(responseBody.data.age)
-                setGender(responseBody.data.gender)
-                setParent(responseBody.data.parent)
-                setAddress(responseBody.data.address)
-            }
-            if (response.status === 401) {
-                logout()
-            }
-        } catch (error) {
-            console.log(error)
-        }
-
-    })
-
 
 
     const onSubmit = async (data) => {
@@ -91,10 +60,6 @@ export default function Pemeriksaan() {
     useEffect(() => {
         setFocus("height")
     }, [setFocus])
-
-    useEffect(() => {
-        assesmentDetails()
-    }, [])
 
 
     return (<section className="w-full">

@@ -1,11 +1,15 @@
 import Pemeriksaan from "./Pemeriksaan.jsx"
 import RiwayatAnamnesa from "./RiwayatAnamnesa.jsx"
 import Profile from "./Profile.jsx"
-import {queueDetails} from "./lib/api/Queue.js"
+import {useAssessmentPatient} from "./lib/hooks/CustomHooks.js"
 
 
 export default function Assesment() {
-    const {patient} = queueDetails()
+
+    const {patient, loading} = useAssessmentPatient()
+
+    if (loading) return <div>Loading...</div>
+    // console.log(patient)
 
     return (
         <section>
