@@ -2,11 +2,10 @@ import {Link, useLocation, useNavigate} from "react-router"
 import {useLocalStorage} from "react-use"
 import {Controller, useForm} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast'
-import {useEffect, useEffectEvent, useState} from "react"
+import {useEffect, useState} from "react"
 import {Datepicker} from "flowbite-react"
-import useAuth from "./UseAuth.js"
 import {useParams} from "react-router-dom";
-import {queueDetails, queueList} from "./lib/api/Queue.js";
+
 
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -22,33 +21,41 @@ const formatSingleDecimalInput = (value) => {
     return `${digits.slice(0, 2)}.${digits.slice(2)}`
 }
 
+const getTodayDateValue = () => {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = String(today.getMonth() + 1).padStart(2, "0")
+    const day = String(today.getDate()).padStart(2, "0")
+
+    return `${year}-${month}-${day}`
+}
+
 export default function Pemeriksaan() {
     const {
         register,
-        control,
         handleSubmit,
         setValue,
         formState: {errors},
         setFocus
     } = useForm({
         defaultValues: {
-            visitDate: new Date(), services: "", height: "", weight: ""
+            visitDate: getTodayDateValue(), services: "", height: "", weight: ""
         }
     })
 
-    const {id} = useParams()
+
     const navigate = useNavigate()
-    const { state } = useLocation()
+    const {id} = useParams()
     const [token, _] = useLocalStorage("token", "")
     const [isLoading, setIsLoading] = useState(false)
-    const [serviceOptions, setServiceOptions] = useState([])
-    const [isLoadingServices, setIsLoadingServices] = useState(false)
+    // const [w]
 
 
     const onSubmit = async (data) => {
         const toastId = toast.loading("Memproses...")
         setIsLoading(true)
         await new Promise(requestAnimationFrame)
+        console.log(data)
     }
 
     const handleDecimalInputChange = (fieldName) => (event) => {
@@ -78,11 +85,17 @@ export default function Pemeriksaan() {
 
                             <div className="flex w-full rounded-base">
                                 <input type="text" id="height" inputMode="numeric"
-                                       maxLength={4} {...register("height", {
-                                    required: "Tinggi badan wajib diisi", pattern: {
-                                        value: DECIMAL_INPUT_REGEX, message: "Format tinggi badan harus 00.0"
-                                    }
-                                })} onChange={handleDecimalInputChange("height")}
+                                       maxLength={4}
+                                       {...register("height", {
+                                           required: "Tinggi badan wajib diisi",
+                                           pattern: {
+                                               value: DECIMAL_INPUT_REGEX,
+                                               message: "Format tinggi badan harus 00.0"
+                                           },
+                                           onChange: (event) => {
+                                               event.target.value = formatSingleDecimalInput(event.target.value)
+                                           },
+                                       })}
                                        className="grow bg-gray-50 border-gray-300 rounded-none rounded-s-base px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm focus:ring-brand focus:border-brand placeholder:text-body"
                                        placeholder="30.0"/>
                                 <span
@@ -97,11 +110,16 @@ export default function Pemeriksaan() {
 
                             <div className="flex w-full rounded-base">
                                 <input type="text" id="weight" inputMode="numeric"
-                                       maxLength={4} {...register("weight", {
-                                    required: "Berat badan wajib diisi", pattern: {
-                                        value: DECIMAL_INPUT_REGEX, message: "Format berat badan harus 00.0"
-                                    }
-                                })} onChange={handleDecimalInputChange("weight")}
+                                       maxLength={4}
+                                       {...register("weight", {
+                                           required: "Berat badan wajib diisi", pattern: {
+                                               value: DECIMAL_INPUT_REGEX,
+                                               message: "Format berat badan harus 00.0"
+                                           },
+                                           onChange: (event) => {
+                                               event.target.value = formatSingleDecimalInput(event.target.value)
+                                           },
+                                       })}
                                        className="grow bg-gray-50 border-gray-300 rounded-none rounded-s-base px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm focus:ring-brand focus:border-brand placeholder:text-body"
                                        placeholder="14.5"/>
                                 <span
@@ -115,6 +133,9 @@ export default function Pemeriksaan() {
                                 className="text-red-500">*</span></label>
                             <div className="relative">
                                 <select id="statusGizi"
+                                        {...register("nutritionStatus", {
+                                            required: "Silahkan pilih status gizi",
+                                        })}
                                         className="block w-full appearance-none rounded-lg border border-gray-300 bg-gray-50 p-2.5 pr-10 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500">
                                     <option value="baik">Baik</option>
                                     <option value="cukup">Cukup</option>
@@ -136,6 +157,9 @@ export default function Pemeriksaan() {
                                 className="text-red-500">*</span></label>
                             <div className="relative">
                                 <select id="keadaanUmum"
+                                        {...register("condition", {
+                                            required: "Silahkan pilih keadaan umum",
+                                        })}
                                         className="block w-full appearance-none rounded-lg border border-gray-300 bg-gray-50 p-2.5 pr-10 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500">
                                     <option value="baik">Baik</option>
                                     <option value="cukup">Cukup</option>
@@ -156,6 +180,8 @@ export default function Pemeriksaan() {
                             <label htmlFor="keterangan"
                                    className="block mb-2 text-sm font-medium text-gray-900 ">Keterangan</label>
                             <textarea id="keterangan" rows="8"
+                                      {...register("remark", {
+                                      })}
                                       className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500"
                                       placeholder="Tambahkan keterangan jika ada"></textarea>
                         </div>
