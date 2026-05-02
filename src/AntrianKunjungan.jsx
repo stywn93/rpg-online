@@ -73,14 +73,11 @@ export default function AntrianKunjungan() {
     const {logout} = useAuth()
 
 
-
     const updateQueue = useEffectEvent(async function fetchQueue() {
         //useEffectEvent adalah hooks yang diperkenalkan sejak react 19 untuk memastikan useEffect mendapatkan state terbaru
         try {
             const response = await queueList(token, selectedDate)
             const responseBody = await response.json();
-            // console.log(responseBody)
-            // console.log(selectedDate)
 
             if (response.status === 200) {
                 setQueues(responseBody.data)
@@ -119,7 +116,7 @@ export default function AntrianKunjungan() {
     const handlePrimaryAction = (item) => {
         console.log("clicked")
         if (item.status === "checked_in") {
-            navigate("/reservation/assesment", {
+            navigate(`/reservation/assesment/${item.id}`, {
                 state: {
                     patientName: item.patientName,
                     gender: item.gender,
@@ -192,7 +189,7 @@ export default function AntrianKunjungan() {
                         </tr>
                         </thead>
                         <tbody>
-                        {queues.map(((queue, index) => (
+                        {queues.map(((queue) => (
                             <tr key={queue.id} className={rowStyles[queue.status] ?? rowStyles.waiting}>
                                 <td className="border-b border-slate-100 px-4 py-4 font-bold text-slate-900">
                                     {queue.nomor_antrian}

@@ -38,7 +38,7 @@ createRoot(document.getElementById('root')).render(
                             <Route path='new' element={<ReservasiBaru/>}/>
                             <Route path='confirm' element={<HasilReservasi/>}/>
                             <Route path='revisit' element={<RencanaKunjunganUlang/>}/>
-                            <Route path="assesment" element={<Assesment/>}/>
+                            <Route path="assesment/:id" element={<Assesment/>}/>
                         </Route>
                         <Route path={"patients"}>
                             <Route index element={<Pasien/>}/>

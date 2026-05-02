@@ -2,9 +2,11 @@ import {Link, useLocation, useNavigate} from "react-router"
 import {useLocalStorage} from "react-use"
 import {Controller, useForm} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast'
-import {useEffect, useState} from "react"
+import {useEffect, useEffectEvent, useState} from "react"
 import {Datepicker} from "flowbite-react"
 import useAuth from "./UseAuth.js"
+import {useParams} from "react-router-dom";
+import {queueDetails, queueList} from "./lib/api/Queue.js";
 
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -34,6 +36,7 @@ export default function Pemeriksaan() {
         }
     })
 
+    const {id} = useParams()
     const navigate = useNavigate()
     const { state } = useLocation()
     const [token, _] = useLocalStorage("token", "")
@@ -41,6 +44,35 @@ export default function Pemeriksaan() {
     const [serviceOptions, setServiceOptions] = useState([])
     const [isLoadingServices, setIsLoadingServices] = useState(false)
     const {logout} = useAuth()
+    // const [assesmentData, setAssesmentData] = useState({})
+    const [name, setName] = useState("")
+    const [age, setAge] = useState("")
+    const [gender, setGender] = useState("")
+    const [parent, setParent] = useState("")
+    const [address, setAddress] = useState("")
+
+    const assesmentDetails = useEffectEvent(async function fetchDetail() {
+        try {
+            const response = await queueDetails(token, id)
+            const responseBody = await response.json()
+            console.log(responseBody.data)
+
+
+            if (response.status === 200) {
+                setName(responseBody.data.nama_lengkap)
+                setAge(responseBody.data.age)
+                setGender(responseBody.data.gender)
+                setParent(responseBody.data.parent)
+                setAddress(responseBody.data.address)
+            }
+            if (response.status === 401) {
+                logout()
+            }
+        } catch (error) {
+            console.log(error)
+        }
+
+    })
 
 
 
@@ -59,6 +91,10 @@ export default function Pemeriksaan() {
     useEffect(() => {
         setFocus("height")
     }, [setFocus])
+
+    useEffect(() => {
+        assesmentDetails()
+    }, [])
 
 
     return (<section className="w-full">
