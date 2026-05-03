@@ -1,6 +1,6 @@
 import { apiBaseUrl } from "./baseUrl"
 
-export const insertAssesment = async (token, data) => {
+export const insertAssesment = async (token, id, data) => {
     return await fetch(`${apiBaseUrl}/growthrecords`, {
         method: 'POST',
         headers: {
@@ -8,7 +8,7 @@ export const insertAssesment = async (token, data) => {
             'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-            patient_id:data.patient_id,berat_badan:data.weight, tinggi_badan:data.height, status_gizi:data.nutrition_status, keadaan_umum:data.condition, tanggal_pemeriksaan:data.visitDate, keterangan:data.remark
+            patient_id:data.patient_id,berat_badan:data.weight, tinggi_badan:data.height, status_gizi:data.nutrition_status, keadaan_umum:data.condition, tanggal_pemeriksaan:data.visitDate, keterangan:data.remark, queue_id:id
         })
     })
 }

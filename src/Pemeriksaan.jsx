@@ -4,6 +4,7 @@ import {Controller, useForm} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast'
 import {useEffect, useState} from "react"
 import {insertAssesment} from "./lib/api/Assesment.js"
+import {useParams} from "react-router-dom";
 
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -52,15 +53,17 @@ export default function Pemeriksaan({patient}) {
     const navigate = useNavigate()
     const [token, _] = useLocalStorage("token", "")
     const [isLoading, setIsLoading] = useState(false)
+    const {id} = useParams()
 
 
     const onSubmit = async (data) => {
         const toastId = toast.loading("Memproses...")
         setIsLoading(true)
+        console.log(id)
         try {
             await new Promise(requestAnimationFrame)
             const {nutritionStatus, ...restData} = data
-            const response = await insertAssesment(token, {patient_id: patient.patient_id,...restData,nutrition_status: nutritionStatus})
+            const response = await insertAssesment(token, id,{patient_id: patient.patient_id,...restData,nutrition_status: nutritionStatus})
             const responseBody = await response.json()
 
             if (!response.ok) {
