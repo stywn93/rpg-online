@@ -3,39 +3,13 @@ import {useNavigate} from "react-router-dom"
 import {queueList} from "./lib/api/Queue.js"
 import {useLocalStorage} from "react-use"
 import useAuth from "./UseAuth.js"
+import {formatIndonesianDate} from "./lib/utils/formatIndonesianDate.js"
 
 
 const rowStyles = {
     examining: "bg-blue-50",
     absent: "bg-red-50",
     waiting: "bg-white",
-}
-
-const monthNames = {
-    "01": "Januari",
-    "02": "Februari",
-    "03": "Maret",
-    "04": "April",
-    "05": "Mei",
-    "06": "Juni",
-    "07": "Juli",
-    "08": "Agustus",
-    "09": "September",
-    "10": "Oktober",
-    "11": "November",
-    "12": "Desember",
-}
-
-function normalizeVisitDate(value) {
-    const [year, month, day] = value.split("-")
-    const normalizedMonth = month?.padStart(2, "0")
-    const monthName = monthNames[normalizedMonth]
-
-    if (!year || !normalizedMonth || !day || !monthName) {
-        return ""
-    }
-
-    return `${day.padStart(2, "0")} ${monthName} ${year}`
 }
 
 function getTodayDate() {
@@ -64,7 +38,7 @@ function ActionButton({children, variant = "primary", onClick}) {
 }
 
 export default function AntrianKunjungan() {
-    const [token, _] = useLocalStorage("token", "");
+    const [token, _] = useLocalStorage("token", "")
     const navigate = useNavigate()
 
     const [selectedDate, setSelectedDate] = useLocalStorage("tanggalKunjungan", getTodayDate())
@@ -204,7 +178,7 @@ export default function AntrianKunjungan() {
                                     {queue.usia}
                                 </td>
                                 <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                    {normalizeVisitDate(queue.tanggal_kunjungan)}
+                                    {formatIndonesianDate(queue.tanggal_kunjungan)}
                                 </td>
                                 <td className="border-b border-slate-100 px-4 py-4">
                                         <span

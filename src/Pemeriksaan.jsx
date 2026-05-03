@@ -1,9 +1,8 @@
-import {Link, useLocation, useNavigate} from "react-router"
+import {Link, useNavigate} from "react-router"
 import {useLocalStorage} from "react-use"
 import {Controller, useForm} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast'
 import {useEffect, useState} from "react"
-import {useParams} from "react-router-dom"
 import {insertAssesment} from "./lib/api/Assesment.js"
 
 
@@ -70,7 +69,10 @@ export default function Pemeriksaan({patient}) {
 
             reset(defaultFormValues)
             toast.success("Insert data berhasil", {id: toastId})
-            setFocus("height")
+            await sleep(500)
+            requestAnimationFrame(() => {
+                setFocus("height")
+            })
         } catch (error) {
             toast.error(error.message || "Terjadi kesalahan, coba lagi.", {id: toastId})
         } finally {

@@ -1,5 +1,6 @@
 import { Check } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
+import { formatIndonesianDate } from "./lib/utils/formatIndonesianDate.js"
 
 const fallbackReservation = {
     referenceNumber: "RPG9976315",
@@ -8,14 +9,6 @@ const fallbackReservation = {
     gender: "Laki-laki",
     age: "3 tahun 10 bulan",
     visitDate: "2026-04-15T09:30:00+07:00",
-}
-
-function formatVisitDate(value) {
-    return new Intl.DateTimeFormat("id-ID", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-    }).format(new Date(value))
 }
 
 function InfoRow({ label, value }) {
@@ -112,7 +105,7 @@ export default function HasilReservasi() {
                     <InfoRow label="Nama" value={reservation.name} />
                     <InfoRow label="Jenis Kelamin" value={reservation.gender} />
                     <InfoRow label="Usia" value={reservation.age} />
-                    <InfoRow label="Tanggal Rencana Berkunjung" value={formatVisitDate(reservation.visitDate)} />
+                    <InfoRow label="Tanggal Rencana Berkunjung" value={formatIndonesianDate(reservation.visitDate)} />
                     <InfoRow label="Nomor Referensi" value={reservation.referenceNumber} />
                 </div>
 

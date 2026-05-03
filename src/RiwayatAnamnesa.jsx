@@ -1,21 +1,8 @@
-const queueData = [
-    {
-        id: 1,
-        visitDate: "3 Nov 2025",
-        height: "75.0 cm",
-        weight: "11.5 kg",
-        gizi: "kurang",
-        ku: "kurang",
-    },
-    {
-        id: 2,
-        visitDate: "26 Okt 2025",
-        height: "75.0 cm",
-        weight: "11.0 kg",
-        gizi: "kurang",
-        ku: "kurang",
-    },
-]
+import {useEffect, useEffectEvent, useState} from "react"
+import {listAssesment} from "./lib/api/Assesment.js"
+import {useLocalStorage} from "react-use"
+import {formatIndonesianDate} from "./lib/utils/formatIndonesianDate.js"
+
 
 function StatusBadge({ value }) {
     const isLowStatus = value.toLowerCase() === "kurang"
@@ -31,7 +18,26 @@ function StatusBadge({ value }) {
     )
 }
 
-export default function RiwayatAnamnesa() {
+export default function RiwayatAnamnesa({patient}) {
+    const [token, _] = useLocalStorage("token", "")
+    const [riwayat, setRiwayat] = useState([])
+    const getRiwayat = useEffectEvent(async function fetchRiwayat(){
+        try {
+            const response = await listAssesment(token, patient.patient_id)
+            const responseBody = await response.json()
+            if(response.status === 200){
+                setRiwayat(responseBody.data)
+            }
+            // console.log(responseBody)
+        } catch (e){
+            console.error(e)
+        }
+
+    })
+    useEffect(() => {
+        getRiwayat()
+    }, [token])
+
     return (
         <section className="w-full">
             <div className="mx-auto w-full">
@@ -44,7 +50,7 @@ export default function RiwayatAnamnesa() {
 
                         </div>
                         <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700">
-                            Total {queueData.length} pemeriksaan
+                            Total {riwayat.length} pemeriksaan
                         </div>
                     </div>
 
@@ -58,28 +64,32 @@ export default function RiwayatAnamnesa() {
                                 <th className="border-b border-slate-200 px-4 py-3 font-medium">Berat Badan</th>
                                 <th className="border-b border-slate-200 px-4 py-3 font-medium">Status Gizi</th>
                                 <th className="border-b border-slate-200 px-4 py-3 font-medium">Keadaan Umum</th>
+                                <th className="border-b border-slate-200 px-4 py-3 font-medium">Keterangan</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {queueData.map((item, index) => (
+                            {riwayat.map((item, index) => (
                                 <tr key={item.id}>
                                     <td className="border-b border-slate-100 px-4 py-4 font-medium text-slate-900">
                                         {index + 1}
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                        {item.visitDate}
+                                        {formatIndonesianDate(item.tanggal_pemeriksaan)}
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                        {item.height}
+                                        {item.tinggi_badan}
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                        {item.weight}
+                                        {item.berat_badan}
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                        <StatusBadge value={item.gizi} />
+                                        <StatusBadge value={item.status_gizi} />
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                        <StatusBadge value={item.ku} />
+                                        <StatusBadge value={item.keadaan_umum} />
+                                    </td>
+                                    <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
+                                        {item.keterangan}
                                     </td>
 
 

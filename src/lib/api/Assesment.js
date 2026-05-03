@@ -12,3 +12,13 @@ export const insertAssesment = async (token, data) => {
         })
     })
 }
+
+export const listAssesment = async (token, id) => {
+    return await fetch(`${apiBaseUrl}/growthrecords/patient/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+}
