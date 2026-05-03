@@ -3,9 +3,8 @@ import {useLocalStorage} from "react-use"
 import {Controller, useForm} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast'
 import {useEffect, useState} from "react"
-import {Datepicker} from "flowbite-react"
-import {useParams} from "react-router-dom";
-
+import {useParams} from "react-router-dom"
+import {insertAssesment} from "./lib/api/Assesment.js"
 
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -30,7 +29,7 @@ const getTodayDateValue = () => {
     return `${year}-${month}-${day}`
 }
 
-export default function Pemeriksaan() {
+export default function Pemeriksaan({patient}) {
     const {
         register,
         handleSubmit,
@@ -43,25 +42,25 @@ export default function Pemeriksaan() {
         }
     })
 
-
     const navigate = useNavigate()
     const {id} = useParams()
     const [token, _] = useLocalStorage("token", "")
     const [isLoading, setIsLoading] = useState(false)
-    // const [w]
 
 
     const onSubmit = async (data) => {
         const toastId = toast.loading("Memproses...")
         setIsLoading(true)
         await new Promise(requestAnimationFrame)
-        console.log(data)
-    }
-
-    const handleDecimalInputChange = (fieldName) => (event) => {
-        setValue(fieldName, formatSingleDecimalInput(event.target.value), {
-            shouldDirty: true, shouldTouch: true, shouldValidate: true
-        })
+        const {nutritionStatus, ...restData} = data
+        // console.log(data, `patient_id : ${id}`)
+        const response = await insertAssesment(token, {patient_id:patient.patient_id, ...restData, nutrition_status:nutritionStatus})
+        // const responseBody = await response.json()
+        // if(response.status === 200) {
+        //     console.log("berhasil insert")
+        // } else{
+        //     console.log("error inserting")
+        // }
     }
 
     useEffect(() => {
@@ -80,7 +79,7 @@ export default function Pemeriksaan() {
                     <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit(onSubmit)}>
                         <div>
                             <label htmlFor="height"
-                                   className="mb-2 block text-sm font-medium text-gray-900">Tinggi Badan <span
+                                   className="mb-2 block text-sm font-medium text-gray-900">Tinggi/Panjang Badan <span
                                 className="text-red-500">*</span></label>
 
                             <div className="flex w-full rounded-base">
@@ -97,7 +96,7 @@ export default function Pemeriksaan() {
                                            },
                                        })}
                                        className="grow bg-gray-50 border-gray-300 rounded-none rounded-s-base px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm focus:ring-brand focus:border-brand placeholder:text-body"
-                                       placeholder="30.0"/>
+                                       placeholder="00.0"/>
                                 <span
                                     className="bg-gray-50 border-gray-300 inline-flex items-center px-3 text-sm text-body bg-neutral-tertiary border rounded-e-0 border-default-medium rounded-e-base flex-none">cm</span>
                             </div>
@@ -121,7 +120,7 @@ export default function Pemeriksaan() {
                                            },
                                        })}
                                        className="grow bg-gray-50 border-gray-300 rounded-none rounded-s-base px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm focus:ring-brand focus:border-brand placeholder:text-body"
-                                       placeholder="14.5"/>
+                                       placeholder="00.0"/>
                                 <span
                                     className="bg-gray-50 border-gray-300 inline-flex items-center px-3 text-sm text-body bg-neutral-tertiary border rounded-e-0 border-default-medium rounded-e-base flex-none">kg</span>
                             </div>
