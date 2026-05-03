@@ -30,20 +30,27 @@ const getTodayDateValue = () => {
 }
 
 export default function Pemeriksaan({patient}) {
+    const defaultFormValues = {
+        visitDate: getTodayDateValue(),
+        services: "",
+        height: "",
+        weight: "",
+        nutritionStatus: "baik",
+        condition: "baik",
+        remark: ""
+    }
+
     const {
         register,
         handleSubmit,
-        setValue,
+        reset,
         formState: {errors},
         setFocus
     } = useForm({
-        defaultValues: {
-            visitDate: getTodayDateValue(), services: "", height: "", weight: ""
-        }
+        defaultValues: defaultFormValues
     })
 
     const navigate = useNavigate()
-    const {id} = useParams()
     const [token, _] = useLocalStorage("token", "")
     const [isLoading, setIsLoading] = useState(false)
 
@@ -51,16 +58,24 @@ export default function Pemeriksaan({patient}) {
     const onSubmit = async (data) => {
         const toastId = toast.loading("Memproses...")
         setIsLoading(true)
-        await new Promise(requestAnimationFrame)
-        const {nutritionStatus, ...restData} = data
-        // console.log(data, `patient_id : ${id}`)
-        const response = await insertAssesment(token, {patient_id:patient.patient_id, ...restData, nutrition_status:nutritionStatus})
-        // const responseBody = await response.json()
-        // if(response.status === 200) {
-        //     console.log("berhasil insert")
-        // } else{
-        //     console.log("error inserting")
-        // }
+        try {
+            await new Promise(requestAnimationFrame)
+            const {nutritionStatus, ...restData} = data
+            const response = await insertAssesment(token, {patient_id: patient.patient_id,...restData,nutrition_status: nutritionStatus})
+            const responseBody = await response.json()
+
+            if (!response.ok) {
+                throw new Error(responseBody?.message || "Insert data gagal")
+            }
+
+            reset(defaultFormValues)
+            toast.success("Insert data berhasil", {id: toastId})
+            setFocus("height")
+        } catch (error) {
+            toast.error(error.message || "Terjadi kesalahan, coba lagi.", {id: toastId})
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     useEffect(() => {
