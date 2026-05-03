@@ -24,3 +24,16 @@ export const queueDetails = async(token, id) => {
         }
     })
 }
+
+export const updateQueue = async(token, id, status) => {
+    const url = `${apiBaseUrl}/queues/${id}`
+
+    return await fetch(url, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({status})
+    })
+}

@@ -1,15 +1,28 @@
-import {useEffect, useEffectEvent, useMemo, useState} from "react"
+import {useEffect, useEffectEvent, useState} from "react"
 import {useNavigate} from "react-router-dom"
-import {queueList} from "./lib/api/Queue.js"
+import {queueList, updateQueue as patchQueueStatus} from "./lib/api/Queue.js"
 import {useLocalStorage} from "react-use"
 import useAuth from "./UseAuth.js"
 import {formatIndonesianDate} from "./lib/utils/formatIndonesianDate.js"
 
 
 const rowStyles = {
-    examining: "bg-blue-50",
-    absent: "bg-red-50",
+    called: "bg-blue-100",
+    no_show: "bg-red-100",
     waiting: "bg-white",
+    finished: "bg-green-100"
+}
+
+function normalizeQueueList(payload) {
+    if (Array.isArray(payload?.data)) {
+        return payload.data
+    }
+
+    if (Array.isArray(payload)) {
+        return payload
+    }
+
+    return null
 }
 
 function getTodayDate() {
@@ -43,21 +56,19 @@ export default function AntrianKunjungan() {
 
     const [selectedDate, setSelectedDate] = useLocalStorage("tanggalKunjungan", getTodayDate())
     const [queues, setQueues] = useState([])
-    const [totalPage, setTotalPage] = useState(1);
     const {logout} = useAuth()
 
 
-    const updateQueue = useEffectEvent(async function fetchQueue() {
+    const latestQueue = useEffectEvent(async function fetchQueue() {
         //useEffectEvent adalah hooks yang diperkenalkan sejak react 19 untuk memastikan useEffect mendapatkan state terbaru
         try {
             const response = await queueList(token, selectedDate)
             const responseBody = await response.json();
 
             if (response.status === 200) {
-                setQueues(responseBody.data)
+                setQueues(normalizeQueueList(responseBody?.data) ?? normalizeQueueList(responseBody) ?? [])
             }
             if (response.status === 401) {
-                // console.log("tidak punya otoritas")
                 logout()
             }
         } catch (error) {
@@ -66,8 +77,35 @@ export default function AntrianKunjungan() {
 
     })
 
+    async function updateQueueStatus(id, status) {
+        try {
+            const response = await patchQueueStatus(token, id, status)
+            const responseBody = await response.json();
+
+            if (response.status === 200) {
+                const nextQueues = normalizeQueueList(responseBody?.data) ?? normalizeQueueList(responseBody)
+
+                if (nextQueues) {
+                    setQueues(nextQueues)
+                } else if (responseBody?.data && typeof responseBody.data === "object") {
+                    setQueues((currentQueue) =>
+                        currentQueue.map((item) =>
+                            item.id === id
+                                ? {...item, ...responseBody.data}
+                                : item
+                        )
+                    )
+                }
+            }
+            if (response.status === 401) {
+                logout()
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     const handleCheckIn = (id) => {
-        console.log(id)
         setQueues((currentQueue) =>
             currentQueue.map((item) =>
                 item.id === id
@@ -75,21 +113,23 @@ export default function AntrianKunjungan() {
                     : item
             )
         )
+        updateQueueStatus(id, "checked_in")
     }
 
     const handleAbsent = (id) => {
         setQueues((currentQueue) =>
             currentQueue.map((item) =>
                 item.id === id
-                    ? {...item, status: "absent"}
+                    ? {...item, status: "no_show"}
                     : item
             )
         )
+        updateQueueStatus(id, "no_show")
     }
 
     const handlePrimaryAction = (item) => {
         console.log("clicked")
-        if (item.status === "checked_in") {
+        if (item.status === "checked_in" || item.status === "called") {
             navigate(`/reservation/assesment/${item.id}`, {
                 state: {
                     patientName: item.patientName,
@@ -105,7 +145,7 @@ export default function AntrianKunjungan() {
         handleCheckIn(item.id)
     }
     useEffect(() => {
-        updateQueue()
+        latestQueue()
     }, [token, selectedDate])
 
     return (
@@ -187,17 +227,17 @@ export default function AntrianKunjungan() {
                                         </span>
                                 </td>
                                 <td className="border-b border-slate-100 px-4 py-4">
-                                    <div className="flex flex-wrap gap-2">
+                                    <div className={`${queue.status === "finished" ? "hidden" : "flex"} flex-wrap gap-2`}>
                                         {queue.status !== "no_show" && (
                                             <ActionButton
-                                                variant={queue.status === "checked_in" ? "accent" : "primary"}
+                                                variant={queue.status === "checked_in" || queue.status === "called" ? "accent" : "primary"}
                                                 onClick={() => handlePrimaryAction(queue)}
                                             >
-                                                {queue.status === "checked_in" ? "Melayani" : "Check-in"}
+                                                {queue.status === "checked_in" || queue.status === "called" ? "Melayani" : "Check-in"}
                                             </ActionButton>
                                         )}
 
-                                        {queue.status !== "checked_in" && queue.status !== "no_show" && (
+                                        {queue.status !== "checked_in" && queue.status !== "no_show" && queue.status !== "called" && (
                                             <ActionButton
                                                 variant="secondary"
                                                 onClick={() => handleAbsent(queue.id)}
@@ -234,6 +274,10 @@ export default function AntrianKunjungan() {
                         <div className="flex items-center gap-3">
                             <span className="h-3 w-3 rounded-full border border-slate-300 bg-white"/>
                             <span>Tanpa warna artinya Dalam Antrian</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <span className="h-3 w-3 rounded-full bg-green-500"/>
+                            <span>Warna hijau artinya Dalam Antrian</span>
                         </div>
                     </div>
                 </div>
