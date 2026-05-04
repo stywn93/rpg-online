@@ -29,6 +29,7 @@ const getTodayDateValue = () => {
     return `${year}-${month}-${day}`
 }
 
+
 export default function Pemeriksaan({patient}) {
     const defaultFormValues = {
         visitDate: getTodayDateValue(),

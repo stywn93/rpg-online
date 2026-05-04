@@ -1,6 +1,9 @@
-import { useMemo, useState } from "react"
+import {useEffect, useEffectEvent, useMemo, useState} from "react"
 import { Link } from "react-router-dom"
-import { patientData } from "./data/patients.js"
+import {listPatients} from "./lib/api/Patient.js"
+import {useLocalStorage} from "react-use"
+import {formatIndonesianDate} from "./lib/utils/formatIndonesianDate.js"
+import useAuth from "./UseAuth.js"
 
 function ActionButton({ children, variant = "primary", to }) {
     const variants = {
@@ -31,23 +34,45 @@ function ActionButton({ children, variant = "primary", to }) {
 
 export default function Pasien() {
     const [searchTerm, setSearchTerm] = useState("")
+    const [token, _] = useLocalStorage("token", "")
+    const [patients, setPatients] = useState([])
+    const {logout} = useAuth()
 
     const filteredPatients = useMemo(() => {
         const keyword = searchTerm.trim().toLowerCase()
 
         if (!keyword) {
-            return patientData
+            return patients
         }
 
-        return patientData.filter((patient) =>
+        return patients.filter((patient) =>
             [
                 patient.id,
-                patient.name,
-                patient.parentName,
-                patient.address,
-            ].some((value) => value.toLowerCase().includes(keyword))
+                patient.nama,
+                patient.alamat,
+                patient.jenis_kelamin,
+                patient.usia,
+            ].some((value) => String(value).toLowerCase().includes(keyword))
         )
-    }, [searchTerm])
+    }, [patients, searchTerm])
+
+    const fetchPatients = useEffectEvent(async function getPatients(){
+        try {
+            const response = await listPatients(token)
+            const responseBody = await response.json()
+            // console.log(responseBody)
+            setPatients(responseBody.data)
+            if (response.status === 401) {
+                logout()
+            }
+        } catch (e) {
+            console.error(e)
+        }
+    })
+
+    useEffect(() => {
+        fetchPatients()
+    }, [token])
 
     return (
         <section className="space-y-5">
@@ -89,10 +114,8 @@ export default function Pasien() {
                                 <th className="border-b border-slate-200 px-4 py-3 font-medium">ID</th>
                                 <th className="border-b border-slate-200 px-4 py-3 font-medium">Nama Pasien</th>
                                 <th className="border-b border-slate-200 px-4 py-3 font-medium">Tanggal Lahir</th>
+                                <th className="border-b border-slate-200 px-4 py-3 font-medium">Jenis Kelamin</th>
                                 <th className="border-b border-slate-200 px-4 py-3 font-medium">Usia</th>
-                                <th className="border-b border-slate-200 px-4 py-3 font-medium">Tempat Lahir</th>
-                                <th className="border-b border-slate-200 px-4 py-3 font-medium">Nama Orang Tua</th>
-                                <th className="border-b border-slate-200 px-4 py-3 font-medium">Golongan Darah</th>
                                 <th className="border-b border-slate-200 px-4 py-3 font-medium">Alamat</th>
                                 <th className="border-b border-slate-200 px-4 py-3 font-medium">Aksi</th>
                             </tr>
@@ -106,30 +129,23 @@ export default function Pasien() {
                                         </span>
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4 font-medium text-slate-900">
-                                        {patient.name}
+                                        {patient.nama}
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                        {patient.birthDate}
+                                        {formatIndonesianDate(patient.tanggal_lahir)}
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                        {patient.age}
+                                        {patient.jenis_kelamin}
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                        {patient.birthPlace}
+                                        {patient.usia}
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                        {patient.parentName}
-                                    </td>
-                                    <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                        {patient.bloodType}
-                                    </td>
-                                    <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
-                                        {patient.address}
+                                        {patient.alamat}
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4">
                                         <div className="flex flex-wrap gap-2">
                                             <ActionButton to={`/patients/${patient.id}`}>Detail</ActionButton>
-                                            <ActionButton variant="secondary" to={`/patients/${patient.id}/edit`}>Ubah</ActionButton>
                                         </div>
                                     </td>
                                 </tr>
