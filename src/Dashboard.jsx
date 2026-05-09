@@ -41,7 +41,7 @@ export default function Dashboard(
 
     return (
 
-        <div className="flex h-dvh overflow-hidden bg-gray-50 font-sans">
+        <div className="flex h-dvh overflow-hidden bg-gray-50 dark:bg-gray-950 font-sans">
             <Sidebar activeKey={resolvedActivePage} onNavigate={onNavigate} user={user}/>
 
             <div className="flex flex-1 flex-col overflow-hidden">

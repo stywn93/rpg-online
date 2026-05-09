@@ -18,20 +18,20 @@ export default function Topbar({ title, onNewReservation }) {
             : null
 
     return (
-        <div className="flex items-center justify-between gap-3 px-5 py-4 bg-white border-b border-black/[0.08]">
-            <h1 className="text-base font-semibold text-gray-900 tracking-tight">{title}</h1>
+        <div className="flex items-center justify-between gap-3 px-5 py-4 bg-slate-50 dark:bg-slate-950 border-b border-slate-300 dark:border-slate-200">
+            <h1 className="text-base font-semibold text-gray-900 dark:text-gray-100 tracking-tight">{title}</h1>
             <div className="flex items-center gap-2">
                 <button
                     aria-label="Notifikasi"
-                    className="w-[34px] h-[34px] rounded-lg border border-black/[0.12] bg-white flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
+                    className="w-[34px] h-[34px] rounded-lg border border-slate-950 dark:border-slate-50 bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-gray-500 dark:text-gray-100 hover:bg-gray-50 transition-colors"
                 >
-                    <Bell size={15} strokeWidth={2} />
+                    <Bell className={"dark:text-slate-50 dark:bg-slate-950"} size={15} strokeWidth={2} />
                 </button>
                 {actionConfig && (
                     <Link
                         to={actionConfig.to}
                         onClick={onNewReservation}
-                        className="h-[34px] px-3.5 rounded-lg bg-blue-600 text-white text-[13px] font-medium flex items-center gap-1.5 hover:bg-blue-800 transition-colors whitespace-nowrap"
+                        className="h-[34px] px-3.5 rounded-lg bg-blue-600 dark:bg-blue-100 text-slate-50 dark:text-slate-950 text-[13px] font-medium flex items-center gap-1.5 hover:bg-blue-800 transition-colors whitespace-nowrap"
                     >
                         <Plus size={13} strokeWidth={2.5} />
                         {actionConfig.label}

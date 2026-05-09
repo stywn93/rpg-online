@@ -1,0 +1,162 @@
+import {useEffect, useEffectEvent, useMemo, useState} from "react"
+import { Link } from "react-router-dom"
+import {listPatients} from "./lib/api/Patient.js"
+import {useLocalStorage} from "react-use"
+import {formatIndonesianDate} from "./lib/utils/formatIndonesianDate.js"
+import useAuth from "./UseAuth.js"
+
+function ActionButton({ children, variant = "primary", to }) {
+    const variants = {
+        primary: "bg-blue-600 dark:bg-blue-100 text-slate-50 dark:text-slate-900 hover:bg-blue-800 cursor-pointer",
+        secondary: "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 cursor-pointer",
+    }
+
+    if (to) {
+        return (
+            <Link
+                to={to}
+                className={`inline-flex items-center justify-center rounded-lg px-3 py-2 text-xs font-medium transition ${variants[variant]}`}
+            >
+                {children}
+            </Link>
+        )
+    }
+
+    return (
+        <button
+            type="button"
+            className={`inline-flex items-center justify-center rounded-lg px-3 py-2 text-xs font-medium transition ${variants[variant]}`}
+        >
+            {children}
+        </button>
+    )
+}
+
+export default function Parents() {
+    const [searchTerm, setSearchTerm] = useState("")
+    const [token, _] = useLocalStorage("token", "")
+    const [patients, setPatients] = useState([])
+    const {logout} = useAuth()
+
+    const filteredPatients = useMemo(() => {
+        const keyword = searchTerm.trim().toLowerCase()
+
+        if (!keyword) {
+            return patients
+        }
+
+        return patients.filter((patient) =>
+            [
+                patient.id,
+                patient.nama,
+                patient.alamat,
+                patient.jenis_kelamin,
+                patient.usia,
+            ].some((value) => String(value).toLowerCase().includes(keyword))
+        )
+    }, [patients, searchTerm])
+
+    const fetchPatients = useEffectEvent(async function getPatients(){
+        try {
+            const response = await listPatients(token)
+            const responseBody = await response.json()
+            // console.log(responseBody)
+            setPatients(responseBody.data)
+            if (response.status === 401) {
+                logout()
+            }
+        } catch (e) {
+            console.error(e)
+        }
+    })
+
+    useEffect(() => {
+        fetchPatients()
+    }, [token])
+
+    return (
+        <section className="space-y-5">
+            <div className="rounded-lg border border-slate-200 bg-white dark:bg-slate-950 dark:text-slate-50 p-5 shadow-sm">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <h1 className="text-xl font-bold leading-tight tracking-tight md:text-2xl">
+                            Orang Tua
+                        </h1>
+                        <p className="text-sm text-slate-500 dark:text-slate-200">
+                            Data Orang Tua yang telah terdaftar di sistem.
+                        </p>
+                    </div>
+                    <div className="rounded-full bg-blue-50 dark:bg-blue-950 px-4 py-2 text-sm font-medium text-blue-700 dark:text-blue-50">
+                        Total {filteredPatients.length} orang tua
+                    </div>
+                </div>
+
+                <div className="mt-5 flex flex-col gap-3 rounded-2xl bg-slate-50 dark:bg-slate-950 p-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="space-y-1">
+                        <label htmlFor="patient-search" className="text-sm font-medium text-slate-700 dark:text-slate-100 mr-3">
+                            Cari orang tua
+                        </label>
+                        <input
+                            id="patient-search"
+                            type="search"
+                            value={searchTerm}
+                            onChange={(event) => setSearchTerm(event.target.value)}
+                            placeholder="Cari nama orang tua"
+                            className="w-full rounded-lg border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-700 dark:text-slate-100 focus:border-blue-500 focus:outline-none sm:w-56"
+                        />
+                    </div>
+                </div>
+
+                <div className="mt-5 overflow-x-auto">
+                    <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
+                        <thead>
+                        <tr className="text-slate-500 dark:text-slate-100">
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">ID</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Nama Orang Tua</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Email</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Telepon</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Alamat</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Aksi</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {filteredPatients.map((patient) => (
+                            <tr key={patient.id} className="bg-slate-50 dark:bg-slate-950">
+                                <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4">
+                                        <span className="rounded-full bg-slate-100 dark:bg-slate-950 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-slate-700 dark:text-slate-100">
+                                            {patient.id}
+                                        </span>
+                                </td>
+                                <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 font-medium text-slate-900 dark:text-slate-100">
+                                    {patient.nama}
+                                </td>
+                                <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
+                                    {formatIndonesianDate(patient.tanggal_lahir)}
+                                </td>
+                                <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
+                                    {patient.jenis_kelamin}
+                                </td>
+                                <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
+                                    {patient.alamat}
+                                </td>
+                                <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4">
+                                    <div className="flex flex-wrap gap-2">
+                                        <ActionButton to={`/patients/${patient.id}`}>Detail</ActionButton>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                        {filteredPatients.length === 0 && (
+                            <tr>
+                                <td colSpan={9} className="px-4 py-6 text-center text-sm text-slate-500">
+                                    Pasien tidak ditemukan.
+                                </td>
+                            </tr>
+                        )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    )
+}
