@@ -18,9 +18,6 @@ export default function Profile({patient}) {
 
     const auth = useAuth()
     const user = auth?.user ?? {}
-    console.log(patient)
-
-
 
     return (
         <section className="w-full">

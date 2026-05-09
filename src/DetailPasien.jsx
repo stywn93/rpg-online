@@ -25,11 +25,11 @@ export default function DetailPasien() {
 
             if (patientResponse.ok) {
                 setPatient(patientBody.data)
-                console.log(patientBody.data)
             }
 
             if (riwayatResponse.ok) {
                 setRiwayat(riwayatBody.data ?? [])
+                console.log(riwayatBody.data)
             }
         } catch (e) {
             console.error(e)
