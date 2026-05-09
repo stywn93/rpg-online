@@ -1,8 +1,7 @@
 import {useEffect, useEffectEvent, useMemo, useState} from "react"
 import { Link } from "react-router-dom"
-import {listPatients} from "./lib/api/Patient.js"
+import {listParents} from "./lib/api/Patient.js"
 import {useLocalStorage} from "react-use"
-import {formatIndonesianDate} from "./lib/utils/formatIndonesianDate.js"
 import useAuth from "./UseAuth.js"
 
 function ActionButton({ children, variant = "primary", to }) {
@@ -35,17 +34,17 @@ function ActionButton({ children, variant = "primary", to }) {
 export default function Parents() {
     const [searchTerm, setSearchTerm] = useState("")
     const [token, _] = useLocalStorage("token", "")
-    const [patients, setPatients] = useState([])
+    const [parents, setParents] = useState([])
     const {logout} = useAuth()
 
-    const filteredPatients = useMemo(() => {
+    const filteredParents = useMemo(() => {
         const keyword = searchTerm.trim().toLowerCase()
 
         if (!keyword) {
-            return patients
+            return parents
         }
 
-        return patients.filter((patient) =>
+        return parents.filter((patient) =>
             [
                 patient.id,
                 patient.nama,
@@ -54,14 +53,14 @@ export default function Parents() {
                 patient.usia,
             ].some((value) => String(value).toLowerCase().includes(keyword))
         )
-    }, [patients, searchTerm])
+    }, [parents, searchTerm])
 
-    const fetchPatients = useEffectEvent(async function getPatients(){
+    const fetchParents = useEffectEvent(async function getParents(){
         try {
-            const response = await listPatients(token)
+            const response = await listParents(token)
             const responseBody = await response.json()
-            // console.log(responseBody)
-            setPatients(responseBody.data)
+            console.log(responseBody)
+            setParents(responseBody.data)
             if (response.status === 401) {
                 logout()
             }
@@ -71,7 +70,7 @@ export default function Parents() {
     })
 
     useEffect(() => {
-        fetchPatients()
+        fetchParents()
     }, [token])
 
     return (
@@ -87,7 +86,7 @@ export default function Parents() {
                         </p>
                     </div>
                     <div className="rounded-full bg-blue-50 dark:bg-blue-950 px-4 py-2 text-sm font-medium text-blue-700 dark:text-blue-50">
-                        Total {filteredPatients.length} orang tua
+                        Total {filteredParents.length} orang tua
                     </div>
                 </div>
 
@@ -120,33 +119,33 @@ export default function Parents() {
                         </tr>
                         </thead>
                         <tbody>
-                        {filteredPatients.map((patient) => (
-                            <tr key={patient.id} className="bg-slate-50 dark:bg-slate-950">
+                        {filteredParents.map((parent) => (
+                            <tr key={parent.id} className="bg-slate-50 dark:bg-slate-950">
                                 <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4">
                                         <span className="rounded-full bg-slate-100 dark:bg-slate-950 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-slate-700 dark:text-slate-100">
-                                            {patient.id}
+                                            {parent.id}
                                         </span>
                                 </td>
                                 <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 font-medium text-slate-900 dark:text-slate-100">
-                                    {patient.nama}
+                                    {parent.name}
                                 </td>
                                 <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
-                                    {formatIndonesianDate(patient.tanggal_lahir)}
+                                    {parent.email}
                                 </td>
                                 <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
-                                    {patient.jenis_kelamin}
+                                    {parent.phone}
                                 </td>
                                 <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
-                                    {patient.alamat}
+                                    {parent.alamat}
                                 </td>
                                 <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4">
                                     <div className="flex flex-wrap gap-2">
-                                        <ActionButton to={`/patients/${patient.id}`}>Detail</ActionButton>
+                                        <ActionButton to={`/parents/${parent.id}`}>Detail</ActionButton>
                                     </div>
                                 </td>
                             </tr>
                         ))}
-                        {filteredPatients.length === 0 && (
+                        {filteredParents.length === 0 && (
                             <tr>
                                 <td colSpan={9} className="px-4 py-6 text-center text-sm text-slate-500">
                                     Pasien tidak ditemukan.

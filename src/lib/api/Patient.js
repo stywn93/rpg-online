@@ -19,3 +19,13 @@ export const getPatientDetail = async (token, id) => {
         }
     })
 }
+
+export const listParents = async (token) => {
+    return await fetch(`${apiBaseUrl}/users`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+}
