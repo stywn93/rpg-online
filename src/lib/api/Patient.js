@@ -9,3 +9,13 @@ export const listPatients = async (token) => {
         }
     })
 }
+
+export const getPatientDetail = async (token, id) => {
+    return await fetch(`${apiBaseUrl}/patients/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+}

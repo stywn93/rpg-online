@@ -1,6 +1,3 @@
-import {useEffect, useEffectEvent, useState} from "react"
-import {listAssesment} from "./lib/api/Assesment.js"
-import {useLocalStorage} from "react-use"
 import {formatIndonesianDate} from "./lib/utils/formatIndonesianDate.js"
 
 
@@ -18,26 +15,7 @@ function StatusBadge({ value }) {
     )
 }
 
-export default function RiwayatAnamnesa({patient}) {
-    const [token, _] = useLocalStorage("token", "")
-    const [riwayat, setRiwayat] = useState([])
-    const getRiwayat = useEffectEvent(async function fetchRiwayat(){
-        try {
-            const response = await listAssesment(token, patient.patient_id)
-            const responseBody = await response.json()
-            if(response.status === 200){
-                setRiwayat(responseBody.data)
-            }
-            // console.log(responseBody)
-        } catch (e){
-            console.error(e)
-        }
-
-    })
-    useEffect(() => {
-        getRiwayat()
-    }, [token])
-
+export default function RiwayatAnamnesa({riwayat = []}) {
     return (
         <section className="w-full">
             <div className="mx-auto w-full">

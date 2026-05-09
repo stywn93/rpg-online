@@ -18,6 +18,7 @@ export default function Profile({patient}) {
 
     const auth = useAuth()
     const user = auth?.user ?? {}
+    console.log(patient)
 
 
 
@@ -32,10 +33,10 @@ export default function Profile({patient}) {
 
 
                         <div className="mt-6 space-y-5">
-                            <InfoRow label="Nama" value={patient.nama_lengkap}/>
+                            <InfoRow label="Nama" value={patient.nama_lengkap ?? patient.nama} />
                             <InfoRow label="Usia" value={patient.usia}/>
                             <InfoRow label="Jenis Kelamin" value={patient.jenis_kelamin === "L" ? "Laki-laki" : "Perempuan"}/>
-                            <InfoRow label="Orang Tua" value={patient.nama_orang_tua}/>
+                            <InfoRow label="Orang Tua" value={patient.nama_orang_tua ?? patient.parent_name}/>
                             <InfoRow label="Alamat" value={patient.alamat}/>
                         </div>
                     </div>
