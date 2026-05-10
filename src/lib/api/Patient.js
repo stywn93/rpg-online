@@ -20,12 +20,17 @@ export const getPatientDetail = async (token, id) => {
     })
 }
 
-export const listParents = async (token, page = 1, perPage = 10, searchTerm = "") => {
+export const listParents = async (token, page = 1, perPage = 10, searchTerm = "", status = "") => {
     const params = new URLSearchParams({
         searchTerm,
         page: String(page),
         per_page: String(perPage),
     })
+
+    if (status) {
+        params.set("status", status)
+    }
+
     return await fetch(`${apiBaseUrl}/users?${params.toString()}`, {
         method: 'GET',
         headers: {
