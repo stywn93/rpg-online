@@ -1,6 +1,6 @@
-import {useEffect, useEffectEvent, useState} from "react"
+import {Fragment, useEffect, useEffectEvent, useState} from "react"
 import {Link} from "react-router-dom"
-import {listParents} from "./lib/api/Patient.js"
+import {listUsers} from "./lib/api/Patient.js"
 import {useLocalStorage} from "react-use"
 import useAuth from "./UseAuth.js"
 
@@ -62,10 +62,26 @@ function StatusBadge({value}) {
     )
 }
 
+function getDummyChildren(parent) {
+    const parentLabel = parent.name?.split(" ")[0] ?? "OrangTua"
+
+    return [
+        {
+            id: `${parent.id}-child-1`,
+            name: `Anak ${parentLabel} 1`,
+        },
+        {
+            id: `${parent.id}-child-2`,
+            name: `Anak ${parentLabel} 2`,
+        },
+    ]
+}
+
 export default function Parents() {
     const [searchTerm, setSearchTerm] = useState("")
     const [status, setStatus] = useState("")
     const [currentPage, setCurrentPage] = useState(1)
+    const [expandedParentId, setExpandedParentId] = useState(null)
     const perPage = 10
     const [pagination, setPagination] = useState({
         total: 0,
@@ -78,7 +94,7 @@ export default function Parents() {
 
     const fetchParents = useEffectEvent(async function getParents(page, term, nextStatus) {
         try {
-            const response = await listParents(token, page, perPage, term, nextStatus)
+            const response = await listUsers(token, page, perPage, term, nextStatus)
             const responseBody = await response.json()
             console.log(responseBody)
             setParents(responseBody.data ?? [])
@@ -112,6 +128,10 @@ export default function Parents() {
         setCurrentPage(1)
     }
 
+    function toggleExpandedParent(parentId) {
+        setExpandedParentId((currentId) => currentId === parentId ? null : parentId)
+    }
+
     useEffect(() => {
         fetchParents(currentPage, searchTerm, status)
     }, [token, currentPage, perPage, searchTerm, status])
@@ -123,15 +143,15 @@ export default function Parents() {
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <h1 className="text-xl font-bold leading-tight tracking-tight md:text-2xl">
-                            Orang Tua
+                            Pengguna
                         </h1>
                         <p className="text-sm text-slate-500 dark:text-slate-200">
-                            Data Orang Tua yang telah terdaftar di sistem.
+                            Data Pengguna yang telah terdaftar di sistem.
                         </p>
                     </div>
                     <div
                         className="rounded-full bg-blue-50 dark:bg-blue-950 px-4 py-2 text-sm font-medium text-blue-700 dark:text-blue-50">
-                        Total {pagination.total} orang tua
+                        Total {pagination.total} pengguna
                     </div>
                 </div>
 
@@ -140,14 +160,14 @@ export default function Parents() {
                     <div className="space-y-1">
                         <label htmlFor="parent-search"
                                className="text-sm font-medium text-slate-700 dark:text-slate-100 mr-3">
-                            Cari orang tua
+                            Cari pengguna
                         </label>
                         <input
                             id="parent-search"
                             type="search"
                             value={searchTerm}
                             onChange={handleSearchChange}
-                            placeholder="Cari nama orang tua"
+                            placeholder="Cari nama pengguna"
                             className="w-full rounded-lg border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-700 dark:text-slate-100 focus:border-blue-500 focus:outline-none sm:w-56"
                         />
                         <label htmlFor="parent-status"
@@ -179,8 +199,9 @@ export default function Parents() {
                     <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
                         <thead>
                         <tr className="text-slate-500 dark:text-slate-100">
-                        <th className="border-b border-slate-200 px-4 py-3 font-medium">ID</th>
-                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Nama Orang Tua</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium"></th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">ID</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Nama</th>
                             <th className="border-b border-slate-200 px-4 py-3 font-medium">Email</th>
                             <th className="border-b border-slate-200 px-4 py-3 font-medium">Telepon</th>
                             <th className="border-b border-slate-200 px-4 py-3 font-medium">Alamat</th>
@@ -189,39 +210,81 @@ export default function Parents() {
                         </tr>
                         </thead>
                         <tbody>
-                        {parents.map((parent, index) => (
-                            <tr key={parent.id} className="bg-slate-50 dark:bg-slate-950">
-                                <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4">
-                                        <span
-                                            className="rounded-full bg-slate-100 dark:bg-slate-950 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-slate-700 dark:text-slate-100">
-                                            {(currentPage - 1) * perPage + index + 1}
-                                        </span>
-                                </td>
-                                <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 font-medium text-slate-900 dark:text-slate-100">
-                                    {parent.name}
-                                </td>
-                                <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
-                                    {parent.email}
-                                </td>
-                                <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
-                                    {parent.phone}
-                                </td>
-                                <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
-                                    {parent.alamat}
-                                </td>
-                                <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
-                                    <StatusBadge value={parent.status}/>
-                                </td>
-                                <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4">
-                                    <div className="flex flex-wrap gap-2">
-                                        <ActionButton to={`/parents/${parent.id}`}>Detail</ActionButton>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
+                        {parents.map((user, index) => {
+                            const isExpanded = expandedParentId === user.id
+                            const dummyChildren = getDummyChildren(user)
+
+                            return (
+                                <Fragment key={user.id}>
+                                    <tr className="bg-slate-50 dark:bg-slate-950">
+                                        <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 align-top">
+                                            <button
+                                                type="button"
+                                                onClick={() => toggleExpandedParent(user.id)}
+                                                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-base font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                                                aria-label={isExpanded ? "Collapse row" : "Expand row"}
+                                            >
+                                                {isExpanded ? "−" : "+"}
+                                            </button>
+                                        </td>
+                                        <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4">
+                                            <span
+                                                className="rounded-full bg-slate-100 dark:bg-slate-950 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-slate-700 dark:text-slate-100">
+                                                {(currentPage - 1) * perPage + index + 1}
+                                            </span>
+                                        </td>
+                                        <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 font-medium text-slate-900 dark:text-slate-100">
+                                            {user.name}
+                                        </td>
+                                        <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
+                                            {user.email}
+                                        </td>
+                                        <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
+                                            {user.phone}
+                                        </td>
+                                        <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
+                                            {user.alamat}
+                                        </td>
+                                        <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
+                                            <StatusBadge value={user.status}/>
+                                        </td>
+                                        <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4">
+                                            <div className="flex flex-wrap gap-2">
+                                                <ActionButton to={`/users/${user.id}`}>Detail</ActionButton>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {isExpanded && dummyChildren.map((child) => (
+                                        <tr key={child.id} className="bg-slate-100/60 dark:bg-slate-900/40">
+                                            <td className="px-4 py-3" />
+                                            <td className="border-b border-slate-100 dark:border-slate-700 px-4 py-3" />
+                                            <td className="border-b border-slate-100 dark:border-slate-700 px-4 py-3 text-slate-700 dark:text-slate-100">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-slate-400 dark:text-slate-500">↳</span>
+                                                    <span className="font-medium">{child.name}</span>
+                                                </div>
+                                            </td>
+                                            <td className="border-b border-slate-100 dark:border-slate-700 px-4 py-3 text-slate-500 dark:text-slate-300">
+                                                -
+                                            </td>
+                                            <td className="border-b border-slate-100 dark:border-slate-700 px-4 py-3 text-slate-500 dark:text-slate-300">
+                                                -
+                                            </td>
+                                            <td className="border-b border-slate-100 dark:border-slate-700 px-4 py-3 text-slate-500 dark:text-slate-300">
+                                                -
+                                            </td>
+                                            <td className="border-b border-slate-100 dark:border-slate-700 px-4 py-3 text-slate-500 dark:text-slate-300">
+                                                Anak
+                                            </td>
+                                            <td className="border-b border-slate-100 dark:border-slate-700 px-4 py-3" />
+                                        </tr>
+                                    ))}
+                                </Fragment>
+                            )
+                        })}
                         {parents.length === 0 && (
                             <tr>
-                                <td colSpan={9} className="px-4 py-6 text-center text-sm text-slate-500">
+                                <td colSpan={8} className="px-4 py-6 text-center text-sm text-slate-500">
                                     Orang tua tidak ditemukan.
                                 </td>
                             </tr>

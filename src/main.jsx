@@ -17,6 +17,7 @@ import DetailPasien from "./DetailPasien.jsx"
 import UbahPasien from "./UbahPasien.jsx"
 import Assesment from "./Assesment.jsx"
 import Parents from "./Parents.jsx"
+import DetailUser from "./DetailUser.jsx";
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
@@ -41,10 +42,10 @@ createRoot(document.getElementById('root')).render(
                             <Route path={":patientId"} element={<DetailPasien/>}/>
                             <Route path={":patientId/edit"} element={<UbahPasien/>}/>
                         </Route>
-                        <Route path={"parents"}>
+                        <Route path={"users"}>
                             <Route index element={<Parents/>}/>
                             <Route path={"registration"} element={<Pendaftaran/>}></Route>
-                            <Route path={":patientId"} element={<DetailPasien/>}/>
+                            <Route path={":userID"} element={<DetailUser/>}/>
                             <Route path={":patientId/edit"} element={<UbahPasien/>}/>
                         </Route>
                     </Route>

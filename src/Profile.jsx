@@ -1,10 +1,5 @@
 import useAuth from "./UseAuth"
 
-function resolveValue(...values) {
-    const validValue = values.find((value) => value !== undefined && value !== null && value !== "")
-    return validValue ?? "-"
-}
-
 function InfoRow({label, value}) {
     return (
         <div className="grid gap-1 sm:grid-cols-[140px_1fr] sm:gap-6">
@@ -16,8 +11,8 @@ function InfoRow({label, value}) {
 
 export default function Profile({patient}) {
 
-    const auth = useAuth()
-    const user = auth?.user ?? {}
+    // const auth = useAuth()
+    // const user = auth?.user ?? {}
 
     return (
         <section className="w-full">

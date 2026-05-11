@@ -20,7 +20,7 @@ export const getPatientDetail = async (token, id) => {
     })
 }
 
-export const listParents = async (token, page = 1, perPage = 10, searchTerm = "", status = "") => {
+export const listUsers = async (token, page = 1, perPage = 10, searchTerm = "", status = "") => {
     const params = new URLSearchParams({
         searchTerm,
         page: String(page),
@@ -37,5 +37,26 @@ export const listParents = async (token, page = 1, perPage = 10, searchTerm = ""
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         }
+    })
+}
+
+export const getUserDetail = async (token, id) => {
+    return await fetch(`${apiBaseUrl}/users/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+}
+
+export const updateUserDetail = async (token, id, payload) => {
+    return await fetch(`${apiBaseUrl}/users/${id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
     })
 }
