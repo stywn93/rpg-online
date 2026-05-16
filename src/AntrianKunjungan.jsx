@@ -56,13 +56,16 @@ export default function AntrianKunjungan() {
 
     const [selectedDate, setSelectedDate] = useLocalStorage("tanggalKunjungan", getTodayDate())
     const [queues, setQueues] = useState([])
+    const [status, setStatus] = useState("")
     const {logout} = useAuth()
+    const [currentPage, setCurrentPage] = useState(1)
+    const [searchTerm, setSearchTerm] = useState("")
 
 
     const latestQueue = useEffectEvent(async function fetchQueue() {
         //useEffectEvent adalah hooks yang diperkenalkan sejak react 19 untuk memastikan useEffect mendapatkan state terbaru
         try {
-            const response = await queueList(token, selectedDate)
+            const response = await queueList(token, selectedDate, currentPage, 50, searchTerm, status)
             const responseBody = await response.json();
 
             if (response.status === 200) {
@@ -76,8 +79,8 @@ export default function AntrianKunjungan() {
         }
 
     })
-
-    async function updateQueueStatus(id, status) {
+//token, tanggal, page = 1, perPage = 50, searchTerm = "", status = ""
+    async function updateQueueStatus(id, status,) {
         try {
             const response = await patchQueueStatus(token, id, status)
             const responseBody = await response.json();
@@ -116,6 +119,24 @@ export default function AntrianKunjungan() {
         updateQueueStatus(id, "checked_in")
     }
 
+    function handleStatusChange(e){
+        const newStatus = e.target.value
+        setStatus(newStatus)
+        setCurrentPage(1)
+    }
+    function handleSearchChange(event) {
+        const nextSearchTerm = event.target.value
+        setSearchTerm(nextSearchTerm)
+        setCurrentPage(1)
+    }
+
+    function handleResetFilters() {
+        setSelectedDate("")
+        setStatus("")
+        setSearchTerm("")
+        setCurrentPage(1)
+    }
+
     const handleAbsent = (id) => {
         setQueues((currentQueue) =>
             currentQueue.map((item) =>
@@ -146,7 +167,7 @@ export default function AntrianKunjungan() {
     }
     useEffect(() => {
         latestQueue()
-    }, [token, selectedDate])
+    }, [token, selectedDate, currentPage, searchTerm, status])
 
     return (
         <section className="space-y-5">
@@ -178,11 +199,40 @@ export default function AntrianKunjungan() {
                             onChange={(event) => setSelectedDate(event.target.value)}
                             className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none sm:w-56"
                         />
+                        <label htmlFor="queue-status"
+                               className="text-sm font-medium text-slate-700 dark:text-slate-100 mr-3 ml-3">
+                            Status
+                        </label>
+                        <select
+                            id="queue-status"
+                            value={status}
+                            onChange={handleStatusChange}
+                            className="w-full rounded-lg border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-700 dark:text-slate-100 focus:border-blue-500 focus:outline-none sm:w-56"
+                        >
+                            <option value="">Semua</option>
+                            <option value="booked">Belum Hadir</option>
+                            <option value="checked_in">Hadir</option>
+                            <option value="called">Dalam Pemeriksaan</option>
+                            <option value="finished">Selesai Dilayani</option>
+                            <option value="no_show">Tidak Hadir</option>
+                        </select>
+                        <label htmlFor="parent-search"
+                               className="text-sm font-medium text-slate-700 dark:text-slate-100 ml-3 mr-3">
+                            Cari pasien
+                        </label>
+                        <input
+                            id="parent-search"
+                            type="search"
+                            value={searchTerm}
+                            onChange={handleSearchChange}
+                            placeholder="Cari nama pengguna"
+                            className="w-full rounded-lg border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-700 dark:text-slate-100 focus:border-blue-500 focus:outline-none sm:w-56"
+                        />
                     </div>
                     <button
                         type="button"
-                        onClick={() => setSelectedDate("")}
-                        disabled={!selectedDate}
+                        onClick={handleResetFilters}
+                        disabled={!selectedDate && !status && !searchTerm}
                         className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         Reset filter
@@ -277,7 +327,7 @@ export default function AntrianKunjungan() {
                         </div>
                         <div className="flex items-center gap-3">
                             <span className="h-3 w-3 rounded-full bg-green-500"/>
-                            <span>Warna hijau artinya Dalam Antrian</span>
+                            <span>Warna hijau artinya Selesai Dilayani</span>
                         </div>
                     </div>
                 </div>
