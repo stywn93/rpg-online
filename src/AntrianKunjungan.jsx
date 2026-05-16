@@ -53,8 +53,9 @@ function ActionButton({children, variant = "primary", onClick}) {
 export default function AntrianKunjungan() {
     const [token, _] = useLocalStorage("token", "")
     const navigate = useNavigate()
+    const todayDate = getTodayDate()
 
-    const [selectedDate, setSelectedDate] = useLocalStorage("tanggalKunjungan", getTodayDate())
+    const [selectedDate, setSelectedDate] = useLocalStorage("tanggalKunjungan", todayDate)
     const [queues, setQueues] = useState([])
     const [status, setStatus] = useState("")
     const {logout} = useAuth()
@@ -131,7 +132,7 @@ export default function AntrianKunjungan() {
     }
 
     function handleResetFilters() {
-        setSelectedDate("")
+        setSelectedDate(todayDate)
         setStatus("")
         setSearchTerm("")
         setCurrentPage(1)
@@ -165,6 +166,10 @@ export default function AntrianKunjungan() {
 
         handleCheckIn(item.id)
     }
+    useEffect(() => {
+        setSelectedDate(todayDate)
+    }, [setSelectedDate, todayDate])
+
     useEffect(() => {
         latestQueue()
     }, [token, selectedDate, currentPage, searchTerm, status])
@@ -323,7 +328,7 @@ export default function AntrianKunjungan() {
                         </div>
                         <div className="flex items-center gap-3">
                             <span className="h-3 w-3 rounded-full border border-slate-300 bg-white"/>
-                            <span>Tanpa warna artinya Dalam Antrian</span>
+                            <span>Tanpa warna artinya Belum Hadir</span>
                         </div>
                         <div className="flex items-center gap-3">
                             <span className="h-3 w-3 rounded-full bg-green-500"/>

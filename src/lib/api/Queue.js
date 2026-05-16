@@ -1,18 +1,6 @@
 import { apiBaseUrl } from "./baseUrl"
 
 
-// export const queueList = async(token, tanggal) => {
-//     const url = `${apiBaseUrl}/queues?tanggal=${tanggal}`
-//
-//     return await fetch(url, {
-//         method: 'GET',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'Authorization': `Bearer ${token}`
-//         }
-//     })
-// }
-
 export const queueList = async (token, tanggal, page = 1, perPage = 50, searchTerm = "", status = "") => {
     const params = new URLSearchParams({
         tanggal_kunjungan: String(tanggal),
