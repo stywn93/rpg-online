@@ -1,6 +1,6 @@
 import {Fragment, useEffect, useEffectEvent, useState} from "react"
 import {Link} from "react-router-dom"
-import {listUsers} from "./lib/api/Patient.js"
+import {listPatientsByParent, listUsers} from "./lib/api/Patient.js"
 import {useLocalStorage} from "react-use"
 import useAuth from "./UseAuth.js"
 
@@ -62,19 +62,47 @@ function StatusBadge({value}) {
     )
 }
 
-function getDummyChildren(parent) {
-    const parentLabel = parent.name?.split(" ")[0] ?? "OrangTua"
+function getChildValue(child, keys, fallback = "-") {
+    for (const key of keys) {
+        const value = child?.[key]
+        if (value !== null && value !== undefined && value !== "") {
+            return value
+        }
+    }
 
-    return [
-        {
-            id: `${parent.id}-child-1`,
-            name: `Anak ${parentLabel} 1`,
-        },
-        {
-            id: `${parent.id}-child-2`,
-            name: `Anak ${parentLabel} 2`,
-        },
-    ]
+    return fallback
+}
+
+function getGenderLabel(value) {
+    if (value === "L") {
+        return "Laki-laki"
+    }
+
+    if (value === "P") {
+        return "Perempuan"
+    }
+
+    return value || "-"
+}
+
+function normalizeChildrenResponse(body) {
+    if (Array.isArray(body?.data)) {
+        return body.data
+    }
+
+    if (Array.isArray(body?.data?.data)) {
+        return body.data.data
+    }
+
+    if (Array.isArray(body?.patients)) {
+        return body.patients
+    }
+
+    if (Array.isArray(body)) {
+        return body
+    }
+
+    return []
 }
 
 export default function Parents() {
@@ -90,6 +118,10 @@ export default function Parents() {
     })
     const [token, _] = useLocalStorage("token", "")
     const [parents, setParents] = useState([])
+    const [childrenByParentId, setChildrenByParentId] = useState({})
+    const [loadingChildrenByParentId, setLoadingChildrenByParentId] = useState({})
+    const [childrenErrorByParentId, setChildrenErrorByParentId] = useState({})
+    const [fetchedChildrenByParentId, setFetchedChildrenByParentId] = useState({})
     const {logout} = useAuth()
 
     const fetchParents = useEffectEvent(async function getParents(page, term, nextStatus) {
@@ -128,6 +160,63 @@ export default function Parents() {
         setCurrentPage(1)
     }
 
+    const fetchChildrenByParent = useEffectEvent(async function getChildren(parentId) {
+        if (!token || !parentId) {
+            return
+        }
+
+        if (loadingChildrenByParentId[parentId] || childrenByParentId[parentId]) {
+            return
+        }
+
+        setLoadingChildrenByParentId((current) => ({
+            ...current,
+            [parentId]: true,
+        }))
+        setChildrenErrorByParentId((current) => ({
+            ...current,
+            [parentId]: "",
+        }))
+
+        try {
+            const response = await listPatientsByParent(token, parentId)
+            const responseBody = await response.json()
+
+            if (response.status === 401) {
+                logout()
+                return
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    responseBody?.message
+                    ?? responseBody?.messages?.error
+                    ?? "Gagal memuat data anak."
+                )
+            }
+
+            setChildrenByParentId((current) => ({
+                ...current,
+                [parentId]: normalizeChildrenResponse(responseBody),
+            }))
+        } catch (error) {
+            console.error(error)
+            setChildrenErrorByParentId((current) => ({
+                ...current,
+                [parentId]: error.message ?? "Gagal memuat data anak.",
+            }))
+        } finally {
+            setFetchedChildrenByParentId((current) => ({
+                ...current,
+                [parentId]: true,
+            }))
+            setLoadingChildrenByParentId((current) => ({
+                ...current,
+                [parentId]: false,
+            }))
+        }
+    })
+
     function toggleExpandedParent(parentId) {
         setExpandedParentId((currentId) => currentId === parentId ? null : parentId)
     }
@@ -135,6 +224,18 @@ export default function Parents() {
     useEffect(() => {
         fetchParents(currentPage, searchTerm, status)
     }, [token, currentPage, perPage, searchTerm, status])
+
+    useEffect(() => {
+        if (!expandedParentId) {
+            return
+        }
+
+        if (fetchedChildrenByParentId[expandedParentId] || loadingChildrenByParentId[expandedParentId]) {
+            return
+        }
+
+        fetchChildrenByParent(expandedParentId)
+    }, [expandedParentId, fetchedChildrenByParentId, loadingChildrenByParentId])
 
     return (
         <section className="space-y-5">
@@ -212,7 +313,9 @@ export default function Parents() {
                         <tbody>
                         {parents.map((user, index) => {
                             const isExpanded = expandedParentId === user.id
-                            const dummyChildren = getDummyChildren(user)
+                            const children = childrenByParentId[user.id] ?? []
+                            const isLoadingChildren = Boolean(loadingChildrenByParentId[user.id])
+                            const childrenError = childrenErrorByParentId[user.id]
 
                             return (
                                 <Fragment key={user.id}>
@@ -254,27 +357,53 @@ export default function Parents() {
                                             </div>
                                         </td>
                                     </tr>
-                                    {isExpanded && dummyChildren.map((child) => (
-                                        <tr key={child.id} className="bg-slate-100/60 dark:bg-slate-900/40">
+                                    {isExpanded && isLoadingChildren && (
+                                        <tr className="bg-slate-100/60 dark:bg-slate-900/40">
                                             <td className="px-4 py-3" />
-                                            <td className="border-b border-slate-100 dark:border-slate-700 px-4 py-3" />
+                                            <td colSpan={7} className="border-b border-slate-100 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-300">
+                                                Memuat data anak...
+                                            </td>
+                                        </tr>
+                                    )}
+                                    {isExpanded && !isLoadingChildren && childrenError && (
+                                        <tr className="bg-slate-100/60 dark:bg-slate-900/40">
+                                            <td className="px-4 py-3" />
+                                            <td colSpan={7} className="border-b border-slate-100 dark:border-slate-700 px-4 py-3 text-sm text-red-600 dark:text-red-300">
+                                                {childrenError}
+                                            </td>
+                                        </tr>
+                                    )}
+                                    {isExpanded && !isLoadingChildren && !childrenError && children.length === 0 && (
+                                        <tr className="bg-slate-100/60 dark:bg-slate-900/40">
+                                            <td className="px-4 py-3" />
+                                            <td colSpan={7} className="border-b border-slate-100 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-300">
+                                                Belum ada data anak untuk orang tua ini.
+                                            </td>
+                                        </tr>
+                                    )}
+                                    {isExpanded && !isLoadingChildren && !childrenError && children.map((child, childIndex) => (
+                                        <tr key={child.id ?? child.patient_id ?? `${user.id}-child-${childIndex}`} className="bg-slate-100/60 dark:bg-slate-900/40">
+                                            <td className="px-4 py-3" />
+                                            <td className="border-b border-slate-100 dark:border-slate-700 px-4 py-3 text-slate-500 dark:text-slate-300">
+                                                {getChildValue(child, ["id", "patient_id"])}
+                                            </td>
                                             <td className="border-b border-slate-100 dark:border-slate-700 px-4 py-3 text-slate-700 dark:text-slate-100">
                                                 <div className="flex items-center gap-3">
                                                     <span className="text-slate-400 dark:text-slate-500">↳</span>
-                                                    <span className="font-medium">{child.name}</span>
+                                                    <span className="font-medium">{getChildValue(child, ["nama_lengkap", "nama", "name"])}</span>
                                                 </div>
                                             </td>
                                             <td className="border-b border-slate-100 dark:border-slate-700 px-4 py-3 text-slate-500 dark:text-slate-300">
                                                 -
                                             </td>
                                             <td className="border-b border-slate-100 dark:border-slate-700 px-4 py-3 text-slate-500 dark:text-slate-300">
-                                                -
+                                                {getChildValue(child, ["usia", "age"])}
                                             </td>
                                             <td className="border-b border-slate-100 dark:border-slate-700 px-4 py-3 text-slate-500 dark:text-slate-300">
-                                                -
+                                                {getChildValue(child, ["alamat", "address"])}
                                             </td>
                                             <td className="border-b border-slate-100 dark:border-slate-700 px-4 py-3 text-slate-500 dark:text-slate-300">
-                                                Anak
+                                                {getGenderLabel(getChildValue(child, ["jenis_kelamin", "gender"]))}
                                             </td>
                                             <td className="border-b border-slate-100 dark:border-slate-700 px-4 py-3" />
                                         </tr>
