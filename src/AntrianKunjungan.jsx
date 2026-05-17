@@ -32,6 +32,21 @@ function getTodayDate() {
     return localDate.toISOString().split("T")[0]
 }
 
+function splitServiceTypeNames(serviceTypeNames) {
+    if (Array.isArray(serviceTypeNames)) {
+        return serviceTypeNames.map((item) => String(item).trim()).filter(Boolean)
+    }
+
+    if (typeof serviceTypeNames !== "string") {
+        return []
+    }
+
+    return serviceTypeNames
+        .split(/[|,;\n]+/)
+        .map((item) => item.trim())
+        .filter(Boolean)
+}
+
 function ActionButton({children, variant = "primary", onClick}) {
     const variants = {
         primary: "bg-blue-600 text-white hover:bg-blue-800 cursor-pointer",
@@ -152,6 +167,7 @@ export default function AntrianKunjungan() {
     const handlePrimaryAction = (item) => {
         console.log("clicked")
         if (item.status === "checked_in" || item.status === "called") {
+            updateQueueStatus(item.id, "called")
             navigate(`/reservation/assesment/${item.id}`, {
                 state: {
                     patientName: item.patientName,
@@ -253,7 +269,7 @@ export default function AntrianKunjungan() {
                             <th className="border-b border-slate-200 px-4 py-3 font-medium">Jenis Kelamin</th>
                             <th className="border-b border-slate-200 px-4 py-3 font-medium">Usia</th>
                             <th className="border-b border-slate-200 px-4 py-3 font-medium">Tanggal Kunjungan</th>
-                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Kode Referensi</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Layanan</th>
                             <th className="border-b border-slate-200 px-4 py-3 font-medium">Aksi</th>
                         </tr>
                         </thead>
@@ -276,10 +292,16 @@ export default function AntrianKunjungan() {
                                     {formatIndonesianDate(queue.tanggal_kunjungan)}
                                 </td>
                                 <td className="border-b border-slate-100 px-4 py-4">
-                                        <span
-                                            className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-slate-700">
-                                            {queue.kode_referensi}
-                                        </span>
+                                    <div className="flex flex-wrap gap-2">
+                                        {splitServiceTypeNames(queue.service_type_names).map((service, index) => (
+                                            <span
+                                                key={`${queue.id}-${service}-${index}`}
+                                                className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-slate-700"
+                                            >
+                                                {service}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </td>
                                 <td className="border-b border-slate-100 px-4 py-4">
                                     <div className={`${queue.status === "finished" ? "hidden" : "flex"} flex-wrap gap-2`}>
