@@ -286,7 +286,7 @@ export default function AntrianKunjungan() {
                     className="mt-5 flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-end sm:justify-between">
                     <div className="space-y-1">
                         <label htmlFor="visit-date-filter" className="text-sm font-medium text-slate-700 mr-3">
-                            Filter tanggal kunjungan
+                            Tanggal
                         </label>
                         <input
                             id="visit-date-filter"
@@ -314,14 +314,14 @@ export default function AntrianKunjungan() {
                         </select>
                         <label htmlFor="parent-search"
                                className="text-sm font-medium text-slate-700 dark:text-slate-100 ml-3 mr-3">
-                            Cari pasien
+                            Nama Pasien
                         </label>
                         <input
                             id="parent-search"
                             type="search"
                             value={searchTerm}
                             onChange={handleSearchChange}
-                            placeholder="Cari nama pengguna"
+                            placeholder="Masukkan nama pasien"
                             className="w-full rounded-lg border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-700 dark:text-slate-100 focus:border-blue-500 focus:outline-none sm:w-56"
                         />
                         <div className="relative inline-block">

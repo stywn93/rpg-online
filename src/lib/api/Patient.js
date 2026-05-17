@@ -1,7 +1,25 @@
 import {apiBaseUrl} from "./baseUrl.js";
 
-export const listPatients = async (token) => {
-    return await fetch(`${apiBaseUrl}/patients`, {
+export const listPatients = async (token, {perPage = 10, searchTerm = ""} = {}) => {
+    const params = new URLSearchParams({
+        per_page: String(perPage),
+    })
+
+    if (searchTerm) {
+        params.set("searchTerm", searchTerm)
+    }
+
+    return await fetch(`${apiBaseUrl}/patients?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+}
+
+export const listPatientsByParent = async (token, parentId) => {
+    return await fetch(`${apiBaseUrl}/patients/parent/${parentId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
