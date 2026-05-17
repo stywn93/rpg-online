@@ -1,7 +1,15 @@
 import { apiBaseUrl } from "./baseUrl"
 
 
-export const queueList = async (token, tanggal, page = 1, perPage = 50, searchTerm = "", status = "") => {
+export const queueList = async (
+    token,
+    tanggal,
+    page = 1,
+    perPage = 50,
+    searchTerm = "",
+    status = "",
+    serviceTypeIds = []
+) => {
     const params = new URLSearchParams({
         tanggal_kunjungan: String(tanggal),
         searchTerm,
@@ -11,6 +19,10 @@ export const queueList = async (token, tanggal, page = 1, perPage = 50, searchTe
 
     if (status) {
         params.set("status", status)
+    }
+
+    if (Array.isArray(serviceTypeIds) && serviceTypeIds.length > 0) {
+        params.set("jenis_layanan", serviceTypeIds.map((id) => String(id).trim()).filter(Boolean).join(","))
     }
 
     return await fetch(`${apiBaseUrl}/queues?${params.toString()}`, {

@@ -4,6 +4,7 @@ import {queueList, updateQueue as patchQueueStatus} from "./lib/api/Queue.js"
 import {useLocalStorage} from "react-use"
 import useAuth from "./UseAuth.js"
 import {formatIndonesianDate} from "./lib/utils/formatIndonesianDate.js"
+import {listService} from "./lib/api/ServiceTypes.js"
 
 
 const rowStyles = {
@@ -23,6 +24,23 @@ function normalizeQueueList(payload) {
     }
 
     return null
+}
+
+function normalizeServiceOptions(payload) {
+    const source = Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload?.data?.data)
+            ? payload.data.data
+            : Array.isArray(payload)
+                ? payload
+                : []
+
+    return source
+        .map((item) => ({
+            id: String(item?.id ?? item?.service_type_id ?? ""),
+            name: item?.name ?? item?.nama ?? item?.service_name ?? item?.nama_layanan ?? "",
+        }))
+        .filter((item) => item.id && item.name)
 }
 
 function getTodayDate() {
@@ -76,12 +94,16 @@ export default function AntrianKunjungan() {
     const {logout} = useAuth()
     const [currentPage, setCurrentPage] = useState(1)
     const [searchTerm, setSearchTerm] = useState("")
+    const [serviceOptions, setServiceOptions] = useState([])
+    const [selectedServiceIds, setSelectedServiceIds] = useState([])
+    const [isLoadingServices, setIsLoadingServices] = useState(false)
+    const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false)
 
 
     const latestQueue = useEffectEvent(async function fetchQueue() {
         //useEffectEvent adalah hooks yang diperkenalkan sejak react 19 untuk memastikan useEffect mendapatkan state terbaru
         try {
-            const response = await queueList(token, selectedDate, currentPage, 50, searchTerm, status)
+            const response = await queueList(token, selectedDate, currentPage, 50, searchTerm, status, selectedServiceIds)
             const responseBody = await response.json();
 
             if (response.status === 200) {
@@ -94,6 +116,28 @@ export default function AntrianKunjungan() {
             console.log(error)
         }
 
+    })
+
+    const latestServiceOptions = useEffectEvent(async function fetchServiceOptions() {
+        setIsLoadingServices(true)
+
+        try {
+            const response = await listService(token, {paging: 100})
+            const responseBody = await response.json()
+
+            if (response.status === 200) {
+                setServiceOptions(normalizeServiceOptions(responseBody))
+            }
+
+            if (response.status === 401) {
+                logout()
+            }
+        } catch (error) {
+            console.log(error)
+            setServiceOptions([])
+        } finally {
+            setIsLoadingServices(false)
+        }
     })
 //token, tanggal, page = 1, perPage = 50, searchTerm = "", status = ""
     async function updateQueueStatus(id, status,) {
@@ -150,7 +194,32 @@ export default function AntrianKunjungan() {
         setSelectedDate(todayDate)
         setStatus("")
         setSearchTerm("")
+        setSelectedServiceIds([])
+        setIsServiceDropdownOpen(false)
         setCurrentPage(1)
+    }
+
+    function handleServiceFilterChange(serviceId) {
+        setSelectedServiceIds((currentIds) => {
+            const nextIds = currentIds.includes(serviceId)
+                ? currentIds.filter((id) => id !== serviceId)
+                : [...currentIds, serviceId]
+
+            return nextIds
+        })
+        setCurrentPage(1)
+    }
+
+    function getSelectedServiceLabel() {
+        if (selectedServiceIds.length === 0) {
+            return "Semua layanan"
+        }
+
+        if (selectedServiceIds.length === 1) {
+            return serviceOptions.find((item) => item.id === selectedServiceIds[0])?.name ?? "1 layanan"
+        }
+
+        return `${selectedServiceIds.length} layanan dipilih`
     }
 
     const handleAbsent = (id) => {
@@ -188,7 +257,13 @@ export default function AntrianKunjungan() {
 
     useEffect(() => {
         latestQueue()
-    }, [token, selectedDate, currentPage, searchTerm, status])
+    }, [token, selectedDate, currentPage, searchTerm, status, selectedServiceIds])
+
+    useEffect(() => {
+        if (token) {
+            latestServiceOptions()
+        }
+    }, [token])
 
     return (
         <section className="space-y-5">
@@ -249,11 +324,71 @@ export default function AntrianKunjungan() {
                             placeholder="Cari nama pengguna"
                             className="w-full rounded-lg border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-700 dark:text-slate-100 focus:border-blue-500 focus:outline-none sm:w-56"
                         />
+                        <div className="relative inline-block">
+                            <label className="text-sm font-medium text-slate-700 dark:text-slate-100 ml-3 mr-3">
+                                Layanan
+                            </label>
+                            <button
+                                type="button"
+                                onClick={() => setIsServiceDropdownOpen((current) => !current)}
+                                className="inline-flex w-full items-center justify-between rounded-lg border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-700 dark:text-slate-100 focus:border-blue-500 focus:outline-none sm:w-56"
+                            >
+                                <span className="truncate">{getSelectedServiceLabel()}</span>
+                                <span className="ml-3 text-xs text-slate-400">{isServiceDropdownOpen ? "Tutup" : "Pilih"}</span>
+                            </button>
+
+                            {isServiceDropdownOpen && (
+                                <div className="absolute left-0 z-10 mt-2 w-full min-w-56 rounded-xl border border-slate-200 bg-white p-3 shadow-lg">
+                                    <div className="mb-2 flex items-center justify-between">
+                                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                                            Filter layanan
+                                        </p>
+                                        {selectedServiceIds.length > 0 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedServiceIds([])
+                                                    setCurrentPage(1)
+                                                }}
+                                                className="text-xs font-medium text-blue-600 hover:text-blue-800"
+                                            >
+                                                Bersihkan
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="max-h-60 space-y-2 overflow-y-auto pr-1">
+                                        {isLoadingServices && (
+                                            <p className="py-2 text-sm text-slate-500">Memuat layanan...</p>
+                                        )}
+
+                                        {!isLoadingServices && serviceOptions.length === 0 && (
+                                            <p className="py-2 text-sm text-slate-500">Data layanan tidak tersedia.</p>
+                                        )}
+
+                                        {!isLoadingServices && serviceOptions.map((service) => (
+                                            <label
+                                                key={service.id}
+                                                className="flex cursor-pointer items-start gap-3 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedServiceIds.includes(service.id)}
+                                                    onChange={() => handleServiceFilterChange(service.id)}
+                                                    className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                                />
+                                                <span>{service.name}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                     <button
                         type="button"
                         onClick={handleResetFilters}
-                        disabled={!selectedDate && !status && !searchTerm}
+                        disabled={!selectedDate && !status && !searchTerm && selectedServiceIds.length === 0}
                         className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         Reset filter
