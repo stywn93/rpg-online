@@ -7,6 +7,7 @@ import {useLocalStorage} from "react-use"
 import {listService} from "./lib/api/ServiceTypes.js"
 import {getPatientDetail, listPatients, listPatientsByParent} from "./lib/api/Patient.js"
 import {listAssesment} from "./lib/api/Assesment.js"
+import {createQueue} from "./lib/api/Queue.js"
 import useAuth from "./UseAuth.js"
 import {formatIndonesianDate} from "./lib/utils/formatIndonesianDate.js"
 
@@ -78,6 +79,16 @@ function getInitialPatientId(searchParams, locationState) {
         ?? locationState?.patientId
         ?? locationState?.patient?.id
         ?? ""
+}
+
+function formatVisitDateForApi(value) {
+    if (!(value instanceof Date) || Number.isNaN(value.getTime())) {
+        return ""
+    }
+
+    const localDate = new Date(value.getTime() - value.getTimezoneOffset() * 60000)
+
+    return localDate.toISOString().split("T")[0]
 }
 
 export default function ReservasiBaru() {
@@ -396,6 +407,31 @@ export default function ReservasiBaru() {
         setIsLoading(true)
 
         try {
+            const payload = {
+                patient_id: Number(selectedPatient.id),
+                tanggal_kunjungan: formatVisitDateForApi(data.visitDate),
+                service_type_ids: selectedServiceIds.map((id) => Number(id)),
+                status: "booked"
+            }
+
+            const response = await createQueue(token, payload)
+            const responseBody = await response.json()
+
+            if (response.status === 401) {
+                logout()
+                return
+            }
+
+            if (response.status !== 200 && response.status !== 201) {
+                throw new Error(
+                    responseBody?.message
+                    ?? responseBody?.messages?.error
+                    ?? "Reservasi gagal disimpan."
+                )
+            }
+
+            const savedQueue = responseBody?.data ?? responseBody ?? {}
+
             navigate("/reservation/confirm", {
                 state: {
                     reservation: {
@@ -405,13 +441,16 @@ export default function ReservasiBaru() {
                         age: selectedPatient.usia ?? "-",
                         visitDate: data.visitDate,
                         services: selectedServiceIds,
+                        referenceNumber: savedQueue.kode_booking ?? savedQueue.referenceCode ?? savedQueue.reference_number ?? "-",
+                        queueNumber: savedQueue.nomor_antrian ?? savedQueue.queue_number ?? "-",
+                        queueId: savedQueue.id ?? null,
                     },
                 },
             })
             toast.success("Rencana kunjungan siap dikonfirmasi.", {id: toastId})
         } catch (error) {
             console.error(error)
-            toast.error("Terjadi kesalahan saat memproses rencana kunjungan.", {id: toastId})
+            toast.error(error.message || "Terjadi kesalahan saat memproses rencana kunjungan.", {id: toastId})
         } finally {
             setIsLoading(false)
         }

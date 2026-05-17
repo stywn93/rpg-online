@@ -46,6 +46,17 @@ export const queueDetails = async(token, id) => {
     })
 }
 
+export const createQueue = async (token, payload) => {
+    return await fetch(`${apiBaseUrl}/queues`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+    })
+}
+
 export const updateQueue = async(token, id, status) => {
     const url = `${apiBaseUrl}/queues/${id}`
 
