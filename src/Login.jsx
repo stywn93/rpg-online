@@ -4,7 +4,7 @@ import {userLogin} from "./lib/api/User.js"
 import {useForm} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast'
 import {useEffect, useState} from "react"
-import useAuth from "./UseAuth.js"
+import useAuth from "./auth/UseAuth.js"
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 

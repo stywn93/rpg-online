@@ -1,10 +1,10 @@
 import {useEffect, useEffectEvent, useState} from "react"
 import {useNavigate} from "react-router-dom"
-import {queueList, updateQueue as patchQueueStatus} from "./lib/api/Queue.js"
+import {queueList, updateQueue as patchQueueStatus} from "../lib/api/Queue.js"
 import {useLocalStorage} from "react-use"
-import useAuth from "./UseAuth.js"
-import {formatIndonesianDate} from "./lib/utils/formatIndonesianDate.js"
-import {listService} from "./lib/api/ServiceTypes.js"
+import useAuth from "../auth/UseAuth.js"
+import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
+import {listService} from "../lib/api/ServiceTypes.js"
 
 
 const rowStyles = {
@@ -83,7 +83,7 @@ function ActionButton({children, variant = "primary", onClick}) {
     )
 }
 
-export default function AntrianKunjungan() {
+export default function ReservationList() {
     const [token, _] = useLocalStorage("token", "")
     const navigate = useNavigate()
     const todayDate = getTodayDate()

@@ -3,7 +3,7 @@ import {LogOut, MoreVertical} from "lucide-react"
 import {CalendarDays} from 'lucide-react'
 import {NAV_ITEMS} from "./navConfig"
 import {Link, useNavigate} from "react-router-dom"
-import useAuth from "../UseAuth.js"
+import useAuth from "../auth/UseAuth.js"
 
 
 function getInitials(name) {

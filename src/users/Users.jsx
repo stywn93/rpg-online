@@ -1,8 +1,8 @@
 import {Fragment, useEffect, useEffectEvent, useState} from "react"
 import {Link} from "react-router-dom"
-import {listPatientsByParent, listUsers} from "./lib/api/Patient.js"
+import {listPatientsByParent, listUsers} from "../lib/api/Patient.js"
 import {useLocalStorage} from "react-use"
-import useAuth from "./UseAuth.js"
+import useAuth from "../auth/UseAuth.js"
 
 function ActionButton({children, variant = "primary", to}) {
     const variants = {
@@ -105,7 +105,7 @@ function normalizeChildrenResponse(body) {
     return []
 }
 
-export default function Parents() {
+export default function Users() {
     const [searchTerm, setSearchTerm] = useState("")
     const [status, setStatus] = useState("")
     const [currentPage, setCurrentPage] = useState(1)
@@ -128,16 +128,19 @@ export default function Parents() {
         try {
             const response = await listUsers(token, page, perPage, term, nextStatus)
             const responseBody = await response.json()
-            console.log(responseBody)
+            if (response.status === 401) {
+                // console.error("Unauthorized")
+                logout()
+            }
+            // console.log(responseBody)
+            // console.log(response.status)
             setParents(responseBody.data ?? [])
             setPagination({
                 total: responseBody.meta.total,
                 lastPage: responseBody.meta.last_page,
                 currentPage: responseBody.meta.current_page
             })
-            if (response.status === 401) {
-                logout()
-            }
+
         } catch (e) {
             console.error(e)
         }

@@ -3,7 +3,7 @@ import {useLocalStorage} from "react-use"
 import {Controller, useForm} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast'
 import {useEffect, useState} from "react"
-import {insertAssesment} from "./lib/api/Assesment.js"
+import {insertAssesment} from "../lib/api/Assesment.js"
 import {useParams} from "react-router-dom";
 
 
@@ -30,7 +30,7 @@ const getTodayDateValue = () => {
 }
 
 
-export default function Pemeriksaan({patient}) {
+export default function Assessment({patient}) {
     const defaultFormValues = {
         visitDate: getTodayDateValue(),
         services: "",

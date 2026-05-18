@@ -1,4 +1,4 @@
-import useAuth from "./UseAuth"
+import useAuth from "../auth/UseAuth.js"
 
 function InfoRow({label, value}) {
     return (
@@ -9,7 +9,7 @@ function InfoRow({label, value}) {
     )
 }
 
-export default function Profile({patient}) {
+export default function PatientProfile({patient}) {
 
     // const auth = useAuth()
     // const user = auth?.user ?? {}

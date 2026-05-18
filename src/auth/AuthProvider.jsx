@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useLocalStorage } from "react-use"
-import { AuthContext } from "./AuthContext"
+import { AuthContext } from "./AuthContext.js"
 
 
 export default function AuthProvider({ children }) {

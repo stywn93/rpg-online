@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useLocalStorage } from "react-use"
 import { queueDetails } from "../api/Queue.js"
-import useAuth from "../../UseAuth.js"
+import useAuth from "../../auth/UseAuth.js"
 
 
 export function useAssessmentPatient() {

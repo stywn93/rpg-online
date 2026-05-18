@@ -2,7 +2,7 @@ import {useEffect, useEffectEvent, useState} from "react";
 import {useParams} from "react-router-dom";
 import {useLocalStorage} from "react-use";
 import toast from "react-hot-toast";
-import {getUserDetail, updateUserDetail} from "./lib/api/Patient.js";
+import {getUserDetail, updateUserDetail} from "../lib/api/Patient.js";
 
 const USER_FORM_FIELDS = [
     {label: "Nama", name: "name"},
@@ -126,7 +126,7 @@ async function parseResponseBody(response) {
     }
 }
 
-export default function DetailUser() {
+export default function UserDetails() {
     const {userID} = useParams()
     const [token, _] = useLocalStorage("token", "")
     const [user, setUser] = useState(null)

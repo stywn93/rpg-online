@@ -1,10 +1,10 @@
-import Pemeriksaan from "./Pemeriksaan.jsx"
-import RiwayatAnamnesa from "./RiwayatAnamnesa.jsx"
-import Profile from "./Profile.jsx"
-import {useAssessmentPatient} from "./lib/hooks/CustomHooks.js"
+import Assessment from "./Assessment.jsx"
+import AnamnesaHistory from "./AnamnesaHistory.jsx"
+import PatientProfile from "../patients/PatientProfile.jsx"
+import {useAssessmentPatient} from "../lib/hooks/CustomHooks.js"
 
 
-export default function Assesment() {
+export default function AssesmentLayout() {
 
     const {patient, loading} = useAssessmentPatient()
 
@@ -16,11 +16,11 @@ export default function Assesment() {
             <div className="mx-auto flex flex-col gap-6 xl:flex-row xl:items-start">
 
                 <div className="w-full xl:w-fit xl:max-w-md xl:flex-none xl:shrink-0">
-                    <Pemeriksaan patient={patient}/>
+                    <Assessment patient={patient}/>
                 </div>
                 <div className="flex w-full min-w-0 flex-1 flex-col gap-6">
-                    <Profile patient={patient}/>
-                    <RiwayatAnamnesa patient={patient}/>
+                    <PatientProfile patient={patient}/>
+                    <AnamnesaHistory patient={patient}/>
                 </div>
             </div>
         </section>

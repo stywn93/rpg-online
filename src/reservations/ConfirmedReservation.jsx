@@ -1,7 +1,7 @@
 import { Check } from "lucide-react"
 import { QRCodeSVG } from "qrcode.react"
 import { Link, useLocation } from "react-router-dom"
-import { formatIndonesianDate } from "./lib/utils/formatIndonesianDate.js"
+import { formatIndonesianDate } from "../lib/utils/formatIndonesianDate.js"
 
 const fallbackReservation = {
     referenceNumber: "RPG9976315",
@@ -39,7 +39,7 @@ function QueueQrCode({ value }) {
     )
 }
 
-export default function HasilReservasi() {
+export default function ConfirmedReservation() {
     const { state } = useLocation()
     const reservation = state?.reservation ?? fallbackReservation
 

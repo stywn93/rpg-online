@@ -2,9 +2,9 @@ import { Controller, useForm } from "react-hook-form"
 import { Datepicker } from "flowbite-react"
 import toast from "react-hot-toast"
 import { useNavigate, useParams } from "react-router-dom"
-import { patientData } from "./data/patients.js"
+import { patientData } from "../data/patients.js"
 
-export default function UbahPasien() {
+export default function PatientEdit() {
     const navigate = useNavigate()
     const { patientId } = useParams()
     const patient = patientData.find((item) => item.id === patientId)

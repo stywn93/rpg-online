@@ -4,12 +4,12 @@ import {Controller, useForm} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast'
 import {useEffect, useState} from "react"
 import {Datepicker} from "flowbite-react"
-import useAuth from "./UseAuth.js"
+import useAuth from "../auth/UseAuth.js"
 
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export default function RencanaKunjunganUlang() {
+export default function Revisit() {
     const {
         register, control, handleSubmit, formState: {errors},
     } = useForm({

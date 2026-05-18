@@ -1,12 +1,12 @@
-import {Link, useNavigate} from "react-router"
+import {Link, useNavigate} from "react-router-dom"
 import {userRegister} from "./lib/api/User.js"
 import {useLocalStorage} from "react-use"
 import {useForm} from "react-hook-form"
-import toast, {Toaster} from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import {useState} from "react";
 
 
-export default function Register() {
+export default function Register({withinDashboard = false}) {
     const {
         register, handleSubmit, watch, formState: {errors},
     } = useForm()
@@ -28,17 +28,16 @@ export default function Register() {
                 password: data.thePassword
             });
             const responseBody = await response.json()
-            console.log(responseBody)
-            if (response.status === 200) {
-                const token = responseBody.data.token
-                setToken(token)
-                toast.success("Signed up successfully", {id: toastId})
-                // navigate("/dashboard")
+            // console.log(response.status)
+
+            if (response.status == 200) {
+                toast.success(withinDashboard ? "Pengguna berhasil dibuat" : "Signed up successfully", {id: toastId})
+                navigate(withinDashboard ? "/users" : "/")
             } else {
                 toast.error(responseBody.messages.error, {id: toastId})
             }
         } catch (error) {
-            toast.error("Terjadi kesalahan, coba lagi.", {id: toastId})
+            toast.error(`Terjadi kesalahan, coba lagi. ${error}`, {id: toastId})
         } finally {
             setIsLoading(false)
         }
@@ -46,20 +45,20 @@ export default function Register() {
     }
 
     return (<section>
-        <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-            <a href="#" className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-                <img className="w-8 h-8 mr-2" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg"
-                     alt="logo"/>
-                RPG Online
-            </a>
-            <div>
-                <Toaster/>
-            </div>
+        <div
+            className={`flex flex-col items-center px-6 mx-auto ${withinDashboard ? "py-2 lg:py-0" : "justify-center py-8 md:h-screen lg:py-0"}`}>
+            {!withinDashboard && (
+                <a href="#" className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
+                    <img className="w-8 h-8 mr-2" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg"
+                         alt="logo"/>
+                    RPG Online
+                </a>
+            )}
             <div
-                className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+                className={`w-full bg-white rounded-lg shadow ${withinDashboard ? "sm:max-w-2xl" : "dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700"}`}>
                 <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                     <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                        Buat Akun Baru
+                        {withinDashboard ? "Buat Pengguna Baru" : "Buat Akun Baru"}
                     </h1>
                     <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit(onSubmit)}>
                         <div>
@@ -135,12 +134,22 @@ export default function Register() {
                         <button type="submit" disabled={isLoading}
                                 className="cursor-pointer w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed">{isLoading ? "Signing up..." : "Sign up"}
                         </button>
-                        <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                            Sudah punya akun?
-                            <Link to="/"
-                                  className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-200"> Masuk
-                                di sini</Link>
-                        </p>
+                        {withinDashboard ? (
+                            <button
+                                type="button"
+                                onClick={() => navigate("/users")}
+                                className="cursor-pointer w-full text-white bg-rose-600 hover:bg-rose-700 focus:ring-4 focus:outline-none focus:ring-rose-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Kembali
+                            </button>
+                        ) : (
+                            <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+                                Sudah punya akun?
+                                <Link to="/"
+                                      className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-200"> Masuk
+                                    di sini</Link>
+                            </p>
+                        )}
                     </form>
                 </div>
             </div>

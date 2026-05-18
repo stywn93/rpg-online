@@ -4,12 +4,12 @@ import {Datepicker} from "flowbite-react"
 import toast from "react-hot-toast"
 import {useLocation, useNavigate, useSearchParams} from "react-router-dom"
 import {useLocalStorage} from "react-use"
-import {listService} from "./lib/api/ServiceTypes.js"
-import {getPatientDetail, listPatients, listPatientsByParent} from "./lib/api/Patient.js"
-import {listAssesment} from "./lib/api/Assesment.js"
-import {createQueue} from "./lib/api/Queue.js"
-import useAuth from "./UseAuth.js"
-import {formatIndonesianDate} from "./lib/utils/formatIndonesianDate.js"
+import {listService} from "../lib/api/ServiceTypes.js"
+import {getPatientDetail, listPatients, listPatientsByParent} from "../lib/api/Patient.js"
+import {listAssesment} from "../lib/api/Assesment.js"
+import {createQueue} from "../lib/api/Queue.js"
+import useAuth from "../auth/UseAuth.js"
+import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
 
 function normalizeServiceOptions(payload) {
     const source = Array.isArray(payload?.data)
@@ -91,7 +91,7 @@ function formatVisitDateForApi(value) {
     return localDate.toISOString().split("T")[0]
 }
 
-export default function ReservasiBaru() {
+export default function CreateReservation() {
     const {
         control,
         handleSubmit,
@@ -483,7 +483,7 @@ export default function ReservasiBaru() {
                                     className="read-only:cursor-not-allowed bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                     placeholder={
                                         isSingleChildUser
-                                            ? "Pasien otomatis dipilih"
+                                            ? "Patients otomatis dipilih"
                                             : isAdmin
                                                 ? "Ketik nama pasien"
                                                 : "Ketik nama anak"

@@ -18,7 +18,7 @@
 ## C. Aktor Sistem
 1.	Admin Dinas
 2.	Petugas Rumah Pemulihan Gizi
-3.	Orang Tua/Wali Pasien
+3.	Orang Tua/Wali Patients
 4.	Kepala Dinas / Pimpinan (Monitoring)
 
 # 2️⃣ Konsep Solusi Sistem
@@ -26,7 +26,7 @@
 ## Model Sistem
 
 ### Hybrid System:
-1. Pendaftaran online
+1. PatientRegistration online
 2. Nomor antrian digital
 3. Check-in saat datang
 4. Dashboard monitoring real-time
@@ -51,7 +51,7 @@ Untuk orang tua:
    - Login
    - Verifikasi nomor HP (OTP jika memungkinkan)
    - Manajemen profil anak
-## 3. Modul Pendaftaran Antrian 
+## 3. Modul PatientRegistration Antrian 
 Fitur:
    - Pilih tanggal pelayanan
    - Tampilkan sisa kuota real-time

@@ -1,9 +1,9 @@
 import {useEffect, useEffectEvent, useMemo, useState} from "react"
 import { Link } from "react-router-dom"
-import {listPatients} from "./lib/api/Patient.js"
+import {listPatients} from "../lib/api/Patient.js"
 import {useLocalStorage} from "react-use"
-import {formatIndonesianDate} from "./lib/utils/formatIndonesianDate.js"
-import useAuth from "./UseAuth.js"
+import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
+import useAuth from "../auth/UseAuth.js"
 
 function ActionButton({ children, variant = "primary", to }) {
     const variants = {
@@ -32,7 +32,7 @@ function ActionButton({ children, variant = "primary", to }) {
     )
 }
 
-export default function Pasien() {
+export default function Patients() {
     const [searchTerm, setSearchTerm] = useState("")
     const [token, _] = useLocalStorage("token", "")
     const [patients, setPatients] = useState([])

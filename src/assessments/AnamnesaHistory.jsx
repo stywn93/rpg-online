@@ -1,4 +1,4 @@
-import {formatIndonesianDate} from "./lib/utils/formatIndonesianDate.js"
+import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
 
 
 function StatusBadge({ value }) {
@@ -15,7 +15,7 @@ function StatusBadge({ value }) {
     )
 }
 
-export default function RiwayatAnamnesa({riwayat = []}) {
+export default function AnamnesaHistory({riwayat = []}) {
     return (
         <section className="w-full">
             <div className="mx-auto w-full">

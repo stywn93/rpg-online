@@ -3,7 +3,7 @@ import Topbar from "./components/Topbar"
 import BottomNav from "./components/BottomNav"
 import Sidebar from "./components/Sidebar"
 import { NAV_ITEMS } from "./components/navConfig"
-import useAuth from "./UseAuth.js"
+import useAuth from "./auth/UseAuth.js"
 
 export default function Dashboard(
     {

@@ -5,19 +5,21 @@ import Login from './Login.jsx'
 import Register from './Register.jsx'
 import {BrowserRouter, Route, Routes} from 'react-router-dom'
 import Dashboard from "./Dashboard.jsx"
-import Pasien from "./Pasien.jsx"
-import ReservasiBaru from "./ReservasiBaru.jsx"
+import Patients from "./patients/Patients.jsx"
+import CreateReservation from "./reservations/CreateReservation.jsx"
 import {Toaster} from "react-hot-toast"
-import AuthProvider from "./AuthProvider.jsx"
-import HasilReservasi from "./HasilReservasi.jsx"
-import AntrianKunjungan from "./AntrianKunjungan.jsx"
-import RencanaKunjunganUlang from "./RencanaKunjunganUlang.jsx"
-import Pendaftaran from "./Pendaftaran.jsx"
-import DetailPasien from "./DetailPasien.jsx"
-import UbahPasien from "./UbahPasien.jsx"
-import Assesment from "./Assesment.jsx"
-import Parents from "./Parents.jsx"
-import DetailUser from "./DetailUser.jsx";
+import AuthProvider from "./auth/AuthProvider.jsx"
+import ConfirmedReservation from "./reservations/ConfirmedReservation.jsx"
+import ReservationList from "./reservations/ReservationList.jsx"
+import Revisit from "./reservations/Revisit.jsx"
+import PatientRegistration from "./patients/PatientRegistration.jsx"
+import PatientDetails from "./patients/PatientDetails.jsx"
+import PatientEdit from "./patients/PatientEdit.jsx"
+import AssesmentLayout from "./assessments/AssesmentLayout.jsx"
+import Users from "./users/Users.jsx"
+import UserDetails from "./users/UserDetails.jsx"
+import UserRegistration from "./users/UserRegistration.jsx"
+import UserEdit from "./users/UserEdit.jsx"
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
@@ -30,23 +32,23 @@ createRoot(document.getElementById('root')).render(
                     <Route path='/' element={<Dashboard/>}>
 
                         <Route path='reservation'>
-                            <Route index element={<AntrianKunjungan/>}/>
-                            <Route path='new' element={<ReservasiBaru/>}/>
-                            <Route path='confirm' element={<HasilReservasi/>}/>
-                            <Route path='revisit' element={<RencanaKunjunganUlang/>}/>
-                            <Route path="assesment/:id" element={<Assesment/>}/>
+                            <Route index element={<ReservationList/>}/>
+                            <Route path='new' element={<CreateReservation/>}/>
+                            <Route path='confirm' element={<ConfirmedReservation/>}/>
+                            <Route path='revisit' element={<Revisit/>}/>
+                            <Route path="assesment/:id" element={<AssesmentLayout/>}/>
                         </Route>
                         <Route path={"patients"}>
-                            <Route index element={<Pasien/>}/>
-                            <Route path={"registration"} element={<Pendaftaran/>}></Route>
-                            <Route path={":patientId"} element={<DetailPasien/>}/>
-                            <Route path={":patientId/edit"} element={<UbahPasien/>}/>
+                            <Route index element={<Patients/>}/>
+                            <Route path={"registration"} element={<PatientRegistration/>}></Route>
+                            <Route path={":patientId"} element={<PatientDetails/>}/>
+                            <Route path={":patientId/edit"} element={<PatientEdit/>}/>
                         </Route>
                         <Route path={"users"}>
-                            <Route index element={<Parents/>}/>
-                            <Route path={"registration"} element={<Pendaftaran/>}></Route>
-                            <Route path={":userID"} element={<DetailUser/>}/>
-                            <Route path={":patientId/edit"} element={<UbahPasien/>}/>
+                            <Route index element={<Users/>}/>
+                            <Route path={":userID"} element={<UserDetails/>}/>
+                            <Route path={"registration"} element={<UserRegistration/>}/>
+                            <Route path={":patientId/edit"} element={<UserEdit/>}/>
                         </Route>
                     </Route>
                 </Routes>
