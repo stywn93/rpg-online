@@ -1,5 +1,5 @@
 import {
-    CalendarDays, UserRound, Users,
+    CalendarDays, UserRound, Users, HandHeart
 } from "lucide-react";
 
 export const NAV_ITEMS = [
@@ -8,10 +8,12 @@ export const NAV_ITEMS = [
     // ── Grup Master Data ──
     {key: "patients", label: "Patients Anak", icon: UserRound, section: "Master", link: "/patients"},
     {key: "users", label: "Pengguna", icon: Users, link: "/users"},
+    {key: "services", label: "Layanan", icon: HandHeart, link: "/services"},
 ];
 
 export const BOTTOM_NAV_ITEMS = [
     {key: "reservation", label: "Kunjungan", icon: CalendarDays, link: "/reservation"},
     {key: "patients", label: "Patients Anak", icon: UserRound, link: "/patients"},
     {key: "users", label: "Pengguna", icon: Users, link: "/users"},
+    {key: "services", label: "Layanan", icon: HandHeart, link: "/services"},
 ];

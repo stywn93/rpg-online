@@ -17,7 +17,7 @@ export default function Topbar({title, onNewReservation}) {
             }
             : normalizedPath.startsWith("/users")
                 ? {
-                    to: "/register",
+                    to: "/users/registration",
                     label: "Buat Pengguna Baru",
                 }
                 : null
