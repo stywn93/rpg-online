@@ -118,9 +118,11 @@ export default function CreateReservation() {
     const [patientOptions, setPatientOptions] = useState([])
     const [selectedPatient, setSelectedPatient] = useState(null)
     const [patientSearchTerm, setPatientSearchTerm] = useState("")
+    const [showAllPatients, setShowAllPatients] = useState(false)
     const [isPatientDropdownOpen, setIsPatientDropdownOpen] = useState(false)
     const [isLoadingPatients, setIsLoadingPatients] = useState(false)
     const [isLoadingPatientData, setIsLoadingPatientData] = useState(false)
+    const [spacePressCount, setSpacePressCount] = useState(0)
 
     const initialPatientId = getInitialPatientId(searchParams, location.state)
     const normalizedRole = String(user?.role ?? "").toLowerCase()
@@ -183,11 +185,14 @@ export default function CreateReservation() {
         }
     })
 
-    const fetchPatientOptionsForAdmin = useEffectEvent(async function getPatientsForAdmin(keyword) {
+    const fetchPatientOptionsForAdmin = useEffectEvent(async function getPatientsForAdmin(keyword, {showAll = false} = {}) {
         setIsLoadingPatients(true)
 
         try {
-            const response = await listPatients(token, {perPage: 10, searchTerm: keyword})
+            const response = await listPatients(token, {
+                perPage: showAll ? 1000 : 10,
+                searchTerm: showAll ? "" : keyword,
+            })
             const responseBody = await response.json()
 
             if (response.status === 200) {
@@ -315,6 +320,16 @@ export default function CreateReservation() {
         if (isAdmin) {
             const keyword = patientSearchTerm.trim()
 
+            if (showAllPatients) {
+                const timerId = window.setTimeout(() => {
+                    fetchPatientOptionsForAdmin("", {showAll: true})
+                }, 300)
+
+                return () => {
+                    window.clearTimeout(timerId)
+                }
+            }
+
             if (!keyword) {
                 setPatientOptions([])
                 return
@@ -328,7 +343,7 @@ export default function CreateReservation() {
                 window.clearTimeout(timerId)
             }
         }
-    }, [token, userId, isUserRole, isAdmin, patientSearchTerm])
+    }, [token, userId, isUserRole, isAdmin, patientSearchTerm, showAllPatients])
 
     useEffect(() => {
         if (selectedPatient?.id && token) {
@@ -341,6 +356,10 @@ export default function CreateReservation() {
 
     const visiblePatientOptions = useMemo(() => {
         const keyword = patientSearchTerm.trim().toLowerCase()
+
+        if (showAllPatients) {
+            return patientOptions
+        }
 
         if (!keyword) {
             return isAdmin ? [] : patientOptions
@@ -379,11 +398,50 @@ export default function CreateReservation() {
         const nextValue = event.target.value
         setPatientSearchTerm(nextValue)
         setIsPatientDropdownOpen(true)
+        setSpacePressCount(0)
+
+        if (showAllPatients) {
+            setShowAllPatients(false)
+        }
 
         if (selectedPatient && selectedPatient.nama !== nextValue) {
             setSelectedPatient(null)
             setLastVisitDate("")
         }
+    }
+
+    function handlePatientSearchKeyDown(event) {
+
+        if (!isAdmin) {
+            return
+        }
+
+        if (event.key === " ") {
+            //butuh perbaikan di sini
+            console.log(`key ${event.key} pressed`)
+            console.log(`${nextSpacePressCount} space press`)
+            const nextSpacePressCount = spacePressCount + 1
+            setSpacePressCount(nextSpacePressCount)
+            console.log(`${nextSpacePressCount} space press`)
+
+            if (nextSpacePressCount >= 3) {
+
+                event.preventDefault()
+                setPatientSearchTerm("")
+                setShowAllPatients(true)
+                setIsPatientDropdownOpen(true)
+                setSpacePressCount(0)
+
+                if (selectedPatient) {
+                    setSelectedPatient(null)
+                    setLastVisitDate("")
+                }
+            }
+
+            return
+        }
+
+        setSpacePressCount(0)
     }
 
     function handleSelectPatient(patient) {
@@ -474,6 +532,7 @@ export default function CreateReservation() {
                                     id="patient-search"
                                     value={patientSearchTerm}
                                     onChange={handlePatientSearchChange}
+                                    onKeyDown={handlePatientSearchKeyDown}
                                     onFocus={() => {
                                         if (!isSingleChildUser) {
                                             setIsPatientDropdownOpen(true)
@@ -485,7 +544,7 @@ export default function CreateReservation() {
                                         isSingleChildUser
                                             ? "Patients otomatis dipilih"
                                             : isAdmin
-                                                ? "Ketik nama pasien"
+                                                ? "Spasi 3x atau Ketik nama pasien"
                                                 : "Ketik nama anak"
                                     }
                                 />
