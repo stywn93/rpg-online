@@ -6,7 +6,6 @@ import {useEffect, useState} from "react"
 import {Datepicker} from "flowbite-react"
 import useAuth from "../auth/UseAuth.js"
 
-
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 const DECIMAL_INPUT_REGEX = /^\d{2}\.\d$/
 
@@ -32,8 +31,8 @@ export default function UserRegistration() {
     const navigate = useNavigate()
     const [token, _] = useLocalStorage("token", "")
     const [isLoading, setIsLoading] = useState(false)
-    const [serviceOptions, setServiceOptions] = useState([])
-    const [isLoadingServices, setIsLoadingServices] = useState(false)
+    // const [serviceOptions, setServiceOptions] = useState([])
+    // const [isLoadingServices, setIsLoadingServices] = useState(false)
     const {logout} = useAuth()
 
 

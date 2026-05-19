@@ -1,6 +1,6 @@
 import {Link, useNavigate} from "react-router"
 import {useLocalStorage} from "react-use"
-import {Controller, useForm} from "react-hook-form"
+import {Controller, useForm, useWatch} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast'
 import {useEffect, useState} from "react"
 import {Datepicker} from "flowbite-react"
@@ -20,12 +20,43 @@ const formatSingleDecimalInput = (value) => {
     return `${digits.slice(0, 2)}.${digits.slice(2)}`
 }
 
+
+const calculateAgeParts = (dob) => {
+    if (!(dob instanceof Date) || Number.isNaN(dob.getTime())) {
+        return {years: "", months: ""}
+    }
+
+    const today = new Date()
+    let years = today.getFullYear() - dob.getFullYear()
+    let months = today.getMonth() - dob.getMonth()
+
+    if (today.getDate() < dob.getDate()) {
+        months -= 1
+    }
+
+    if (months < 0) {
+        years -= 1
+        months += 12
+    }
+
+    if (years < 0) {
+        return {years: "", months: ""}
+    }
+
+    return {
+        years: String(years),
+        months: String(months),
+    }
+}
+
+
+
 export default function PatientRegistration() {
     const {
         register, control, handleSubmit, setValue, formState: {errors},
     } = useForm({
         defaultValues: {
-            visitDate: new Date(), services: "", height: "", weight: ""
+            dob: null, visitDate: new Date(), services: "", height: "", weight: ""
         }
     })
 
@@ -34,7 +65,16 @@ export default function PatientRegistration() {
     const [isLoading, setIsLoading] = useState(false)
     const [serviceOptions, setServiceOptions] = useState([])
     const [isLoadingServices, setIsLoadingServices] = useState(false)
-    const {logout} = useAuth()
+    const {logout, user} = useAuth()
+    const selectedDob = useWatch({control, name: "dob"})
+    const ageParts = calculateAgeParts(selectedDob)
+    const normalizedRole = String(user?.role ?? "".toLowerCase())
+    const isAdmin = normalizedRole === "admin"
+    const [patientSearchTerm, setPatientSearchTerm] = useState("")
+    const [showAllPatients, setShowAllPatients] = useState(false)
+    const [isPatientDropdownOpen, setIsPatientDropdownOpen] = useState(false)
+    const [selectedPatient, setSelectedPatient] = useState(null)
+
 
 
 
@@ -48,6 +88,32 @@ export default function PatientRegistration() {
         setValue(fieldName, formatSingleDecimalInput(event.target.value), {
             shouldDirty: true, shouldTouch: true, shouldValidate: true
         })
+    }
+
+    function handlePatientSearchKeyDown(event) {
+        if (!isAdmin) {
+            return
+        }
+
+        if (event.key === " ") {
+            const currentValue = event.currentTarget.value
+
+            const isThirdConsecutiveSpace = currentValue.length >= 2
+                && currentValue.trim() === ""
+                && currentValue.endsWith("  ")
+
+            if (isThirdConsecutiveSpace) {
+                console.log("space pressed 3 times")
+                event.preventDefault()
+                setPatientSearchTerm("")
+                setShowAllPatients(true)
+                setIsPatientDropdownOpen(true)
+
+                if (selectedPatient) {
+                    setSelectedPatient(null)
+                }
+            }
+        }
     }
 
     return (<section>
@@ -74,7 +140,7 @@ export default function PatientRegistration() {
                                     className="text-red-500">*</span></label>
                             <Controller name="dob" control={control} rules={{required: "Tanggal wajib diisi"}}
                                         render={({field}) => (
-                                            <Datepicker language="id-ID" minDate={new Date()} selected={field.value}
+                                            <Datepicker language="id-ID" maxDate={new Date()} selected={field.value}
                                                         onChange={(date) => {
                                                             field.onChange(date)
                                                             console.log("Tanggal dipilih :", date)
@@ -89,6 +155,7 @@ export default function PatientRegistration() {
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="flex w-full rounded-base">
                                     <input readOnly type="text" id="ageYear"
+                                           value={ageParts.years}
                                            className="read-only:cursor-not-allowed w-full bg-gray-50 border-gray-300 rounded-none rounded-s-base px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm focus:ring-brand focus:border-brand placeholder:text-body"
                                            placeholder="3"/>
                                     <span
@@ -96,6 +163,7 @@ export default function PatientRegistration() {
                                 </div>
                                 <div className="flex w-full rounded-base">
                                     <input readOnly type="text" id="ageMonth"
+                                           value={ageParts.months}
                                            className="read-only:cursor-not-allowed w-full bg-gray-50 border-gray-300 rounded-none rounded-s-base px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm focus:ring-brand focus:border-brand placeholder:text-body"
                                            placeholder="10"/>
                                     <span
@@ -116,7 +184,8 @@ export default function PatientRegistration() {
                                 className="text-red-500">*</span></label>
                             <input type="text" name="parent" id="parent"
                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                                   placeholder="Nama Orang Tua"/>
+                                   placeholder="Nama Orang Tua"
+                            onKeyDown={handlePatientSearchKeyDown}/>
                         </div>
                         <div>
                             <label htmlFor="golonganDarah"
