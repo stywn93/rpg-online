@@ -122,7 +122,6 @@ export default function CreateReservation() {
     const [isPatientDropdownOpen, setIsPatientDropdownOpen] = useState(false)
     const [isLoadingPatients, setIsLoadingPatients] = useState(false)
     const [isLoadingPatientData, setIsLoadingPatientData] = useState(false)
-    const [spacePressCount, setSpacePressCount] = useState(0)
 
     const initialPatientId = getInitialPatientId(searchParams, location.state)
     const normalizedRole = String(user?.role ?? "").toLowerCase()
@@ -398,7 +397,6 @@ export default function CreateReservation() {
         const nextValue = event.target.value
         setPatientSearchTerm(nextValue)
         setIsPatientDropdownOpen(true)
-        setSpacePressCount(0)
 
         if (showAllPatients) {
             setShowAllPatients(false)
@@ -411,37 +409,29 @@ export default function CreateReservation() {
     }
 
     function handlePatientSearchKeyDown(event) {
-
         if (!isAdmin) {
             return
         }
 
         if (event.key === " ") {
-            //butuh perbaikan di sini
-            console.log(`key ${event.key} pressed`)
-            console.log(`${nextSpacePressCount} space press`)
-            const nextSpacePressCount = spacePressCount + 1
-            setSpacePressCount(nextSpacePressCount)
-            console.log(`${nextSpacePressCount} space press`)
+            const currentValue = event.currentTarget.value
 
-            if (nextSpacePressCount >= 3) {
+            const isThirdConsecutiveSpace = currentValue.length >= 2
+                && currentValue.trim() === ""
+                && currentValue.endsWith("  ")
 
+            if (isThirdConsecutiveSpace) {
                 event.preventDefault()
                 setPatientSearchTerm("")
                 setShowAllPatients(true)
                 setIsPatientDropdownOpen(true)
-                setSpacePressCount(0)
 
                 if (selectedPatient) {
                     setSelectedPatient(null)
                     setLastVisitDate("")
                 }
             }
-
-            return
         }
-
-        setSpacePressCount(0)
     }
 
     function handleSelectPatient(patient) {
