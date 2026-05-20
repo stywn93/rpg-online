@@ -10,53 +10,8 @@ import {listAssesment} from "../lib/api/Assesment.js"
 import {createQueue} from "../lib/api/Queue.js"
 import useAuth from "../auth/UseAuth.js"
 import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
+import {normalizePeopleDetail, normalizeAssessment, normalizeServiceList} from "../lib/utils/Normalization.js"
 
-function normalizeServiceOptions(payload) {
-    const source = Array.isArray(payload?.data)
-        ? payload.data
-        : Array.isArray(payload?.data?.data)
-            ? payload.data.data
-            : Array.isArray(payload)
-                ? payload
-                : []
-
-    return source
-        .map((item) => ({
-            id: String(item?.id ?? item?.service_type_id ?? ""),
-            name: item?.name ?? item?.nama ?? item?.service_name ?? item?.nama_layanan ?? "",
-        }))
-        .filter((item) => item.id && item.name)
-}
-
-function normalizePatientOptions(payload) {
-    const source = Array.isArray(payload?.data)
-        ? payload.data
-        : Array.isArray(payload?.data?.data)
-            ? payload.data.data
-            : Array.isArray(payload)
-                ? payload
-                : []
-
-    return source
-        .map((item) => ({
-            ...item,
-            id: String(item?.id ?? ""),
-            nama: item?.nama_lengkap ?? item?.nama ?? "",
-        }))
-        .filter((item) => item.id && item.nama)
-}
-
-function normalizeAssessmentList(payload) {
-    if (Array.isArray(payload?.data)) {
-        return payload.data
-    }
-
-    if (Array.isArray(payload)) {
-        return payload
-    }
-
-    return []
-}
 
 function parseAgeParts(ageValue) {
     const fallback = {years: "-", months: "-"}
@@ -139,7 +94,7 @@ export default function CreateReservation() {
             const responseBody = await response.json()
 
             if (response.status === 200) {
-                setServiceOptions(normalizeServiceOptions(responseBody))
+                setServiceOptions(normalizeServiceList(responseBody))
             }
 
             if (response.status === 401) {
@@ -195,7 +150,8 @@ export default function CreateReservation() {
             const responseBody = await response.json()
 
             if (response.status === 200) {
-                setPatientOptions(normalizePatientOptions(responseBody))
+                setPatientOptions(normalizePeopleDetail(responseBody))
+                console.log("list all patients is triggered")
             }
 
             if (response.status === 401) {
@@ -217,13 +173,15 @@ export default function CreateReservation() {
         }
 
         setIsLoadingPatients(true)
+        console.log("fetchChildrenForUser", userId)
 
         try {
             const response = await listPatientsByParent(token, userId)
             const responseBody = await response.json()
 
             if (response.status === 200) {
-                const children = normalizePatientOptions(responseBody)
+                console.log("list patients by parent is triggered")
+                const children = normalizePeopleDetail(responseBody)
                 setPatientOptions(children)
 
                 if (children.length === 1) {
@@ -257,7 +215,7 @@ export default function CreateReservation() {
             const responseBody = await response.json()
 
             if (response.status === 200) {
-                const assessments = normalizeAssessmentList(responseBody)
+                const assessments = normalizeAssessment(responseBody)
                 const latestAssessment = assessments
                     .filter((item) => item?.tanggal_pemeriksaan)
                     .sort((left, right) => new Date(right.tanggal_pemeriksaan) - new Date(left.tanggal_pemeriksaan))[0]
