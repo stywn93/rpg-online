@@ -3,6 +3,9 @@ import {useParams} from "react-router-dom";
 import {useLocalStorage} from "react-use";
 import toast from "react-hot-toast";
 import {getUserDetail, updateUserDetail} from "../lib/api/Patient.js";
+import {userActivate} from "../lib/api/User.js";
+import useAuth from "../auth/UseAuth.js";
+
 
 const USER_FORM_FIELDS = [
     {label: "Nama", name: "name"},
@@ -129,11 +132,14 @@ async function parseResponseBody(response) {
 export default function UserDetails() {
     const {userID} = useParams()
     const [token, _] = useLocalStorage("token", "")
+    const {logout} = useAuth()
     const [user, setUser] = useState(null)
     const [formData, setFormData] = useState(createFormData())
     const [isEditing, setIsEditing] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
+    const [isActivating, setIsActivating] = useState(false)
     const children = resolveChildren(user)
+    const canActivate = Boolean(user) && user?.status?.toLowerCase() !== "active"
 
     const fetchUserDetail = useEffectEvent(async function getDetailUser() {
         try {
@@ -176,7 +182,7 @@ export default function UserDetails() {
     }
 
     const handleSave = async function saveUserDetail() {
-        if (!token || !userID || isSaving) {
+        if (!token || !userID || isSaving || isActivating) {
             return
         }
 
@@ -211,6 +217,44 @@ export default function UserDetails() {
             toast.error(error.message ?? "Terjadi kesalahan saat menyimpan data.")
         } finally {
             setIsSaving(false)
+        }
+    }
+
+    const handleActivate = async function activateUser() {
+        if (!token || !userID || !user || isActivating || !canActivate) {
+            return
+        }
+
+        try {
+            setIsActivating(true)
+            const response = await userActivate(token, userID)
+            const body = await parseResponseBody(response)
+
+            if (response.status === 401) {
+                logout()
+                return
+            }
+
+            if (!response.ok) {
+                throw new Error(body?.message ?? body?.messages?.error ?? "Gagal mengaktifkan pengguna.")
+            }
+
+            const activatedUser = body?.data ? {
+                ...user,
+                ...body.data,
+            } : {
+                ...user,
+                status: "active",
+            }
+
+            setUser(activatedUser)
+            syncForm(activatedUser)
+            toast.success("Pengguna berhasil diaktifkan.")
+        } catch (error) {
+            console.error(error)
+            toast.error(error.message ?? "Terjadi kesalahan saat mengaktifkan pengguna.")
+        } finally {
+            setIsActivating(false)
         }
     }
 
@@ -271,11 +315,21 @@ export default function UserDetails() {
                             <button
                                 type="button"
                                 onClick={handlePrimaryAction}
-                                disabled={!user || isSaving}
+                                disabled={!user || isSaving || isActivating}
                                 className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 {isSaving ? "Menyimpan..." : isEditing ? "Simpan" : "Edit"}
                             </button>
+                            {!isEditing && canActivate ? (
+                                <button
+                                    type="button"
+                                    onClick={handleActivate}
+                                    disabled={!user || isActivating || isSaving}
+                                    className="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    {isActivating ? "Mengaktifkan..." : "Aktifkan"}
+                                </button>
+                            ) : null}
                             {isEditing ? (
                                 <button
                                     type="button"
