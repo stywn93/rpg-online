@@ -3,11 +3,14 @@ import {Link} from "react-router-dom"
 import {listPatientsByParent, listUsers} from "../lib/api/Patient.js"
 import {useLocalStorage} from "react-use"
 import useAuth from "../auth/UseAuth.js"
+import toast from "react-hot-toast"
+import {userActivate} from "../lib/api/User.js"
 
-function ActionButton({children, variant = "primary", to}) {
+function ActionButton({children, variant = "primary", to, onClick, disabled}) {
     const variants = {
         primary: "bg-blue-600 dark:bg-blue-100 text-slate-50 dark:text-slate-900 hover:bg-blue-800 cursor-pointer",
         secondary: "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 cursor-pointer",
+        success: "bg-green-600 dark:bg-green-100 text-slate-50 dark:text-slate-900 hover:bg-green-800 cursor-pointer",
     }
 
     if (to) {
@@ -24,7 +27,9 @@ function ActionButton({children, variant = "primary", to}) {
     return (
         <button
             type="button"
-            className={`inline-flex items-center justify-center rounded-lg px-3 py-2 text-xs font-medium transition ${variants[variant]}`}
+            onClick={onClick}
+            disabled={disabled}
+            className={`inline-flex items-center justify-center rounded-lg px-3 py-2 text-xs font-medium transition ${variants[variant]} disabled:opacity-50 disabled:cursor-not-allowed`}
         >
             {children}
         </button>
@@ -105,6 +110,20 @@ function normalizeChildrenResponse(body) {
     return []
 }
 
+async function parseResponseBody(response) {
+    const rawBody = await response.text()
+
+    if (!rawBody) {
+        return null
+    }
+
+    try {
+        return JSON.parse(rawBody)
+    } catch {
+        return null
+    }
+}
+
 export default function Users() {
     const [searchTerm, setSearchTerm] = useState("")
     const [status, setStatus] = useState("")
@@ -122,6 +141,7 @@ export default function Users() {
     const [loadingChildrenByParentId, setLoadingChildrenByParentId] = useState({})
     const [childrenErrorByParentId, setChildrenErrorByParentId] = useState({})
     const [fetchedChildrenByParentId, setFetchedChildrenByParentId] = useState({})
+    const [activatingUserIdMap, setActivatingUserIdMap] = useState({})
     const {logout} = useAuth()
 
     const fetchParents = useEffectEvent(async function getParents(page, term, nextStatus) {
@@ -223,6 +243,40 @@ export default function Users() {
     function toggleExpandedParent(parentId) {
         setExpandedParentId((currentId) => currentId === parentId ? null : parentId)
     }
+
+    const handleActivateUser = async (userId) => {
+        if (!token || !userId || activatingUserIdMap[userId]) {
+            return
+        }
+
+        try {
+            setActivatingUserIdMap((prev) => ({ ...prev, [userId]: true }))
+            const response = await userActivate(token, userId)
+            const responseBody = await parseResponseBody(response)
+
+            if (response.status === 401) {
+                logout()
+                return
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    responseBody?.message ?? responseBody?.messages?.error ?? "Gagal mengaktifkan pengguna."
+                )
+            }
+
+            toast.success("Pengguna berhasil diaktifkan.")
+            setParents((currentParents) =>
+                currentParents.map((u) => (u.id === userId ? { ...u, status: "active" } : u))
+            )
+        } catch (error) {
+            console.error(error)
+            toast.error(error.message ?? "Terjadi kesalahan saat mengaktifkan pengguna.")
+        } finally {
+            setActivatingUserIdMap((prev) => ({ ...prev, [userId]: false }))
+        }
+    }
+
 
     useEffect(() => {
         fetchParents(currentPage, searchTerm, status)
@@ -357,6 +411,15 @@ export default function Users() {
                                         <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4">
                                             <div className="flex flex-wrap gap-2">
                                                 <ActionButton to={`/users/${user.id}`}>Detail</ActionButton>
+                                                {user.status?.toLowerCase() !== "active" && (
+                                                    <ActionButton
+                                                        variant="success"
+                                                        onClick={() => handleActivateUser(user.id)}
+                                                        disabled={Boolean(activatingUserIdMap[user.id])}
+                                                    >
+                                                        {activatingUserIdMap[user.id] ? "Mengaktifkan..." : "Aktifkan"}
+                                                    </ActionButton>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
