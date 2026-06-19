@@ -1,4 +1,5 @@
-import { Outlet, useLocation } from "react-router-dom"
+import { Outlet, useLocation, useNavigate } from "react-router-dom"
+import { useEffect } from "react"
 import Topbar from "./components/Topbar"
 import BottomNav from "./components/BottomNav"
 import Sidebar from "./components/Sidebar"
@@ -15,8 +16,17 @@ export default function Dashboard(
         pageTitle,
     }
 ) {
-    const { user } = useAuth()
+    const { user, logout } = useAuth()
     const { pathname } = useLocation();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!user) {
+            logout();
+            navigate("/login");
+        }
+    }, [user, logout, navigate]);
+
     const normalizedPath = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
     const currentNavItem = NAV_ITEMS.find((item) => {
         if (!item.link) {
