@@ -1,9 +1,11 @@
-import {useEffect, useState} from "react"
+import {useEffect, useState, useCallback} from "react"
 import {Link} from "react-router-dom"
 import {listService, deleteServiceType} from "../lib/api/ServiceTypes.js"
 import {useLocalStorage} from "react-use"
 import useAuth from "../auth/UseAuth.js"
 import toast from "react-hot-toast"
+import Swal from "sweetalert2"
+import "sweetalert2/src/sweetalert2.scss"
 
 function ActionButton({children, variant = "primary", to, onClick, disabled}) {
     const variants = {
@@ -41,7 +43,7 @@ export default function ServiceList() {
     const [loading, setLoading] = useState(true)
     const {logout} = useAuth()
 
-    const fetchServices = async () => {
+    const fetchServices = useCallback(async () => {
         setLoading(true)
         try {
             const response = await listService(token, {perPage: 100})
@@ -57,10 +59,21 @@ export default function ServiceList() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [token, logout])
 
     const handleDelete = async (id) => {
-        if (!confirm("Apakah Anda yakin ingin menghapus layanan ini?")) return
+        const result = await Swal.fire({
+            title: "Apakah Anda yakin?",
+            text: "Layanan ini akan dihapus secara permanen!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#dc2626",
+            cancelButtonColor: "#64748b",
+            confirmButtonText: "Ya, hapus!",
+            cancelButtonText: "Batal"
+        })
+
+        if (!result.isConfirmed) return
         
         try {
             const response = await deleteServiceType(token, id)
@@ -79,7 +92,7 @@ export default function ServiceList() {
 
     useEffect(() => {
         if (token) fetchServices()
-    }, [token])
+    }, [token, fetchServices])
 
     return (
         <section className="space-y-5">
