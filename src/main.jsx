@@ -20,6 +20,8 @@ import Users from "./users/Users.jsx"
 import UserDetails from "./users/UserDetails.jsx"
 import UserRegistration from "./users/UserRegistration.jsx"
 import UserEdit from "./users/UserEdit.jsx"
+import ServiceList from "./services/ServiceList.jsx"
+import ServiceForm from "./services/ServiceForm.jsx"
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
@@ -49,6 +51,11 @@ createRoot(document.getElementById('root')).render(
                             <Route path={":userID"} element={<UserDetails/>}/>
                             <Route path={"registration"} element={<UserRegistration/>}/>
                             <Route path={":patientId/edit"} element={<UserEdit/>}/>
+                        </Route>
+                        <Route path={"services"}>
+                            <Route index element={<ServiceList/>}/>
+                            <Route path={"create"} element={<ServiceForm/>}/>
+                            <Route path={":id/edit"} element={<ServiceForm/>}/>
                         </Route>
                     </Route>
                 </Routes>
