@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from "react"
-import {LogOut, MoreVertical} from "lucide-react"
+import {LogOut, MoreVertical, KeyRound} from "lucide-react"
 import {CalendarDays} from 'lucide-react'
 import {NAV_ITEMS} from "./navConfig"
 import {Link, useNavigate} from "react-router-dom"
@@ -145,6 +145,14 @@ export default function Sidebar({activeKey, onNavigate, user}) {
                 </button>
                 {isUserMenuOpen && (
                     <div className="cursor-pointer absolute bottom-[calc(100%-0.25rem)] left-2.5 right-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-1 shadow-lg">
+                        <button
+                            type="button"
+
+                            className="cursor-pointer flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-50 transition-colors duration-150 hover:bg-blue-50 dark:hover:bg-blue-900"
+                        >
+                            <KeyRound size={16} className="shrink-0" />
+                            <span>Ganti Password</span>
+                        </button>
                         <button
                             type="button"
                             onClick={handleLogout}

@@ -21,12 +21,14 @@ const formatSingleDecimalInput = (value) => {
 
 export default function UserRegistration() {
     const {
-        register, control, handleSubmit, setValue, formState: {errors},
+        register, control, handleSubmit, setValue, watch, formState: {errors},
     } = useForm({
         defaultValues: {
             visitDate: new Date(), services: "", height: "", weight: ""
         }
     })
+
+    const password = watch("thePassword")
 
     const navigate = useNavigate()
     const [token, _] = useLocalStorage("token", "")
