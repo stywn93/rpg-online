@@ -84,3 +84,15 @@ export const userActivate = async (token, id) => {
         }
     })
 }
+
+export const changeUserPassword = async (token, id, password) => {
+    return await fetch(`${apiBaseUrl}/users/${id}/password`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ password })
+    })
+}

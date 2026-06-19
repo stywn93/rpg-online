@@ -3,7 +3,7 @@ import {useParams} from "react-router-dom";
 import {useLocalStorage} from "react-use";
 import toast from "react-hot-toast";
 import {getUserDetail, updateUserDetail} from "../lib/api/Patient.js";
-import {userActivate} from "../lib/api/User.js";
+import {userActivate, changeUserPassword} from "../lib/api/User.js";
 import useAuth from "../auth/UseAuth.js";
 
 
@@ -138,6 +138,7 @@ export default function UserDetails() {
     const [isEditing, setIsEditing] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const [isActivating, setIsActivating] = useState(false)
+    const [isChangingPassword, setIsChangingPassword] = useState(false)
     const children = resolveChildren(user)
     const canActivate = Boolean(user) && user?.status?.toLowerCase() !== "active"
 
@@ -258,6 +259,34 @@ export default function UserDetails() {
         }
     }
 
+    const handleChangePassword = async function changePassword() {
+        if (!token || !userID || !user || isChangingPassword) {
+            return
+        }
+
+        const newPassword = prompt("Masukkan password baru:")
+        if (!newPassword) {
+            return
+        }
+
+        try {
+            setIsChangingPassword(true)
+            const response = await changeUserPassword(token, userID, newPassword)
+            const body = await parseResponseBody(response)
+
+            if (!response.ok) {
+                throw new Error(body?.message ?? body?.messages?.error ?? "Gagal mengubah password.")
+            }
+
+            toast.success("Password berhasil diubah.")
+        } catch (error) {
+            console.error(error)
+            toast.error(error.message ?? "Terjadi kesalahan saat mengubah password.")
+        } finally {
+            setIsChangingPassword(false)
+        }
+    }
+
     function handlePrimaryAction() {
         if (isEditing) {
             handleSave()
@@ -315,7 +344,7 @@ export default function UserDetails() {
                             <button
                                 type="button"
                                 onClick={handlePrimaryAction}
-                                disabled={!user || isSaving || isActivating}
+                                disabled={!user || isSaving || isActivating || isChangingPassword}
                                 className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 {isSaving ? "Menyimpan..." : isEditing ? "Simpan" : "Edit"}
@@ -324,10 +353,20 @@ export default function UserDetails() {
                                 <button
                                     type="button"
                                     onClick={handleActivate}
-                                    disabled={!user || isActivating || isSaving}
+                                    disabled={!user || isActivating || isSaving || isChangingPassword}
                                     className="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     {isActivating ? "Mengaktifkan..." : "Aktifkan"}
+                                </button>
+                            ) : null}
+                            {!isEditing ? (
+                                <button
+                                    type="button"
+                                    onClick={handleChangePassword}
+                                    disabled={!user || isActivating || isSaving || isChangingPassword}
+                                    className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    {isChangingPassword ? "Mengubah..." : "Ubah Password"}
                                 </button>
                             ) : null}
                             {isEditing ? (
