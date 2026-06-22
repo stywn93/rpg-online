@@ -8,10 +8,10 @@ import {listService} from "../lib/api/ServiceTypes.js"
 
 
 const rowStyles = {
-    called: "bg-blue-100",
-    no_show: "bg-red-100",
-    waiting: "bg-white",
-    finished: "bg-green-100"
+    called: "bg-blue-100 dark:bg-blue-900/50",
+    no_show: "bg-red-100 dark:bg-red-900/50",
+    waiting: "bg-white dark:bg-slate-900",
+    finished: "bg-green-100 dark:bg-green-900/50"
 }
 
 function normalizeQueueList(payload) {
@@ -267,25 +267,25 @@ export default function ReservationList() {
 
     return (
         <section className="space-y-5">
-            <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                        <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
+                        <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                             Antrian Kunjungan
                         </h1>
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
                             Daftar pasien yang sudah memiliki rencana kunjungan.
                         </p>
                     </div>
-                    <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700">
+                    <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-300">
                         Total {queues.length} pasien
                     </div>
                 </div>
 
                 <div
-                    className="mt-5 flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-end sm:justify-between">
+                    className="mt-5 flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 dark:bg-slate-950 sm:flex-row sm:items-end sm:justify-between">
                     <div className="space-y-1">
-                        <label htmlFor="visit-date-filter" className="text-sm font-medium text-slate-700 mr-3">
+                        <label htmlFor="visit-date-filter" className="text-sm font-medium text-slate-700 dark:text-slate-100 mr-3">
                             Tanggal
                         </label>
                         <input
@@ -293,7 +293,7 @@ export default function ReservationList() {
                             type="date"
                             value={selectedDate ?? ""}
                             onChange={(event) => setSelectedDate(event.target.value)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none sm:w-56"
+                            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 dark:border-slate-900 dark:bg-slate-950 dark:text-slate-100 focus:border-blue-500 focus:outline-none sm:w-56"
                         />
                         <label htmlFor="queue-status"
                                className="text-sm font-medium text-slate-700 dark:text-slate-100 mr-3 ml-3">
@@ -398,47 +398,47 @@ export default function ReservationList() {
                 <div className="mt-5 overflow-x-auto">
                     <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
                         <thead>
-                        <tr className="text-slate-500">
-                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Nomor Antrian</th>
-                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Nama Pasien</th>
-                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Jenis Kelamin</th>
-                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Usia</th>
-                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Tanggal Kunjungan</th>
-                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Layanan</th>
-                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Aksi</th>
+                        <tr className="text-slate-500 dark:text-slate-400">
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Nomor Antrian</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Nama Pasien</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Jenis Kelamin</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Usia</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Tanggal Kunjungan</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Layanan</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Aksi</th>
                         </tr>
                         </thead>
                         <tbody>
                         {queues.map(((queue) => (
                             <tr key={queue.id} className={rowStyles[queue.status] ?? rowStyles.waiting}>
-                                <td className="border-b border-slate-100 px-4 py-4 font-bold text-slate-900">
+                                <td className="border-b border-slate-100 px-4 py-4 font-bold text-slate-900 dark:border-slate-700 dark:text-slate-100">
                                     {queue.nomor_antrian}
                                 </td>
-                                <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
+                                <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
                                     {queue.nama_pasien}
                                 </td>
-                                <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
+                                <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
                                     {queue.jenis_kelamin === "L" ? "Laki-laki" : "Perempuan"}
                                 </td>
-                                <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
+                                <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
                                     {queue.usia}
                                 </td>
-                                <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
+                                <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
                                     {formatIndonesianDate(queue.tanggal_kunjungan)}
                                 </td>
-                                <td className="border-b border-slate-100 px-4 py-4">
+                                <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700">
                                     <div className="flex flex-wrap gap-2">
                                         {splitServiceTypeNames(queue.service_type_names).map((service, index) => (
                                             <span
                                                 key={`${queue.id}-${service}-${index}`}
-                                                className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-slate-700"
+                                                className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-slate-700 dark:bg-slate-800 dark:text-slate-300"
                                             >
                                                 {service}
                                             </span>
                                         ))}
                                     </div>
                                 </td>
-                                <td className="border-b border-slate-100 px-4 py-4">
+                                <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700">
                                     <div className={`${queue.status === "finished" ? "hidden" : "flex"} flex-wrap gap-2`}>
                                         {queue.status !== "no_show" && (
                                             <ActionButton
@@ -463,7 +463,7 @@ export default function ReservationList() {
                         )))}
                         {queues.length === 0 && (
                             <tr>
-                                <td colSpan={7} className="px-4 py-6 text-center text-sm text-slate-500">
+                                <td colSpan={7} className="px-4 py-6 text-center text-sm text-slate-500 dark:text-slate-400">
                                     Tidak ada data kunjungan pada tanggal yang dipilih.
                                 </td>
                             </tr>
@@ -472,9 +472,9 @@ export default function ReservationList() {
                     </table>
                 </div>
 
-                <div className="mt-5 rounded-2xl bg-slate-50 px-4 py-4">
-                    <p className="text-sm font-semibold text-slate-700">Keterangan</p>
-                    <div className="mt-3 flex flex-col gap-3 text-sm text-slate-600 sm:flex-row sm:flex-wrap sm:gap-5">
+                <div className="mt-5 rounded-2xl bg-slate-50 px-4 py-4 dark:bg-slate-950">
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Keterangan</p>
+                    <div className="mt-3 flex flex-col gap-3 text-sm text-slate-600 dark:text-slate-400 sm:flex-row sm:flex-wrap sm:gap-5">
                         <div className="flex items-center gap-3">
                             <span className="h-3 w-3 rounded-full bg-blue-500"/>
                             <span>Warna biru artinya Sedang Dalam Pemeriksaan</span>
@@ -484,7 +484,7 @@ export default function ReservationList() {
                             <span>Warna merah artinya Tidak Hadir</span>
                         </div>
                         <div className="flex items-center gap-3">
-                            <span className="h-3 w-3 rounded-full border border-slate-300 bg-white"/>
+                            <span className="h-3 w-3 rounded-full border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900"/>
                             <span>Tanpa warna artinya Belum Hadir</span>
                         </div>
                         <div className="flex items-center gap-3">
