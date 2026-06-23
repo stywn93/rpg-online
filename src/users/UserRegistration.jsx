@@ -1,9 +1,10 @@
-import {Link, useNavigate} from "react-router"
+import {useNavigate} from "react-router"
 import {useLocalStorage} from "react-use"
-import {Controller, useForm} from "react-hook-form"
+import {useForm} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast'
 import {useEffect, useState} from "react"
 import useAuth from "../auth/UseAuth.js"
+import {userRegister} from "../lib/api/User.js"
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 const DECIMAL_INPUT_REGEX = /^\d{2}\.\d$/
@@ -41,7 +42,28 @@ export default function UserRegistration() {
     const onSubmit = async (data) => {
         const toastId = toast.loading("Memproses...")
         setIsLoading(true)
-        await new Promise(requestAnimationFrame)
+
+        try {
+            const response = await userRegister({
+                name: data.fullName,
+                email: data.theEmail,
+                phone: data.phone,
+                password: data.thePassword
+            })
+            const body = await response.json()
+
+            if (!response.ok) {
+                throw new Error(body?.message ?? "Gagal mendaftarkan pengguna.")
+            }
+
+            toast.success("Pendaftaran berhasil!", { id: toastId })
+            navigate("/users")
+        } catch (error) {
+            console.error(error)
+            toast.error(error.message ?? "Terjadi kesalahan saat mendaftar.", { id: toastId })
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     const handleDecimalInputChange = (fieldName) => (event) => {
@@ -63,9 +85,12 @@ export default function UserRegistration() {
                             <label htmlFor="fullName"
                                    className="mb-2 block text-sm font-medium text-gray-900">Nama Lengkap <span
                                 className="text-red-500">*</span></label>
-                            <input type="text" name="fullname" id="fullname"
+                            <input type="text" id="fullname"
                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                                   placeholder="Budi Santoso" required=""/>
+                                   placeholder="Budi Santoso"
+                                   {...register("fullName", { required: "Nama Lengkap wajib diisi" })}
+                            />
+                            {errors.fullName && <span className="text-red-500 text-sm">{errors.fullName.message}</span>}
                         </div>
                         <div>
                             <label htmlFor="email"
@@ -127,7 +152,10 @@ export default function UserRegistration() {
                                 className="text-red-500">*</span></label>
                             <textarea id="alamat" rows="8"
                                       className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500"
-                                      placeholder="Alamat pengguna"></textarea>
+                                      placeholder="Alamat pengguna"
+                                      {...register("alamat", { required: "Alamat wajib diisi" })}
+                            ></textarea>
+                            {errors.alamat && <span className="text-red-500 text-sm">{errors.alamat.message}</span>}
                         </div>
 
 
