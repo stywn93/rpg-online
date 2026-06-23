@@ -363,6 +363,7 @@ export default function Users() {
                             <th className="border-b border-slate-200 px-4 py-3 font-medium">Email</th>
                             <th className="border-b border-slate-200 px-4 py-3 font-medium">Telepon</th>
                             <th className="border-b border-slate-200 px-4 py-3 font-medium">Alamat</th>
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium">Peran</th>
                             <th className="border-b border-slate-200 px-4 py-3 font-medium">Status</th>
                             <th className="border-b border-slate-200 px-4 py-3 font-medium">Aksi</th>
                         </tr>
@@ -404,6 +405,9 @@ export default function Users() {
                                         </td>
                                         <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
                                             {user.alamat}
+                                        </td>
+                                        <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
+                                            <StatusBadge value={user.peran}/>
                                         </td>
                                         <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
                                             <StatusBadge value={user.status}/>
