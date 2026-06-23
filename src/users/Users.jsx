@@ -5,6 +5,10 @@ import {useLocalStorage} from "react-use"
 import useAuth from "../auth/UseAuth.js"
 import toast from "react-hot-toast"
 import {userActivate} from "../lib/api/User.js"
+import {
+    Key
+} from "lucide-react"
+
 
 function ActionButton({children, variant = "primary", to, onClick, disabled}) {
     const variants = {
@@ -62,6 +66,21 @@ function StatusBadge({value}) {
                 isLowStatus ? "bg-red-100 text-red-700" : "bg-green-500 text-slate-50"
             }`}
         >
+            {value}
+        </span>
+    )
+}
+
+function RoleBadge({value}) {
+    const isLowStatus = value.toLowerCase() === "admin"
+
+    return (
+        <span
+            className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold capitalize ${
+                isLowStatus ? "bg-blue-500 text-slate-50" : "bg-slate-700 text-slate-50" 
+            }`}
+        >
+            {isLowStatus && <Key size={14} />}
             {value}
         </span>
     )
@@ -407,7 +426,7 @@ export default function Users() {
                                             {user.alamat}
                                         </td>
                                         <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
-                                            <StatusBadge value={user.peran}/>
+                                            <RoleBadge value={user.peran}/>
                                         </td>
                                         <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
                                             <StatusBadge value={user.status}/>
