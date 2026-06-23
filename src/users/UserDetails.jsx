@@ -136,6 +136,8 @@ export default function UserDetails() {
     const [user, setUser] = useState(null)
     const [formData, setFormData] = useState(createFormData())
     const [isEditing, setIsEditing] = useState(false)
+    const [isEditingPassword, setIsEditingPassword] = useState(false)
+    const [passwordData, setPasswordData] = useState({ newPassword: "", confirmPassword: "" })
     const [isEditingRole, setIsEditingRole] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const [isActivating, setIsActivating] = useState(false)
@@ -268,19 +270,42 @@ export default function UserDetails() {
         }
     }
 
-    const handleChangePassword = async function changePassword() {
+    function handlePasswordChange(event) {
+        const {name, value} = event.target
+        setPasswordData((current) => ({
+            ...current,
+            [name]: value,
+        }))
+    }
+
+    function handleEditPassword() {
+        setPasswordData({ newPassword: "", confirmPassword: "" })
+        setIsEditingPassword(true)
+    }
+
+    function handleCancelEditPassword() {
+        setPasswordData({ newPassword: "", confirmPassword: "" })
+        setIsEditingPassword(false)
+    }
+
+    const handleSavePassword = async function savePassword() {
         if (!token || !userID || !user || isChangingPassword) {
             return
         }
 
-        const newPassword = prompt("Masukkan password baru:")
-        if (!newPassword) {
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+            toast.error("Password tidak cocok.")
+            return
+        }
+
+        if (passwordData.newPassword.length < 6) {
+            toast.error("Password minimal 6 karakter.")
             return
         }
 
         try {
             setIsChangingPassword(true)
-            const response = await changeUserPassword(token, userID, newPassword)
+            const response = await changeUserPassword(token, userID, passwordData.newPassword)
             const body = await parseResponseBody(response)
 
             if (!response.ok) {
@@ -288,46 +313,12 @@ export default function UserDetails() {
             }
 
             toast.success("Password berhasil diubah.")
+            handleCancelEditPassword()
         } catch (error) {
             console.error(error)
             toast.error(error.message ?? "Terjadi kesalahan saat mengubah password.")
         } finally {
             setIsChangingPassword(false)
-        }
-    }
-
-    const handleChangeRole = async function changeRole() {
-        if (!token || !userID || !user || isChangingRole) {
-            return
-        }
-
-        const newRole = prompt("Masukkan peran baru (admin/user):")
-        if (!newRole || (newRole !== "admin" && newRole !== "user")) {
-            if (newRole) toast.error("Peran harus 'admin' atau 'user'.")
-            return
-        }
-
-        try {
-            setIsChangingRole(true)
-            const response = await updateUserDetail(token, userID, { role: newRole })
-            const body = await parseResponseBody(response)
-
-            if (!response.ok) {
-                throw new Error(body?.message ?? body?.messages?.error ?? "Gagal mengubah peran.")
-            }
-
-            const updatedUser = {
-                ...user,
-                role: newRole,
-            }
-
-            setUser(updatedUser)
-            toast.success("Peran berhasil diubah.")
-        } catch (error) {
-            console.error(error)
-            toast.error(error.message ?? "Terjadi kesalahan saat mengubah peran.")
-        } finally {
-            setIsChangingRole(false)
         }
     }
 
@@ -437,8 +428,35 @@ export default function UserDetails() {
                             )}
                         </div>
 
+                        {isEditingPassword ? (
+                            <>
+                                <div className="grid gap-1 sm:grid-cols-[140px_1fr] sm:gap-6 sm:items-center">
+                                    <label className="text-xs font-semibold tracking-[0.22em] text-slate-400" htmlFor="newPassword">Password Baru</label>
+                                    <input
+                                        id="newPassword"
+                                        name="newPassword"
+                                        type="password"
+                                        value={passwordData.newPassword}
+                                        onChange={handlePasswordChange}
+                                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-blue-500"
+                                    />
+                                </div>
+                                <div className="grid gap-1 sm:grid-cols-[140px_1fr] sm:gap-6 sm:items-center">
+                                    <label className="text-xs font-semibold tracking-[0.22em] text-slate-400" htmlFor="confirmPassword">Konfirmasi</label>
+                                    <input
+                                        id="confirmPassword"
+                                        name="confirmPassword"
+                                        type="password"
+                                        value={passwordData.confirmPassword}
+                                        onChange={handlePasswordChange}
+                                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-blue-500"
+                                    />
+                                </div>
+                            </>
+                        ) : null}
+
                         <div className="flex flex-col gap-3 pt-2 sm:flex-row">
-                            {!isEditing && !isEditingRole && (
+                            {!isEditing && !isEditingRole && !isEditingPassword && (
                                 <button
                                     type="button"
                                     onClick={handlePrimaryAction}
@@ -448,7 +466,7 @@ export default function UserDetails() {
                                     {isSaving ? "Menyimpan..." : isEditing ? "Simpan" : "Edit"}
                                 </button>
                             )}
-                            {currentUser?.role === "admin" && !isEditing && (
+                            {currentUser?.role === "admin" && !isEditing && !isEditingPassword && (
                                 <button
                                     type="button"
                                     onClick={isEditingRole ? handleSaveRole : handleEditRole}
@@ -458,24 +476,34 @@ export default function UserDetails() {
                                     {isChangingRole ? "Menyimpan..." : isEditingRole ? "Simpan Peran" : "Ganti Peran"}
                                 </button>
                             )}
-                            {(isEditingRole || isEditing) && (
+                            {(isEditingRole || isEditing || isEditingPassword) && (
                                 <button
                                     type="button"
-                                    onClick={isEditingRole ? handleCancelEditRole : handleCancelEdit}
-                                    disabled={isChangingRole || isSaving}
+                                    onClick={isEditingPassword ? handleCancelEditPassword : isEditingRole ? handleCancelEditRole : handleCancelEdit}
+                                    disabled={isChangingRole || isSaving || isChangingPassword}
                                     className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     Batal
                                 </button>
                             )}
-                            {!isEditing && !isEditingRole ? (
+                            {isEditingPassword && (
                                 <button
                                     type="button"
-                                    onClick={handleChangePassword}
+                                    onClick={handleSavePassword}
+                                    disabled={isChangingPassword}
+                                    className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    {isChangingPassword ? "Menyimpan..." : "Simpan Password"}
+                                </button>
+                            )}
+                            {!isEditing && !isEditingRole && !isEditingPassword ? (
+                                <button
+                                    type="button"
+                                    onClick={handleEditPassword}
                                     disabled={!user || isActivating || isSaving || isChangingPassword || isChangingRole}
                                     className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
-                                    {isChangingPassword ? "Mengubah..." : "Ubah Password"}
+                                    Ubah Password
                                 </button>
                             ) : null}
                         </div>
