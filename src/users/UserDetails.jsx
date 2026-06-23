@@ -232,44 +232,6 @@ export default function UserDetails() {
         }
     }
 
-    const handleActivate = async function activateUser() {
-        if (!token || !userID || !user || isActivating || !canActivate) {
-            return
-        }
-
-        try {
-            setIsActivating(true)
-            const response = await userActivate(token, userID)
-            const body = await parseResponseBody(response)
-
-            if (response.status === 401) {
-                logout()
-                return
-            }
-
-            if (!response.ok) {
-                throw new Error(body?.message ?? body?.messages?.error ?? "Gagal mengaktifkan pengguna.")
-            }
-
-            const activatedUser = body?.data ? {
-                ...user,
-                ...body.data,
-            } : {
-                ...user,
-                status: "active",
-            }
-
-            setUser(activatedUser)
-            syncForm(activatedUser)
-            toast.success("Pengguna berhasil diaktifkan.")
-        } catch (error) {
-            console.error(error)
-            toast.error(error.message ?? "Terjadi kesalahan saat mengaktifkan pengguna.")
-        } finally {
-            setIsActivating(false)
-        }
-    }
-
     function handlePasswordChange(event) {
         const {name, value} = event.target
         setPasswordData((current) => ({
