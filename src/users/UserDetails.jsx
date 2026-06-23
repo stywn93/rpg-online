@@ -132,15 +132,24 @@ async function parseResponseBody(response) {
 export default function UserDetails() {
     const {userID} = useParams()
     const [token, _] = useLocalStorage("token", "")
-    const {logout} = useAuth()
+    const {logout, user: currentUser} = useAuth()
     const [user, setUser] = useState(null)
     const [formData, setFormData] = useState(createFormData())
     const [isEditing, setIsEditing] = useState(false)
+    const [isEditingRole, setIsEditingRole] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const [isActivating, setIsActivating] = useState(false)
     const [isChangingPassword, setIsChangingPassword] = useState(false)
+    const [isChangingRole, setIsChangingRole] = useState(false)
+    const [role, setRole] = useState("")
     const children = resolveChildren(user)
     const canActivate = Boolean(user) && user?.status?.toLowerCase() !== "active"
+
+    useEffect(() => {
+        if(user) {
+            setRole(user.role ?? "user")
+        }
+    }, [user])
 
     const fetchUserDetail = useEffectEvent(async function getDetailUser() {
         try {
@@ -287,6 +296,77 @@ export default function UserDetails() {
         }
     }
 
+    const handleChangeRole = async function changeRole() {
+        if (!token || !userID || !user || isChangingRole) {
+            return
+        }
+
+        const newRole = prompt("Masukkan peran baru (admin/user):")
+        if (!newRole || (newRole !== "admin" && newRole !== "user")) {
+            if (newRole) toast.error("Peran harus 'admin' atau 'user'.")
+            return
+        }
+
+        try {
+            setIsChangingRole(true)
+            const response = await updateUserDetail(token, userID, { role: newRole })
+            const body = await parseResponseBody(response)
+
+            if (!response.ok) {
+                throw new Error(body?.message ?? body?.messages?.error ?? "Gagal mengubah peran.")
+            }
+
+            const updatedUser = {
+                ...user,
+                role: newRole,
+            }
+
+            setUser(updatedUser)
+            toast.success("Peran berhasil diubah.")
+        } catch (error) {
+            console.error(error)
+            toast.error(error.message ?? "Terjadi kesalahan saat mengubah peran.")
+        } finally {
+            setIsChangingRole(false)
+        }
+    }
+
+    const handleSaveRole = async function saveRole() {
+        if (!token || !userID || !user || isChangingRole) {
+            return
+        }
+
+        try {
+            setIsChangingRole(true)
+            const response = await updateUserDetail(token, userID, { role })
+            const body = await parseResponseBody(response)
+
+            if (!response.ok) {
+                throw new Error(body?.message ?? body?.messages?.error ?? "Gagal mengubah peran.")
+            }
+
+            setUser({ ...user, role })
+            setIsEditingRole(false)
+            toast.success("Peran berhasil diubah.")
+        } catch (error) {
+            console.error(error)
+            toast.error(error.message ?? "Terjadi kesalahan saat mengubah peran.")
+        } finally {
+            setIsChangingRole(false)
+        }
+    }
+
+    function handleEditRole() {
+        if (!user) return
+        setRole(user.role ?? "user")
+        setIsEditingRole(true)
+    }
+
+    function handleCancelEditRole() {
+        setRole(user.role ?? "user")
+        setIsEditingRole(false)
+    }
+
     function handlePrimaryAction() {
         if (isEditing) {
             handleSave()
@@ -339,44 +419,63 @@ export default function UserDetails() {
                                 readOnly={field.readOnly}
                             />
                         ))}
+                        
+                        <div className="grid gap-1 sm:grid-cols-[140px_1fr] sm:gap-6 sm:items-center">
+                            <label className="text-xs font-semibold tracking-[0.22em] text-slate-400" htmlFor="role">Peran</label>
+                            {isEditingRole ? (
+                                <select
+                                    id="role"
+                                    value={role}
+                                    onChange={(e) => setRole(e.target.value)}
+                                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-blue-500"
+                                >
+                                    <option value="user">User</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            ) : (
+                                <p className="text-sm leading-6 text-slate-700">{user?.role ?? "-"}</p>
+                            )}
+                        </div>
 
                         <div className="flex flex-col gap-3 pt-2 sm:flex-row">
-                            <button
-                                type="button"
-                                onClick={handlePrimaryAction}
-                                disabled={!user || isSaving || isActivating || isChangingPassword}
-                                className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                {isSaving ? "Menyimpan..." : isEditing ? "Simpan" : "Edit"}
-                            </button>
-                            {!isEditing && canActivate ? (
+                            {!isEditing && !isEditingRole && (
                                 <button
                                     type="button"
-                                    onClick={handleActivate}
-                                    disabled={!user || isActivating || isSaving || isChangingPassword}
-                                    className="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                    onClick={handlePrimaryAction}
+                                    disabled={!user || isSaving || isChangingPassword || isChangingRole}
+                                    className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
-                                    {isActivating ? "Mengaktifkan..." : "Aktifkan"}
+                                    {isSaving ? "Menyimpan..." : isEditing ? "Simpan" : "Edit"}
                                 </button>
-                            ) : null}
-                            {!isEditing ? (
+                            )}
+                            {currentUser?.role === "admin" && !isEditing && (
                                 <button
                                     type="button"
-                                    onClick={handleChangePassword}
-                                    disabled={!user || isActivating || isSaving || isChangingPassword}
-                                    className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                    onClick={isEditingRole ? handleSaveRole : handleEditRole}
+                                    disabled={!user || isSaving || isChangingPassword || isChangingRole}
+                                    className="inline-flex items-center justify-center rounded-lg bg-slate-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
-                                    {isChangingPassword ? "Mengubah..." : "Ubah Password"}
+                                    {isChangingRole ? "Menyimpan..." : isEditingRole ? "Simpan Peran" : "Ganti Peran"}
                                 </button>
-                            ) : null}
-                            {isEditing ? (
+                            )}
+                            {(isEditingRole || isEditing) && (
                                 <button
                                     type="button"
-                                    onClick={handleCancelEdit}
-                                    disabled={isSaving}
+                                    onClick={isEditingRole ? handleCancelEditRole : handleCancelEdit}
+                                    disabled={isChangingRole || isSaving}
                                     className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     Batal
+                                </button>
+                            )}
+                            {!isEditing && !isEditingRole ? (
+                                <button
+                                    type="button"
+                                    onClick={handleChangePassword}
+                                    disabled={!user || isActivating || isSaving || isChangingPassword || isChangingRole}
+                                    className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    {isChangingPassword ? "Mengubah..." : "Ubah Password"}
                                 </button>
                             ) : null}
                         </div>
