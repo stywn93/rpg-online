@@ -146,6 +146,7 @@ async function parseResponseBody(response) {
 export default function Users() {
     const [searchTerm, setSearchTerm] = useState("")
     const [status, setStatus] = useState("")
+    const [role, setRole] = useState("")
     const [currentPage, setCurrentPage] = useState(1)
     const [expandedParentId, setExpandedParentId] = useState(null)
     const perPage = 10
@@ -163,9 +164,9 @@ export default function Users() {
     const [activatingUserIdMap, setActivatingUserIdMap] = useState({})
     const {logout} = useAuth()
 
-    const fetchParents = useEffectEvent(async function getParents(page, term, nextStatus) {
+    const fetchParents = useEffectEvent(async function getParents(page, term, nextStatus, nextRole) {
         try {
-            const response = await listUsers(token, page, perPage, term, nextStatus)
+            const response = await listUsers(token, page, perPage, term, nextStatus, nextRole)
             const responseBody = await response.json()
             if (response.status === 401) {
                 // console.error("Unauthorized")
@@ -195,10 +196,16 @@ export default function Users() {
         setStatus(newStatus)
         setCurrentPage(1)
     }
+    function handleRoleChange(e){
+        const newRole = e.target.value
+        setRole(newRole)
+        setCurrentPage(1)
+    }
 
     function handleResetFilter() {
         setSearchTerm("")
         setStatus("")
+        setRole("")
         setCurrentPage(1)
     }
 
@@ -298,8 +305,8 @@ export default function Users() {
 
 
     useEffect(() => {
-        fetchParents(currentPage, searchTerm, status)
-    }, [token, currentPage, perPage, searchTerm, status])
+        fetchParents(currentPage, searchTerm, status, role)
+    }, [token, currentPage, perPage, searchTerm, status, role])
 
     useEffect(() => {
         if (!expandedParentId) {
@@ -361,11 +368,25 @@ export default function Users() {
                             <option value="active">Aktif</option>
                             <option value="suspended">Suspend</option>
                         </select>
+                        <label htmlFor="role-status"
+                               className="text-sm font-medium text-slate-700 dark:text-slate-100 mr-3 ml-3">
+                            Peran
+                        </label>
+                        <select
+                            id="role-status"
+                            value={role}
+                            onChange={handleRoleChange}
+                            className="w-full rounded-lg border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-700 dark:text-slate-100 focus:border-blue-500 focus:outline-none sm:w-56"
+                        >
+                            <option value="">Semua</option>
+                            <option value="admin">Admin</option>
+                            <option value="user">User</option>
+                        </select>
                     </div>
                     <button
                         type="button"
                         onClick={handleResetFilter}
-                        disabled={!searchTerm && !status}
+                        disabled={!searchTerm && !status && !role}
                         className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                     >
                         Reset filter
