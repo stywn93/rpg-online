@@ -1,3 +1,4 @@
+import {useEffect, useState} from "react"
 import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid,
@@ -19,7 +20,33 @@ function StatusBadge({ value }) {
     )
 }
 
+function PaginationButton({children, disabled = false, onClick}) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            disabled={disabled}
+            className={`inline-flex min-w-8 items-center justify-center rounded-xl py-1 text-sm font-semibold transition ${
+                disabled
+                    ? "cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400"
+                    : "border border-blue-200 bg-blue-50 text-blue-700 shadow-sm hover:border-blue-300 hover:bg-blue-100"
+            }`}
+        >
+            {children}
+        </button>
+    )
+}
+
 export default function AnamnesaHistory({riwayat = []}) {
+    const perPage = 10
+    const [currentPage, setCurrentPage] = useState(1)
+    const totalPages = Math.ceil(riwayat.length / perPage)
+    const paginatedRiwayat = riwayat.slice((currentPage - 1) * perPage, currentPage * perPage)
+
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [riwayat.length])
+
     const chartData = [...riwayat]
         .sort((a, b) => new Date(a.tanggal_pemeriksaan) - new Date(b.tanggal_pemeriksaan))
         .map(item => ({
@@ -104,10 +131,10 @@ export default function AnamnesaHistory({riwayat = []}) {
                             </tr>
                             </thead>
                             <tbody>
-                            {riwayat.map((item, index) => (
+                            {paginatedRiwayat.map((item, index) => (
                                 <tr key={item.id}>
                                     <td className="border-b border-slate-100 px-4 py-4 font-medium text-slate-900">
-                                        {index + 1}
+                                        {(currentPage - 1) * perPage + index + 1}
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4 text-slate-700">
                                         {formatIndonesianDate(item.tanggal_pemeriksaan)}
@@ -134,6 +161,32 @@ export default function AnamnesaHistory({riwayat = []}) {
                             </tbody>
                         </table>
                     </div>
+
+                    {paginatedRiwayat.length > 0 && totalPages > 1 && (
+                        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <p className="text-sm text-slate-500">
+                                Menampilkan {(currentPage - 1) * perPage + 1}-
+                                {Math.min(currentPage * perPage, riwayat.length)} dari {riwayat.length} data
+                            </p>
+                            <div className="flex items-center gap-3">
+                                <PaginationButton
+                                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                                    disabled={currentPage === 1}
+                                >
+                                    &lt;
+                                </PaginationButton>
+                                <span className="inline-flex items-center rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700">
+                                    {currentPage} / {totalPages}
+                                </span>
+                                <PaginationButton
+                                    onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    &gt;
+                                </PaginationButton>
+                            </div>
+                        </div>
+                    )}
 
                 </div>
             </div>
