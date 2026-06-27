@@ -85,6 +85,10 @@ export default function CreateReservation() {
     const userId = String(user?.id ?? "")
     const isSingleChildUser = isUserRole && patientOptions.length === 1
     const ageParts = useMemo(() => parseAgeParts(selectedPatient?.usia), [selectedPatient?.usia])
+    const activeServiceOptions = useMemo(
+        () => serviceOptions.filter((item) => item.aktif == 1),
+        [serviceOptions]
+    )
 
     const fetchServices = useEffectEvent(async function getServices() {
         setIsLoadingServices(true)
@@ -345,7 +349,7 @@ export default function CreateReservation() {
         }
 
         if (selectedServiceIds.length === 1) {
-            return serviceOptions.find((item) => item.id === selectedServiceIds[0])?.name ?? "1 layanan"
+            return activeServiceOptions.find((item) => item.id === selectedServiceIds[0])?.name ?? "1 layanan"
         }
 
         return `${selectedServiceIds.length} layanan dipilih`
@@ -638,11 +642,11 @@ export default function CreateReservation() {
                                                     <p className="py-2 text-sm text-slate-500">Memuat layanan...</p>
                                                 )}
 
-                                                {!isLoadingServices && serviceOptions.length === 0 && (
+                                                {!isLoadingServices && activeServiceOptions.length === 0 && (
                                                     <p className="py-2 text-sm text-slate-500">Data layanan tidak tersedia.</p>
                                                 )}
 
-                                                {!isLoadingServices && serviceOptions.map((service) => (
+                                                {!isLoadingServices && activeServiceOptions.map((service) => (
                                                     <label
                                                         key={service.id}
                                                         className="flex cursor-pointer items-start gap-3 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50"
