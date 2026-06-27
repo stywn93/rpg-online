@@ -1,4 +1,4 @@
-import {useEffect, useEffectEvent, useState} from "react"
+import {useEffect, useEffectEvent, useMemo, useState} from "react"
 import {useNavigate} from "react-router-dom"
 import {queueList, updateQueue as patchQueueStatus} from "../lib/api/Queue.js"
 import {useLocalStorage} from "react-use"
@@ -39,6 +39,7 @@ function normalizeServiceOptions(payload) {
         .map((item) => ({
             id: String(item?.id ?? item?.service_type_id ?? ""),
             name: item?.name ?? item?.nama ?? item?.service_name ?? item?.nama_layanan ?? "",
+            aktif: item?.aktif,
         }))
         .filter((item) => item.id && item.name)
 }
@@ -98,7 +99,10 @@ export default function ReservationList() {
     const [selectedServiceIds, setSelectedServiceIds] = useState([])
     const [isLoadingServices, setIsLoadingServices] = useState(false)
     const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false)
-
+    const activeServiceOptions = useMemo(
+        () => serviceOptions.filter((item) => item.aktif == 1),
+        [serviceOptions]
+    )
 
     const latestQueue = useEffectEvent(async function fetchQueue() {
         //useEffectEvent adalah hooks yang diperkenalkan sejak react 19 untuk memastikan useEffect mendapatkan state terbaru
@@ -216,7 +220,7 @@ export default function ReservationList() {
         }
 
         if (selectedServiceIds.length === 1) {
-            return serviceOptions.find((item) => item.id === selectedServiceIds[0])?.name ?? "1 layanan"
+            return activeServiceOptions.find((item) => item.id === selectedServiceIds[0])?.name ?? "1 layanan"
         }
 
         return `${selectedServiceIds.length} layanan dipilih`
@@ -362,11 +366,11 @@ export default function ReservationList() {
                                             <p className="py-2 text-sm text-slate-500">Memuat layanan...</p>
                                         )}
 
-                                        {!isLoadingServices && serviceOptions.length === 0 && (
+                                        {!isLoadingServices && activeServiceOptions.length === 0 && (
                                             <p className="py-2 text-sm text-slate-500">Data layanan tidak tersedia.</p>
                                         )}
 
-                                        {!isLoadingServices && serviceOptions.map((service) => (
+                                        {!isLoadingServices && activeServiceOptions.map((service) => (
                                             <label
                                                 key={service.id}
                                                 className="flex cursor-pointer items-start gap-3 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50"
