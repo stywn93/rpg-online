@@ -359,7 +359,15 @@ export default function UserDetails() {
                     title="Data Pribadi"
                     description="Informasi dasar pengguna yang terdaftar di sistem."
                 >
-                    <div className="space-y-5">
+                    <div
+                            className="space-y-5"
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" && isEditing) {
+                                    e.preventDefault()
+                                    handleSave()
+                                }
+                            }}
+                        >
                         {USER_FORM_FIELDS.map((field) => (
                             <EditableInfoRow
                                 key={field.name}
@@ -418,7 +426,7 @@ export default function UserDetails() {
                         ) : null}
 
                         <div className="flex flex-col gap-3 pt-2 sm:flex-row">
-                            {!isEditing && !isEditingRole && !isEditingPassword && (
+                            {!isEditingRole && !isEditingPassword && (
                                 <button
                                     type="button"
                                     onClick={handlePrimaryAction}
