@@ -135,7 +135,7 @@ export default function Patients() {
                                         {formatIndonesianDate(patient.tanggal_lahir)}
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
-                                        {patient.jenis_kelamin}
+                                        {patient.jenis_kelamin === "L" ? "Laki-laki" : patient.jenis_kelamin === "P" ? "Perempuan" : patient.jenis_kelamin}
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
                                         {patient.usia}
