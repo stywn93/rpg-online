@@ -1,10 +1,13 @@
 import {useEffect, useEffectEvent, useMemo, useState} from "react"
 import {useNavigate} from "react-router-dom"
+import toast from "react-hot-toast"
+import {Scan} from "lucide-react"
 import {queueList, updateQueue as patchQueueStatus} from "../lib/api/Queue.js"
 import {useLocalStorage} from "react-use"
 import useAuth from "../auth/UseAuth.js"
 import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
 import {listService} from "../lib/api/ServiceTypes.js"
+import QrScanner from "../components/QrScanner.jsx"
 
 
 const rowStyles = {
@@ -99,6 +102,7 @@ export default function ReservationList() {
     const [selectedServiceIds, setSelectedServiceIds] = useState([])
     const [isLoadingServices, setIsLoadingServices] = useState(false)
     const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false)
+    const [isScannerOpen, setIsScannerOpen] = useState(false)
     const activeServiceOptions = useMemo(
         () => serviceOptions.filter((item) => item.aktif == 1),
         [serviceOptions]
@@ -192,6 +196,24 @@ export default function ReservationList() {
         const nextSearchTerm = event.target.value
         setSearchTerm(nextSearchTerm)
         setCurrentPage(1)
+    }
+
+    function handleQrScan(scannedId) {
+        if (!scannedId) {
+            toast.error("QR code tidak valid.")
+            return
+        }
+
+        const matchedQueue = queues.find((q) => String(q.id) === String(scannedId))
+
+        if (matchedQueue) {
+            handleCheckIn(matchedQueue.id)
+            toast.success(`Pasien ${matchedQueue.nama_pasien} berhasil check-in.`)
+        } else {
+            toast.success(`Memproses check-in untuk ID ${scannedId}...`)
+            updateQueueStatus(scannedId, "checked_in")
+            toast.success(`Check-in berhasil.`, {id: "scan-checkin"})
+        }
     }
 
     function handleResetFilters() {
@@ -389,14 +411,24 @@ export default function ReservationList() {
                             )}
                         </div>
                     </div>
-                    <button
-                        type="button"
-                        onClick={handleResetFilters}
-                        disabled={!selectedDate && !status && !searchTerm && selectedServiceIds.length === 0}
-                        className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                        Reset filter
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setIsScannerOpen(true)}
+                            className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                        >
+                            <Scan size={16} className="mr-1.5" />
+                            Scan QR
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleResetFilters}
+                            disabled={!selectedDate && !status && !searchTerm && selectedServiceIds.length === 0}
+                            className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            Reset filter
+                        </button>
+                    </div>
                 </div>
 
                 <div className="mt-5 overflow-x-auto">
@@ -498,6 +530,11 @@ export default function ReservationList() {
                     </div>
                 </div>
             </div>
+            <QrScanner
+                isOpen={isScannerOpen}
+                onClose={() => setIsScannerOpen(false)}
+                onScan={handleQrScan}
+            />
         </section>
     )
 }

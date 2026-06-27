@@ -32,7 +32,7 @@ function QueueQrCode({ value }) {
                     fgColor="#0f172a"
                     level="M"
                     includeMargin={true}
-                    title={`QR code nomor antrean ${value}`}
+                    title={`QR code reservasi ${value}`}
                 />
             </div>
         </div>
@@ -77,7 +77,7 @@ export default function ConfirmedReservation() {
                     </h1>
                 </div>
 
-                <QueueQrCode value={reservation.queueNumber ?? "A-17"} />
+                <QueueQrCode value={reservation.queueId ? String(reservation.queueId) : (reservation.queueNumber ?? "A-17")} />
 
                 <div className="mt-8 h-px w-full bg-slate-200" />
 
