@@ -491,6 +491,7 @@ export default function CreateReservation() {
                                         }
                                     }}
                                     readOnly={isSingleChildUser}
+                                    autoComplete="off"
                                     className="read-only:cursor-not-allowed bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                     placeholder={
                                         isSingleChildUser
@@ -680,6 +681,7 @@ export default function CreateReservation() {
                                             minDate={new Date()}
                                             selected={field.value}
                                             onChange={(date) => field.onChange(date)}
+                                            autoComplete="off"
                                         />
                                     )}
                                 />
