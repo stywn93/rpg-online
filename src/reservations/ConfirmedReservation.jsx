@@ -1,7 +1,9 @@
-import { Check } from "lucide-react"
+import { Check, Download } from "lucide-react"
 import { QRCodeSVG } from "qrcode.react"
 import { Link, useLocation } from "react-router-dom"
 import { formatIndonesianDate } from "../lib/utils/formatIndonesianDate.js"
+import { useRef } from "react"
+import { toPng } from "html-to-image"
 
 const fallbackReservation = {
     referenceNumber: "RPG9976315",
@@ -42,10 +44,27 @@ function QueueQrCode({ value }) {
 export default function ConfirmedReservation() {
     const { state } = useLocation()
     const reservation = state?.reservation ?? fallbackReservation
+    const cardRef = useRef(null)
+
+    async function handleDownloadImage() {
+        try {
+            const dataUrl = await toPng(cardRef.current, {
+                pixelRatio: 2,
+                cacheBust: true,
+                filter: (node) => !(node instanceof HTMLElement && node.dataset.exportIgnore !== undefined),
+            })
+            const link = document.createElement("a")
+            link.download = `${reservation.patientId ?? "unknown"}-${reservation.queueId ?? "unknown"}.png`
+            link.href = dataUrl
+            link.click()
+        } catch {
+            // Silently fail
+        }
+    }
 
     return (
         <section className="flex min-h-full items-center justify-center px-4 py-8 sm:px-6">
-            <div className="w-full max-w-sm rounded-lg bg-white px-7 py-8 text-center shadow-[0_24px_60px_rgba(15,23,42,0.08)] sm:px-8">
+            <div ref={cardRef} className="w-full max-w-sm rounded-lg bg-white px-7 py-8 text-center shadow-[0_24px_60px_rgba(15,23,42,0.08)] sm:px-8">
                 <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-fuchsia-100">
                     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-fuchsia-500 text-white shadow-[0_12px_24px_rgba(111,134,255,0.35)]">
                         <Check size={30} strokeWidth={3} />
@@ -79,10 +98,21 @@ export default function ConfirmedReservation() {
 
                 <QueueQrCode value={reservation.queueId ? String(reservation.queueId) : (reservation.queueNumber ?? "A-17")} />
 
-                <div className="mt-8 h-px w-full bg-slate-200" />
+                <button
+                    type="button"
+                    onClick={handleDownloadImage}
+                    data-export-ignore="true"
+                    className="mt-7 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-4 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-800"
+                >
+                    <Download size={18} />
+                    Simpan sebagai Gambar
+                </button>
+
+                <div data-export-ignore="true" className="mt-7 h-px w-full bg-slate-200" />
 
                 <Link
                     to="/reservation"
+                    data-export-ignore="true"
                     className="mt-8 inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-5 py-4 text-sm font-medium text-white transition hover:bg-blue-800"
                 >
                     Kembali ke Beranda
