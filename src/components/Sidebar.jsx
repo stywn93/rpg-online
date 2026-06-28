@@ -4,6 +4,7 @@ import {CalendarDays} from 'lucide-react'
 import {NAV_ITEMS} from "./navConfig"
 import {Link, useNavigate} from "react-router-dom"
 import useAuth from "../auth/UseAuth.js"
+import {filterNavItemsByRole} from "../auth/permissions.js"
 
 
 function getInitials(name) {
@@ -35,9 +36,10 @@ export default function Sidebar({activeKey, onNavigate, user}) {
     }
 
     // Kelompokkan item berdasarkan section
+    const visibleItems = filterNavItemsByRole(user, NAV_ITEMS)
     const sections = [];
     let current = null;
-    NAV_ITEMS.forEach((item) => {
+    visibleItems.forEach((item) => {
         if (item.section) {
             current = {label: item.section, items: [item]};
             sections.push(current);

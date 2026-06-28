@@ -1,14 +1,19 @@
 import { Link } from "react-router-dom";
 import { BOTTOM_NAV_ITEMS } from "./navConfig";
+import { filterNavItemsByRole } from "../auth/permissions.js";
+import useAuth from "../auth/UseAuth.js";
 
 function cn(...classes) {
     return classes.filter(Boolean).join(" ");
 }
 export default function BottomNav({activeKey, onNavigate}) {
+    const { user } = useAuth()
+    const visibleItems = filterNavItemsByRole(user, BOTTOM_NAV_ITEMS)
+
     return (
         <nav className="md:hidden h-[68px] bg-white border-t border-black/[0.08] shrink-0">
             <div className="flex h-full px-1">
-                {BOTTOM_NAV_ITEMS.map((item) => {
+                {visibleItems.map((item) => {
                     const active = item.key === activeKey;
                     const Icon = item.icon;
                     const className = cn(

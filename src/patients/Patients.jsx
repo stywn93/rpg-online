@@ -1,9 +1,11 @@
 import {useEffect, useEffectEvent, useMemo, useState} from "react"
 import { Link } from "react-router-dom"
-import {listPatients} from "../lib/api/Patient.js"
+import {listPatients, listPatientsByParent} from "../lib/api/Patient.js"
 import {useLocalStorage} from "react-use"
 import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
 import useAuth from "../auth/UseAuth.js"
+import {isUser} from "../auth/permissions.js"
+import {normalizePeopleDetail} from "../lib/utils/Normalization.js"
 
 function ActionButton({ children, variant = "primary", to }) {
     const variants = {
@@ -36,7 +38,7 @@ export default function Patients() {
     const [searchTerm, setSearchTerm] = useState("")
     const [token, _] = useLocalStorage("token", "")
     const [patients, setPatients] = useState([])
-    const {logout} = useAuth()
+    const {logout, user} = useAuth()
 
     const filteredPatients = useMemo(() => {
         const keyword = searchTerm.trim().toLowerCase()
@@ -58,10 +60,15 @@ export default function Patients() {
 
     const fetchPatients = useEffectEvent(async function getPatients(){
         try {
-            const response = await listPatients(token)
+            const response = isUser(user)
+                ? await listPatientsByParent(token, user.id)
+                : await listPatients(token)
             const responseBody = await response.json()
-            // console.log(responseBody)
-            setPatients(responseBody.data)
+
+            if (response.status === 200) {
+                setPatients(normalizePeopleDetail(responseBody))
+            }
+
             if (response.status === 401) {
                 logout()
             }
@@ -71,8 +78,10 @@ export default function Patients() {
     })
 
     useEffect(() => {
-        fetchPatients()
-    }, [token])
+        if (token) {
+            fetchPatients()
+        }
+    }, [token, user?.id])
 
     return (
         <section className="space-y-5">

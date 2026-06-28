@@ -4,9 +4,11 @@ export function normalizePeopleDetail(payload){
         ? payload.data
         : Array.isArray(payload?.data?.data)
             ? payload.data.data
-            : Array.isArray(payload)
-                ? payload
-                : []
+            : Array.isArray(payload?.patients)
+                ? payload.patients
+                : Array.isArray(payload)
+                    ? payload
+                    : []
 
     return source
         .map((item) => ({

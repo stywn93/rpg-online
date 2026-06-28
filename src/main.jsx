@@ -3,7 +3,7 @@ import {createRoot} from 'react-dom/client'
 import './App.css'
 import Login from './Login.jsx'
 import Register from './Register.jsx'
-import {BrowserRouter, Route, Routes} from 'react-router-dom'
+import {BrowserRouter, Route, Routes, Outlet} from 'react-router-dom'
 import Dashboard from "./Dashboard.jsx"
 import Patients from "./patients/Patients.jsx"
 import CreateReservation from "./reservations/CreateReservation.jsx"
@@ -22,6 +22,7 @@ import UserRegistration from "./users/UserRegistration.jsx"
 import UserEdit from "./users/UserEdit.jsx"
 import ServiceList from "./services/ServiceList.jsx"
 import ServiceForm from "./services/ServiceForm.jsx"
+import ProtectedRoute from "./components/ProtectedRoute.jsx"
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
@@ -46,13 +47,13 @@ createRoot(document.getElementById('root')).render(
                             <Route path={":patientId"} element={<PatientDetails/>}/>
                             <Route path={":patientId/edit"} element={<PatientEdit/>}/>
                         </Route>
-                        <Route path={"users"}>
+                        <Route path={"users"} element={<ProtectedRoute roles={["admin"]}><Outlet/></ProtectedRoute>}>
                             <Route index element={<Users/>}/>
                             <Route path={":userID"} element={<UserDetails/>}/>
                             <Route path={"registration"} element={<UserRegistration/>}/>
                             <Route path={":patientId/edit"} element={<UserEdit/>}/>
                         </Route>
-                        <Route path={"services"}>
+                        <Route path={"services"} element={<ProtectedRoute roles={["admin"]}><Outlet/></ProtectedRoute>}>
                             <Route index element={<ServiceList/>}/>
                             <Route path={"create"} element={<ServiceForm/>}/>
                             <Route path={":id/edit"} element={<ServiceForm/>}/>

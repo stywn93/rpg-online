@@ -1,20 +1,38 @@
-
 import {useEffect, useEffectEvent, useState} from "react";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {useLocalStorage} from "react-use";
 import PatientProfile from "./PatientProfile.jsx";
 import AnamnesaHistory from "../assessments/AnamnesaHistory.jsx";
-import {getPatientDetail} from "../lib/api/Patient.js";
+import {getPatientDetail, listPatientsByParent} from "../lib/api/Patient.js";
 import {listAssesment} from "../lib/api/Assesment.js";
+import useAuth from "../auth/UseAuth.js";
+import {isUser} from "../auth/permissions.js";
 
 export default function PatientDetails() {
     const {patientId} = useParams()
+    const navigate = useNavigate()
     const [token, _] = useLocalStorage("token", "")
+    const {user} = useAuth()
     const [patient, setPatient] = useState(null)
     const [riwayat, setRiwayat] = useState([])
 
     const fetchPatientDetail = useEffectEvent(async function getDetailPatient() {
         try {
+            if (isUser(user)) {
+                const childrenResponse = await listPatientsByParent(token, user.id)
+                const childrenBody = await childrenResponse.json()
+                const children = childrenBody?.data ?? childrenBody ?? []
+
+                const isOwnChild = children.some(
+                    (child) => String(child.id ?? child.patient_id) === String(patientId)
+                )
+
+                if (!isOwnChild) {
+                    navigate("/patients", { replace: true })
+                    return
+                }
+            }
+
             const [patientResponse, riwayatResponse] = await Promise.all([
                 getPatientDetail(token, patientId),
                 listAssesment(token, patientId),
@@ -29,7 +47,6 @@ export default function PatientDetails() {
 
             if (riwayatResponse.ok) {
                 setRiwayat(riwayatBody.data ?? [])
-                console.log(riwayatBody.data)
             }
         } catch (e) {
             console.error(e)
@@ -42,7 +59,7 @@ export default function PatientDetails() {
         }
 
         fetchPatientDetail()
-    }, [token, patientId])
+    }, [token, patientId, user?.id])
 
     return (
         <section>
