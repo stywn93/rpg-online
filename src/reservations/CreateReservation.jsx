@@ -419,6 +419,7 @@ export default function CreateReservation() {
         try {
             const payload = {
                 patient_id: Number(selectedPatient.id),
+                parent_id: Number(userId),
                 tanggal_kunjungan: formatVisitDateForApi(data.visitDate),
                 service_type_ids: selectedServiceIds.map((id) => Number(id)),
                 status: "booked"

@@ -8,6 +8,7 @@ import useAuth from "../auth/UseAuth.js"
 import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
 import {listService} from "../lib/api/ServiceTypes.js"
 import QrScanner from "../components/QrScanner.jsx"
+import {isUser} from "../auth/permissions.js"
 
 
 const rowStyles = {
@@ -95,7 +96,7 @@ export default function ReservationList() {
     const [selectedDate, setSelectedDate] = useLocalStorage("tanggalKunjungan", todayDate)
     const [queues, setQueues] = useState([])
     const [status, setStatus] = useState("")
-    const {logout} = useAuth()
+    const {logout, user} = useAuth()
     const [currentPage, setCurrentPage] = useState(1)
     const [searchTerm, setSearchTerm] = useState("")
     const [serviceOptions, setServiceOptions] = useState([])
@@ -108,10 +109,13 @@ export default function ReservationList() {
         [serviceOptions]
     )
 
+    // perbaiki cara get antrian ini, nampaknya terlalu berantakan.
+    // cek API nya, terlalu banyak redundansi
     const latestQueue = useEffectEvent(async function fetchQueue() {
         //useEffectEvent adalah hooks yang diperkenalkan sejak react 19 untuk memastikan useEffect mendapatkan state terbaru
         try {
-            const response = await queueList(token, selectedDate, currentPage, 50, searchTerm, status, selectedServiceIds)
+            const parentId = isUser(user) ? String(user.id) : ""
+            const response = await queueList(token, selectedDate, currentPage, 50, searchTerm, status, selectedServiceIds, parentId)
             const responseBody = await response.json();
 
             if (response.status === 200) {

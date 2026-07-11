@@ -1,8 +1,11 @@
 import {Bell, Plus} from "lucide-react";
 import {Link, useLocation} from "react-router-dom";
+import useAuth from "../auth/UseAuth.js";
+import {isAdmin} from "../auth/permissions.js";
 
 export default function Topbar({title, onNewReservation}) {
     const {pathname} = useLocation()
+    const {user} = useAuth()
     const normalizedPath = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname
 
     const actionConfig = normalizedPath.startsWith("/reservation")
@@ -15,7 +18,7 @@ export default function Topbar({title, onNewReservation}) {
                 to: "/patients/registration",
                 label: "Buat Patients Baru",
             }
-            : normalizedPath.startsWith("/users")
+            : normalizedPath.startsWith("/users") && isAdmin(user)
                 ? {
                     to: "/users/registration",
                     label: "Buat Pengguna Baru",

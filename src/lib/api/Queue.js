@@ -8,7 +8,8 @@ export const queueList = async (
     perPage = 50,
     searchTerm = "",
     status = "",
-    serviceTypeIds = []
+    serviceTypeIds = [],
+    parentId = ""
 ) => {
     const params = new URLSearchParams({
         tanggal_kunjungan: String(tanggal),
@@ -23,6 +24,10 @@ export const queueList = async (
 
     if (Array.isArray(serviceTypeIds) && serviceTypeIds.length > 0) {
         params.set("jenis_layanan", serviceTypeIds.map((id) => String(id).trim()).filter(Boolean).join(","))
+    }
+
+    if (parentId) {
+        params.set("parent_id", String(parentId))
     }
 
     return await fetch(`${apiBaseUrl}/queues?${params.toString()}`, {
