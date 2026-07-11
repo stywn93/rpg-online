@@ -60,6 +60,8 @@ export default function Patients() {
 
     const fetchPatients = useEffectEvent(async function getPatients(){
         try {
+            //gunakan wildcard untuk mengecek apakah yg sedang login user biasa atau admin
+            //jika user biasa maka akses API-nya diarahkan ke 
             const response = isUser(user)
                 ? await listPatientsByParent(token, user.id)
                 : await listPatients(token)
@@ -122,6 +124,7 @@ export default function Patients() {
                             <tr className="text-slate-500 dark:text-slate-400">
                                 <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">ID</th>
                                 <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Nama Pasien</th>
+                                <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Nama Orang Tua</th>
                                 <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Tanggal Lahir</th>
                                 <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Jenis Kelamin</th>
                                 <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Usia</th>
@@ -139,6 +142,9 @@ export default function Patients() {
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4 font-medium text-slate-900 dark:border-slate-700 dark:text-slate-100">
                                         {patient.nama}
+                                    </td>
+                                    <td className="border-b border-slate-100 px-4 py-4 font-medium text-slate-900 dark:border-slate-700 dark:text-slate-100">
+                                        {patient.parent_name}
                                     </td>
                                     <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
                                         {formatIndonesianDate(patient.tanggal_lahir)}

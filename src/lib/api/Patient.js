@@ -9,7 +9,7 @@ export const listPatients = async (token, {perPage = 10, searchTerm = ""} = {}) 
         params.set("searchTerm", searchTerm)
     }
 
-    return await fetch(`${apiBaseUrl}/patients?${params.toString()}`, {
+    return await fetch(`${apiBaseUrl}/patients/with-parents?${params.toString()}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -19,7 +19,7 @@ export const listPatients = async (token, {perPage = 10, searchTerm = ""} = {}) 
 }
 
 export const listPatientsByParent = async (token, parentId) => {
-    return await fetch(`${apiBaseUrl}/patients/parent/${parentId}`, {
+    return await fetch(`${apiBaseUrl}/patients/with-parents/${parentId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
