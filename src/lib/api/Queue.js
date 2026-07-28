@@ -25,13 +25,20 @@ export const queueList = async (
         params.set("jenis_layanan", serviceTypeIds.map((id) => String(id).trim()).filter(Boolean).join(","))
     }
 
-    return await fetch(`${apiBaseUrl}/queues?${params.toString()}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
-    })
+    // return await fetch(`${apiBaseUrl}/queues?${params.toString()}`, {
+    //     method: 'GET',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //         'Authorization': `Bearer ${token}`
+    //     }
+    // })
+  return await fetch(`${apiBaseUrl}/queues/all`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    }
+  })
 }
 
 export const queueDetails = async(token, id) => {

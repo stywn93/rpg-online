@@ -13,5 +13,6 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+    allowedHosts: ['.loca.lt', '.ngrok-free.app', '.ngrok-free.dev']// allows any loca.lt subdomain
   },
 });

@@ -67,7 +67,11 @@ export default function QrScanner({ isOpen, onClose, onScan }) {
                 } else if (msg.includes("NotFoundError")) {
                     toast.error("Kamera tidak ditemukan pada perangkat ini.")
                 } else {
-                    toast.error("Gagal memulai kamera. Coba lagi.")
+                    // toast.error(`Gagal memulai kamera: ${error.message}`)
+                    const errStr = String(error)
+                    console.error("QR Scanner error:", errStr, error)
+                    toast.error(`Gagal: ${errStr.slice(0, 120)}`)
+                    // toast.error("Gagal memulai kamera. Coba lagi.")
                 }
             }
         }

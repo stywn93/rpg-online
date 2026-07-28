@@ -262,7 +262,8 @@ export default function ReservationList() {
     const handlePrimaryAction = (item) => {
         console.log("clicked")
         if (item.status === "checked_in" || item.status === "called") {
-            updateQueueStatus(item.id, "called")
+            console.log("this is where status is checked_in or called");
+            updateQueueStatus(item.queue_id, "called")
             navigate(`/reservation/assesment/${item.id}`, {
                 state: {
                     patientName: item.patientName,
@@ -275,7 +276,7 @@ export default function ReservationList() {
             return
         }
 
-        handleCheckIn(item.id)
+        handleCheckIn(item.queue_id)
     }
     useEffect(() => {
         setSelectedDate(todayDate)
@@ -446,7 +447,7 @@ export default function ReservationList() {
                         </thead>
                         <tbody>
                         {queues.map(((queue) => (
-                            <tr key={queue.id} className={rowStyles[queue.status] ?? rowStyles.waiting}>
+                            <tr key={queue.queue_id} className={rowStyles[queue.status] ?? rowStyles.waiting}>
                                 <td className="border-b border-slate-100 px-4 py-4 font-bold text-slate-900 dark:border-slate-700 dark:text-slate-100">
                                     {queue.nomor_antrian}
                                 </td>
@@ -464,14 +465,7 @@ export default function ReservationList() {
                                 </td>
                                 <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700">
                                     <div className="flex flex-wrap gap-2">
-                                        {splitServiceTypeNames(queue.service_type_names).map((service, index) => (
-                                            <span
-                                                key={`${queue.id}-${service}-${index}`}
-                                                className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                                            >
-                                                {service}
-                                            </span>
-                                        ))}
+                                    {queue.layanan}
                                     </div>
                                 </td>
                                 <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700">
