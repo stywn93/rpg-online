@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState} from "react"
 import {LogOut, MoreVertical, KeyRound} from "lucide-react"
 import {CalendarDays} from 'lucide-react'
-import {NAV_ITEMS} from "./navConfig"
+import {NAV_ITEMS, } from "./navConfig"
 import {Link, useNavigate} from "react-router-dom"
 import useAuth from "../auth/UseAuth.js"
 

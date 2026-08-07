@@ -11,6 +11,20 @@ export const NAV_ITEMS = [
     {key: "services", label: "Layanan", icon: HandHeart, link: "/services"},
 ];
 
+export const menu_items = [
+    {key: "patients", label: "Pasien", icon: UserRound, link: "/patients"},
+    {key: "users", label: "Pengguna", icon: Users, link: "/users"},
+    {key: "services", label: "Layanan", icon: HandHeart, link: "/services"},
+    {key: "visits", label: "Kunjungan", icon: CalendarDays, link: "/visits"}
+]
+
+export const menu_items_bottom = [
+    {key: "patients", label: "Pasien", icon: UserRound, link: "/patients"},
+    {key: "users", label: "Pengguna", icon: Users, link: "/users"},
+    {key: "services", label: "Layanan", icon: HandHeart, link: "/services"},
+    {key: "visits", label: "Kunjungan", icon: CalendarDays, link: "/visits"}
+]
+
 export const BOTTOM_NAV_ITEMS = [
     {key: "reservation", label: "Kunjungan", icon: CalendarDays, link: "/reservation"},
     {key: "patients", label: "Pasien Anak", icon: UserRound, link: "/patients"},
