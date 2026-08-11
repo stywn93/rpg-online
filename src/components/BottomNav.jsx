@@ -1,9 +1,7 @@
 import { Link } from "react-router-dom";
 import { BOTTOM_NAV_ITEMS } from "./navConfig";
+import { cn } from "../lib/utils/cn.js";
 
-function cn(...classes) {
-    return classes.filter(Boolean).join(" ");
-}
 export default function BottomNav({activeKey, onNavigate}) {
     return (
         <nav className="md:hidden h-[68px] bg-white border-t border-black/[0.08] shrink-0">

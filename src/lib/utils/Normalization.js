@@ -29,6 +29,34 @@ export function normalizeAssessment(payload){
     return []
 }
 
+export function normalizeQueueItem(item) {
+    if (!item || typeof item !== "object") {
+        return null
+    }
+
+    const queueId = String(item.queue_id ?? item.id ?? "")
+
+    return {
+        ...item,
+        id: queueId,
+        queue_id: queueId,
+    }
+}
+
+export function normalizeQueueList(payload) {
+    const source = Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload)
+            ? payload
+            : null
+
+    if (!Array.isArray(source)) {
+        return null
+    }
+
+    return source.map(normalizeQueueItem).filter(Boolean)
+}
+
 export function normalizeServiceList(payload) {
     const source = Array.isArray(payload?.data)
         ? payload.data
