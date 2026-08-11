@@ -2,7 +2,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useEffect } from "react"
 import Topbar from "./components/Topbar"
 import BottomNav from "./components/BottomNav"
-import Sidebar from "./components/Sidebar"
+import Sidebar from "./components/sidebar/Sidebar"
 import { NAV_ITEMS } from "./components/navConfig"
 import useAuth from "./auth/UseAuth.js"
 
