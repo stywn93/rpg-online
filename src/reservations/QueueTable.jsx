@@ -50,6 +50,7 @@ export default function QueueTable({queues, isLoading, error, isUpdating, onPrim
                             <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700">
                                 <div className={`${queue.status === "finished" ? "hidden" : "flex"} flex-wrap gap-2`}>
                                     {queue.status !== "no_show" && (
+                                        // there is missing visit status from API
                                         <ActionButton
                                             variant={queue.status === "checked_in" || queue.status === "called" ? "accent" : "primary"}
                                             disabled={isUpdating}

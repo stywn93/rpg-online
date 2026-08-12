@@ -39,13 +39,14 @@ export default function ReservationList() {
     const {activeServiceOptions, isLoading: isLoadingServices} = useServiceOptions({token, logout})
 
     const handlePrimaryAction = (item) => {
-        if (item.status === "checked_in" || item.status === "called") {
-            markCalled(item.queue_id)
-            navigate(`/reservation/assesment/${item.queue_id}`)
-            return
-        }
+        console.log(item)
+        // if (item.status === "checked_in" || item.status === "called") {
+        //     markCalled(item.queue_id)
+        //     navigate(`/reservation/assesment/${item.queue_id}`)
+        //     return
+        // }
 
-        checkIn(item.queue_id)
+        // checkIn(item.queue_id)
     }
 
     const handleQrScan = (scannedId) => {
