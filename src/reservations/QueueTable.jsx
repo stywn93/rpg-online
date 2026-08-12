@@ -26,25 +26,25 @@ export default function QueueTable({queues, isLoading, error, isUpdating, onPrim
                     </thead>
                     <tbody>
                     {queues.map((queue) => (
-                        <tr key={queue.queue_id} className={rowStyles[queue.status] ?? rowStyles.waiting}>
+                        <tr key={queue.visit_id} className={rowStyles[queue.status] ?? rowStyles.waiting}>
                             <td className="border-b border-slate-100 px-4 py-4 font-bold text-slate-900 dark:border-slate-700 dark:text-slate-100">
-                                {queue.nomor_antrian}
+                                {queue.visit_id}
                             </td>
                             <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
-                                {queue.nama_pasien}
+                                {queue.patient_name}
                             </td>
                             <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
-                                {queue.jenis_kelamin === "L" ? "Laki-laki" : "Perempuan"}
+                                {queue.gender}
                             </td>
                             <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
-                                {queue.usia}
+                                {queue.age}
                             </td>
                             <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
-                                {formatIndonesianDate(queue.tanggal_kunjungan)}
+                                {formatIndonesianDate(queue.visit_date)}
                             </td>
-                            <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700">
+                            <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700 dark:text-slate-300">
                                 <div className="flex flex-wrap gap-2">
-                                    {queue.layanan}
+                                    {queue.services}
                                 </div>
                             </td>
                             <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700">
