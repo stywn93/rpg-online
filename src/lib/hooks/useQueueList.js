@@ -49,7 +49,7 @@ export default function useQueueList({token, logout}) {
                     token,
                     selectedDate,
                     1,
-                    100,
+                    10,
                     debouncedSearchTerm,
                     status,
                     selectedServiceIds

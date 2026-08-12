@@ -5,7 +5,7 @@ export const queueList = async (
     token,
     tanggal,
     page = 1,
-    perPage = 50,
+    perPage = 10,
     searchTerm = "",
     status = "",
     serviceTypeIds = []
@@ -25,7 +25,7 @@ export const queueList = async (
         params.set("jenis_layanan", serviceTypeIds.map((id) => String(id).trim()).filter(Boolean).join(","))
     }
 
-    return await fetch(`${apiBaseUrl}/queues/all?${params.toString()}`, {
+    return await fetch(`${apiBaseUrl}/visit-services?${params.toString()}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
