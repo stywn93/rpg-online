@@ -111,6 +111,7 @@ export default function useQueueList({token, logout}) {
     }, [token, logout])
 
     const checkIn = useCallback((id) => {
+        const oldQueues = queues // simpan state queue lama sebelum diubah
         setQueues((current) =>
             current.map((item) =>
                 item.queue_id === String(id)
@@ -118,10 +119,13 @@ export default function useQueueList({token, logout}) {
                     : item
             )
         )
-        updateStatus(id, "checked_in")
-    }, [updateStatus])
+        updateStatus(id, "checked_in").catch(() => {
+            setQueues(oldQueues) // kembalikan state queue lama jika update gagal
+        })
+    }, [updateStatus, queues])
 
     const markAbsent = useCallback((id) => {
+        const oldQueues = queues // simpan state queue lama sebelum diubah
         setQueues((current) =>
             current.map((item) =>
                 item.queue_id === String(id)
@@ -129,20 +133,23 @@ export default function useQueueList({token, logout}) {
                     : item
             )
         )
-        updateStatus(id, "no_show")
-    }, [updateStatus])
+        updateStatus(id, "no_show").catch(() => {
+            setQueues(oldQueues) // kembalikan state queue lama jika update gagal
+        })
+    }, [updateStatus, queues])
 
     //event handler untuk update status panggil menjadi present
     const markCalled = useCallback((id) => {
+        const oldQueues = queues // simpan state queue lama sebelum diubah
         setQueues((current) =>
-            current.map((item) =>
-                item.queue_id === String(id)
-                    ? {...item, status: "called"}
-                    : item
+            current.map((item) => //kenapa dilakukan mapping? karena kita ingin mengubah UI secara cepat tanpa menunggu response dari server
+                item.queue_id === String(id) ? {...item, status: "called"} : item
             )
         )
-        updateStatus(id, "called")
-    }, [updateStatus])
+        updateStatus(id, "present").catch(() => { //lakukan update status ke server
+            setQueues(oldQueues) // kembalikan state queue lama jika update gagal
+        })
+    }, [updateStatus, queues])
 
     const toggleService = useCallback((serviceId) => {
         setSelectedServiceIds((current) =>
