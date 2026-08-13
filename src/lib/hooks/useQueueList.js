@@ -132,6 +132,7 @@ export default function useQueueList({token, logout}) {
         updateStatus(id, "no_show")
     }, [updateStatus])
 
+    //event handler untuk update status panggil menjadi present
     const markCalled = useCallback((id) => {
         setQueues((current) =>
             current.map((item) =>

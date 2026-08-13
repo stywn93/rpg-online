@@ -27,7 +27,7 @@ export default function QueueTable({queues, isLoading, error, isUpdating, onPrim
                     <tbody>
                     {queues.map((queue) => (
                         <tr key={queue.visit_id} className={rowStyles[queue.status] ?? rowStyles.waiting}>
-                            <td className="border-b border-slate-100 px-4 py-4 font-bold text-slate-900 dark:border-slate-700 dark:text-slate-100">
+                            <td className="border-b border-slate-100 px-4 py-4 text-slate-900 dark:border-slate-700 dark:text-slate-100">
                                 {queue.visit_id}
                             </td>
                             <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
@@ -48,19 +48,18 @@ export default function QueueTable({queues, isLoading, error, isUpdating, onPrim
                                 </div>
                             </td>
                             <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700">
-                                <div className={`${queue.status === "finished" ? "hidden" : "flex"} flex-wrap gap-2`}>
+                                <div className={`${queue.visit_status === "finished" ? "hidden" : "flex"} flex-wrap gap-2`}>
                                     {queue.status !== "no_show" && (
-                                        // there is missing visit status from API
                                         <ActionButton
-                                            variant={queue.status === "checked_in" || queue.status === "called" ? "accent" : "primary"}
+                                            variant={queue.visit_status === "waiting" ? "primary" : "accent"}
                                             disabled={isUpdating}
-                                            onClick={() => onPrimaryAction(queue)}
+                                            onClick={() => onPrimaryAction(queue.visit_status)}
                                         >
-                                            {queue.status === "checked_in" || queue.status === "called" ? "Melayani" : "Check-in"}
+                                            {queue.visit_status === "waiting" ? "Hadir" : ""}
                                         </ActionButton>
                                     )}
 
-                                    {queue.status !== "checked_in" && queue.status !== "no_show" && queue.status !== "called" && (
+                                    {/* {queue.status !== "checked_in" && queue.status !== "no_show" && queue.status !== "called" && (
                                         <ActionButton
                                             variant="secondary"
                                             disabled={isUpdating}
@@ -68,7 +67,7 @@ export default function QueueTable({queues, isLoading, error, isUpdating, onPrim
                                         >
                                             Tidak Hadir
                                         </ActionButton>
-                                    )}
+                                    )} */}
                                 </div>
                             </td>
                         </tr>

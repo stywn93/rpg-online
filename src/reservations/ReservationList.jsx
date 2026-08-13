@@ -40,11 +40,11 @@ export default function ReservationList() {
 
     const handlePrimaryAction = (item) => {
         console.log(item)
-        // if (item.status === "checked_in" || item.status === "called") {
-        //     markCalled(item.queue_id)
-        //     navigate(`/reservation/assesment/${item.queue_id}`)
-        //     return
-        // }
+        if (item === "waiting") {
+            markCalled(item.queue_id)
+            navigate(`/reservation/assesment/${item.queue_id}`)
+            return
+        }
 
         // checkIn(item.queue_id)
     }
