@@ -56,7 +56,7 @@ export default function QueueTable({queues, isLoading, error, isUpdating, onPrim
                                             disabled={isUpdating}
                                             onClick={() => onPrimaryAction(queue)}
                                         >
-                                            {queue.visit_status === "waiting" ? "Hadir" : ""}
+                                            {queue.visit_status === "waiting" ? "Hadir" : "Pemeriksaan"}
                                         </ActionButton>
                                     )}
 
