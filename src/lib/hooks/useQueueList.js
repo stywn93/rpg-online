@@ -10,6 +10,18 @@ function getTodayDate() {
     return localDate.toISOString().split("T")[0]
 }
 
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+
+function isDateString(value) {
+    return typeof value === "string" && DATE_PATTERN.test(value)
+}
+
+function sanitizeStoredDate(value) {
+    const parsed = JSON.parse(value)
+
+    return isDateString(parsed) ? parsed : getTodayDate()
+}
+
 function useDebouncedValue(value, delay = 400) {
     const [debounced, setDebounced] = useState(value)
 
@@ -22,7 +34,10 @@ function useDebouncedValue(value, delay = 400) {
 }
 
 export default function useQueueList({token, logout}) {
-    const [selectedDate, setSelectedDate] = useLocalStorage("tanggalKunjungan", getTodayDate()) //this is where we set default selected date to today
+    const [selectedDate, setSelectedDate] = useLocalStorage("tanggalKunjungan", getTodayDate(), {
+        serializer: (value) => JSON.stringify(value),
+        deserializer: sanitizeStoredDate,
+    })
     const [status, setStatus] = useState("")
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedServiceIds, setSelectedServiceIds] = useState([])
