@@ -3,11 +3,10 @@ import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
 
 // di sini belum ada key untuk "present", maka kita tambahkan key "present" dengan warna kuning
 const rowStyles = {
-    called: "bg-blue-100 dark:bg-blue-900/50",
+    present: "bg-blue-100 dark:bg-blue-900/50",
     no_show: "bg-red-100 dark:bg-red-900/50",
     waiting: "bg-white dark:bg-slate-900",
     finished: "bg-green-100 dark:bg-green-900/50",
-    present: "bg-yellow-100 dark:bg-yellow-900/50",
 }
 
 export default function QueueTable({queues, isLoading, error, isUpdating, onPrimaryAction, onAbsent}) {
@@ -28,7 +27,7 @@ export default function QueueTable({queues, isLoading, error, isUpdating, onPrim
                     </thead>
                     <tbody>
                     {queues.map((queue) => (
-                        <tr key={queue.visit_id} className={rowStyles[queue.status] ?? rowStyles.waiting}>
+                        <tr key={queue.visit_id} className={rowStyles[queue.visit_status] ?? rowStyles.waiting}>
                             <td className="border-b border-slate-100 px-4 py-4 text-slate-900 dark:border-slate-700 dark:text-slate-100">
                                 {queue.visit_id}
                             </td>
@@ -103,20 +102,16 @@ export default function QueueTable({queues, isLoading, error, isUpdating, onPrim
                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Keterangan</p>
                 <div className="mt-3 flex flex-col gap-3 text-sm text-slate-600 dark:text-slate-400 sm:flex-row sm:flex-wrap sm:gap-5">
                     <div className="flex items-center gap-3">
-                        <span className="h-3 w-3 rounded-full bg-blue-500"/>
-                        <span>Warna biru artinya Sedang Dalam Pemeriksaan</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <span className="h-3 w-3 rounded-full bg-red-500"/>
-                        <span>Warna merah artinya Tidak Hadir</span>
+                        <span className="h-3 w-3 rounded-full bg-blue-100 dark:bg-blue-900/50"/>
+                        <span>Sedang Dalam Pemeriksaan</span>
                     </div>
                     <div className="flex items-center gap-3">
                         <span className="h-3 w-3 rounded-full border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900"/>
-                        <span>Tanpa warna artinya Belum Hadir</span>
+                        <span>Belum Hadir</span>
                     </div>
                     <div className="flex items-center gap-3">
-                        <span className="h-3 w-3 rounded-full bg-green-500"/>
-                        <span>Warna hijau artinya Selesai Dilayani</span>
+                        <span className="h-3 w-3 rounded-full bg-green-100 dark:bg-green-900/50"/>
+                        <span>Selesai Dilayani</span>
                     </div>
                 </div>
             </div>
