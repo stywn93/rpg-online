@@ -1,5 +1,5 @@
 import {useState} from "react"
-import {Scan} from "lucide-react"
+import {Calendar, Scan} from "lucide-react"
 
 export default function QueueFilterBar({
     totalCount,
@@ -50,27 +50,33 @@ export default function QueueFilterBar({
             </div>
 
             <div
-                className="mt-5 flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 dark:bg-slate-950 sm:flex-row sm:items-end sm:justify-between">
-                <div className="space-y-1">
-                    <label htmlFor="visit-date-filter" className="text-sm font-medium text-slate-700 dark:text-slate-100 mr-3">
+                className="mt-5 flex flex-wrap items-end gap-3 rounded-2xl bg-slate-50 p-4 dark:bg-slate-950">
+                <div className="flex min-w-56 flex-1 flex-col gap-1">
+                    <label htmlFor="visit-date-filter" className="text-sm font-medium text-slate-700 dark:text-slate-100">
                         Tanggal
                     </label>
-                    <input
-                        id="visit-date-filter"
-                        type="date"
-                        value={selectedDate ?? ""}
-                        onChange={onDateChange}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 dark:border-slate-900 dark:bg-slate-950 dark:text-slate-100 focus:border-blue-500 focus:outline-none sm:w-56"
-                    />
-                    <label htmlFor="queue-status"
-                           className="text-sm font-medium text-slate-700 dark:text-slate-100 mr-3 ml-3">
+                    <div className="relative">
+                        <input
+                            id="visit-date-filter"
+                            type="date"
+                            value={selectedDate ?? ""}
+                            onChange={onDateChange}
+                            onClick={(event) => event.currentTarget.showPicker?.()}
+                            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 pr-9 text-sm text-slate-700 dark:border-slate-900 dark:bg-slate-950 dark:text-slate-100 focus:border-blue-500 focus:outline-none [&::-webkit-calendar-picker-indicator]:pointer-events-none [&::-webkit-calendar-picker-indicator]:opacity-0"
+                        />
+                        <Calendar size={16} aria-hidden="true"
+                                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"/>
+                    </div>
+                </div>
+                <div className="flex min-w-56 flex-1 flex-col gap-1">
+                    <label htmlFor="queue-status" className="text-sm font-medium text-slate-700 dark:text-slate-100">
                         Status
                     </label>
                     <select
                         id="queue-status"
                         value={status}
                         onChange={onStatusChange}
-                        className="w-full rounded-lg border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-700 dark:text-slate-100 focus:border-blue-500 focus:outline-none sm:w-56"
+                        className="w-full rounded-lg border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-700 dark:text-slate-100 focus:border-blue-500 focus:outline-none"
                     >
                         <option value="">Semua</option>
                         <option value="booked">Belum Hadir</option>
@@ -79,8 +85,9 @@ export default function QueueFilterBar({
                         <option value="finished">Selesai Dilayani</option>
                         <option value="no_show">Tidak Hadir</option>
                     </select>
-                    <label htmlFor="parent-search"
-                           className="text-sm font-medium text-slate-700 dark:text-slate-100 ml-3 mr-3">
+                </div>
+                <div className="flex min-w-56 flex-1 flex-col gap-1">
+                    <label htmlFor="parent-search" className="text-sm font-medium text-slate-700 dark:text-slate-100">
                         Nama Pasien
                     </label>
                     <input
@@ -89,16 +96,18 @@ export default function QueueFilterBar({
                         value={searchTerm}
                         onChange={onSearchChange}
                         placeholder="Masukkan nama pasien"
-                        className="w-full rounded-lg border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-700 dark:text-slate-100 focus:border-blue-500 focus:outline-none sm:w-56"
+                        className="w-full rounded-lg border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-700 dark:text-slate-100 focus:border-blue-500 focus:outline-none"
                     />
-                    <div className="relative inline-block">
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-100 ml-3 mr-3">
-                            Layanan
-                        </label>
+                </div>
+                <div className="flex min-w-56 flex-1 flex-col gap-1">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-100">
+                        Layanan
+                    </label>
+                    <div className="relative">
                         <button
                             type="button"
                             onClick={() => setIsServiceDropdownOpen((current) => !current)}
-                            className="inline-flex w-full items-center justify-between rounded-lg border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-700 dark:text-slate-100 focus:border-blue-500 focus:outline-none sm:w-56"
+                            className="inline-flex w-full items-center justify-between rounded-lg border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-700 dark:text-slate-100 focus:border-blue-500 focus:outline-none"
                         >
                             <span className="truncate">{selectedServiceLabel()}</span>
                             <span className="ml-3 text-xs text-slate-400">{isServiceDropdownOpen ? "Tutup" : "Pilih"}</span>
@@ -149,7 +158,7 @@ export default function QueueFilterBar({
                         )}
                     </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="ml-auto flex items-end gap-2">
                     <button
                         type="button"
                         onClick={onScan}
