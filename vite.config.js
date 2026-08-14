@@ -13,6 +13,14 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
-    allowedHosts: ['.loca.lt', '.ngrok-free.app', '.ngrok-free.dev']// allows any loca.lt subdomain
+    allowedHosts: [],
+  },
+  preview: {
+    proxy: {
+      "/api/v1": {
+        target: "http://localhost",
+        changeOrigin: true,
+      },
+    },
   },
 });

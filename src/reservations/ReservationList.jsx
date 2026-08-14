@@ -39,10 +39,11 @@ export default function ReservationList() {
     const {activeServiceOptions, isLoading: isLoadingServices} = useServiceOptions({token, logout})
 
     const handlePrimaryAction = (item) => {
-        console.log(item)
-        if (item === "waiting") {
-            markCalled(item.queue_id)
-            navigate(`/reservation/assesment/${item.queue_id}`)
+        console.log(item.visit_id)
+        if (item.visit_status === "waiting") {
+            console.log("if condition is fulfilled")
+            markCalled(item.visit_id)
+            // navigate(`/reservation/assesment/${item.queue_id}`)
             return
         }
 

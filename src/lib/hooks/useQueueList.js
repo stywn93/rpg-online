@@ -22,7 +22,7 @@ function useDebouncedValue(value, delay = 400) {
 }
 
 export default function useQueueList({token, logout}) {
-    const [selectedDate, setSelectedDate] = useLocalStorage("tanggalKunjungan", getTodayDate())
+    const [selectedDate, setSelectedDate] = useLocalStorage("tanggalKunjungan", getTodayDate()) //this is where we set default selected date to today
     const [status, setStatus] = useState("")
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedServiceIds, setSelectedServiceIds] = useState([])
@@ -43,6 +43,7 @@ export default function useQueueList({token, logout}) {
         async function fetchQueues() {
             setIsLoading(true)
             setError(null)
+            // console.log(`selected date = ${selectedDate}`) // we need to set default selected date to today
 
             try {
                 const response = await queueList(
@@ -80,14 +81,17 @@ export default function useQueueList({token, logout}) {
     }, [token, selectedDate, status, debouncedSearchTerm, selectedServiceIds, logout])
 
     const updateStatus = useCallback(async (id, nextStatus) => {
+        console.log("update status is called")
         setIsUpdating(true)
 
         try {
+            // ini salah API endpoint
             const response = await updateQueue(token, id, nextStatus)
             const body = await response.json()
 
             if (response.status === 200) {
-                const nextQueues = normalizeQueueList(body)
+                const next31
+                 = normalizeQueueList(body)
 
                 if (nextQueues) {
                     setQueues(nextQueues)
@@ -140,12 +144,17 @@ export default function useQueueList({token, logout}) {
 
     //event handler untuk update status panggil menjadi present
     const markCalled = useCallback((id) => {
+        console.log(`what is id here : ${id}`)
         const oldQueues = queues // simpan state queue lama sebelum diubah
+        console.log(`old queues is here : `)
+        console.log(oldQueues)
         setQueues((current) =>
             current.map((item) => //kenapa dilakukan mapping? karena kita ingin mengubah UI secara cepat tanpa menunggu response dari server
-                item.queue_id === String(id) ? {...item, status: "called"} : item
+                item.visit_id === String(id) ? {...item, visit_status: "present"} : item
             )
         )
+        console.log(`new queues is here :`)
+        console.log(queues)
         updateStatus(id, "present").catch(() => { //lakukan update status ke server
             setQueues(oldQueues) // kembalikan state queue lama jika update gagal
         })
