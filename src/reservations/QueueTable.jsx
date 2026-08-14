@@ -1,11 +1,13 @@
 import ActionButton from "../components/ActionButton.jsx"
 import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
 
+// di sini belum ada key untuk "present", maka kita tambahkan key "present" dengan warna kuning
 const rowStyles = {
     called: "bg-blue-100 dark:bg-blue-900/50",
     no_show: "bg-red-100 dark:bg-red-900/50",
     waiting: "bg-white dark:bg-slate-900",
     finished: "bg-green-100 dark:bg-green-900/50",
+    present: "bg-yellow-100 dark:bg-yellow-900/50",
 }
 
 export default function QueueTable({queues, isLoading, error, isUpdating, onPrimaryAction, onAbsent}) {
@@ -53,7 +55,7 @@ export default function QueueTable({queues, isLoading, error, isUpdating, onPrim
                                         <ActionButton
                                             variant={queue.visit_status === "waiting" ? "primary" : "accent"}
                                             disabled={isUpdating}
-                                            onClick={() => onPrimaryAction(queue.visit_status)}
+                                            onClick={() => onPrimaryAction(queue)}
                                         >
                                             {queue.visit_status === "waiting" ? "Hadir" : ""}
                                         </ActionButton>

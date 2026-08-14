@@ -58,7 +58,9 @@ export const createQueue = async (token, payload) => {
 }
 
 export const updateQueue = async(token, id, status) => {
-    const url = `${apiBaseUrl}/queues/${id}`
+    const url = `${apiBaseUrl}/visits/${id}`
+
+    console.log(`id : ${id}, status: ${status}`)
 
     return await fetch(url, {
         method: 'PATCH',
@@ -66,6 +68,6 @@ export const updateQueue = async(token, id, status) => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({status})
+        body: JSON.stringify({visit_status: status})
     })
 }
