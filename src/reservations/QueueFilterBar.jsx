@@ -79,11 +79,10 @@ export default function QueueFilterBar({
                         className="w-full rounded-lg border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-700 dark:text-slate-100 focus:border-blue-500 focus:outline-none"
                     >
                         <option value="">Semua</option>
-                        <option value="booked">Belum Hadir</option>
-                        <option value="checked_in">Hadir</option>
-                        <option value="called">Dalam Pemeriksaan</option>
+                        <option value="waiting">Belum Hadir</option>
+                        <option value="present">Hadir</option>
+                        <option value="in_assessment">Dalam Pemeriksaan</option>
                         <option value="finished">Selesai Dilayani</option>
-                        <option value="no_show">Tidak Hadir</option>
                     </select>
                 </div>
                 <div className="flex min-w-56 flex-1 flex-col gap-1">

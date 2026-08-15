@@ -10,7 +10,7 @@ export const listService = async (token, { page = 1, perPage = 10, searchTerm = 
         params.set("searchTerm", searchTerm);
     }
 
-    return await fetch(`${apiBaseUrl}/servicetypes?${params.toString()}`, {
+    return await fetch(`${apiBaseUrl}/medical-services?${params.toString()}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",

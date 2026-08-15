@@ -85,10 +85,11 @@ export default function CreateReservation() {
     const userId = String(user?.id ?? "")
     const isSingleChildUser = isUserRole && patientOptions.length === 1
     const ageParts = useMemo(() => parseAgeParts(selectedPatient?.usia), [selectedPatient?.usia])
-    const activeServiceOptions = useMemo(
-        () => serviceOptions.filter((item) => item.aktif == 1),
-        [serviceOptions]
-    )
+    // const activeServiceOptions = useMemo(
+    //     () => serviceOptions.filter((item) => item.aktif == 1),
+    //     [serviceOptions]
+    // )
+    const activeServiceOptions = serviceOptions
 
     const fetchServices = useEffectEvent(async function getServices() {
         setIsLoadingServices(true)
