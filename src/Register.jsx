@@ -4,6 +4,7 @@ import {useLocalStorage} from "react-use"
 import {useForm} from "react-hook-form"
 import toast from 'react-hot-toast';
 import {useState} from "react";
+import logoUrl from "./favicon.png"
 
 
 export default function Register({withinDashboard = false}) {
@@ -49,7 +50,7 @@ export default function Register({withinDashboard = false}) {
             className={`flex flex-col items-center px-6 mx-auto ${withinDashboard ? "py-2 lg:py-0" : "justify-center py-8 md:h-screen lg:py-0"}`}>
             {!withinDashboard && (
                 <a href="#" className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-                    <img className="w-8 h-8 mr-2" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg"
+                    <img className="w-8 h-8 mr-2 rounded" src={logoUrl}
                          alt="logo"/>
                     RPG Online
                 </a>
