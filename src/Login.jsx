@@ -5,6 +5,7 @@ import {useForm} from "react-hook-form"
 import toast, {Toaster} from 'react-hot-toast'
 import {useEffect, useState} from "react"
 import useAuth from "./auth/UseAuth.js"
+import logoUrl from "./favicon.png"
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -20,7 +21,6 @@ export default function Login() {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const navigate = useNavigate()
-    const logoUrl = import.meta.env.VITE_APP_LOGO_URL
 
     useEffect(() => {
         if (token) navigate("/", {replace: true})
