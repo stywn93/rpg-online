@@ -27,7 +27,7 @@ export default function QueueFilterBar({
         }
 
         if (selectedServiceIds.length === 1) {
-            return activeServiceOptions.find((item) => item.service_id === selectedServiceIds[0])?.service_name ?? "1 layanan"
+            return activeServiceOptions.find((item) => item.id === selectedServiceIds[0])?.name ?? "1 layanan"
         }
 
         return `${selectedServiceIds.length} layanan dipilih`

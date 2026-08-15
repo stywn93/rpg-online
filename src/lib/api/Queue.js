@@ -26,7 +26,7 @@ export const queueList = async (
     }
 
     if (Array.isArray(serviceTypeIds) && serviceTypeIds.length > 0) {
-        params.set("jenis_layanan", serviceTypeIds.map((id) => String(id).trim()).filter(Boolean).join(","))
+        params.set("service_id", serviceTypeIds.map((id) => String(id).trim()).filter(Boolean).join(","))
     }
 
     return await fetch(`${apiBaseUrl}/visit-services?${params.toString()}`, {

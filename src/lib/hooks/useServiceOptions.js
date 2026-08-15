@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from "react"
+import {useEffect, useState} from "react"
 import {listService} from "../api/ServiceTypes.js"
 import {normalizeServiceList} from "../utils/Normalization.js"
 
@@ -45,10 +45,11 @@ export default function useServiceOptions({token, logout}) {
         }
     }, [token, logout])
 
-    const activeServiceOptions = useMemo(
-        () => serviceOptions.filter((item) => item.aktif == 1),
-        [serviceOptions]
-    )
+    // const activeServiceOptions = useMemo(
+    //     () => serviceOptions.filter((item) => item.aktif == 1),
+    //     [serviceOptions]
+    // )
+    const activeServiceOptions = serviceOptions
 
     return {serviceOptions, activeServiceOptions, isLoading}
 }

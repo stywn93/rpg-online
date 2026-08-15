@@ -68,9 +68,8 @@ export function normalizeServiceList(payload) {
 
     return source
         .map((item) => ({
-            id: String(item?.id ?? item?.service_type_id ?? ""),
-            name: item?.name ?? item?.nama ?? item?.service_name ?? item?.nama_layanan ?? "",
-            aktif: item?.aktif,
+            id: String(item.service_id ?? ""),
+            name: item?.name ?? item?.service_name ?? "",
         }))
         .filter((item) => item.id && item.name)
 }
