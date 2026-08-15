@@ -11,14 +11,18 @@ export const queueList = async (
     serviceTypeIds = []
 ) => {
     const params = new URLSearchParams({
-        tanggal_kunjungan: String(tanggal),
+        visit_date: String(tanggal),
         searchTerm,
         page: String(page),
         per_page: String(perPage),
     })
 
     if (status) {
-        params.set("status", status)
+        params.set("visit_status", status)
+    }
+
+    if(searchTerm) {
+        params.set("patient_name", searchTerm)
     }
 
     if (Array.isArray(serviceTypeIds) && serviceTypeIds.length > 0) {

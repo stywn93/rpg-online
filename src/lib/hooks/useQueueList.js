@@ -91,6 +91,7 @@ export default function useQueueList({token, logout}) {
         }
 
         fetchQueues()
+        console.log(`fetchQueues is called with selectedDate: ${selectedDate}, status: ${status}, debouncedSearchTerm: ${debouncedSearchTerm}, selectedServiceIds: ${selectedServiceIds}`)
 
         return () => controller.abort()
     }, [token, selectedDate, status, debouncedSearchTerm, selectedServiceIds, logout])
