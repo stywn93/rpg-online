@@ -64,8 +64,6 @@ export const createQueue = async (token, payload) => {
 export const updateQueue = async(token, id, status) => {
     const url = `${apiBaseUrl}/visits/${id}`
 
-    console.log(`id : ${id}, status: ${status}`)
-
     return await fetch(url, {
         method: 'PATCH',
         headers: {
