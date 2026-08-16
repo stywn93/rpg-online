@@ -58,7 +58,6 @@ export default function useQueueList({token, logout}) {
         async function fetchQueues() {
             setIsLoading(true)
             setError(null)
-            // console.log(`selected date = ${selectedDate}`) // we need to set default selected date to today
 
             try {
                 const response = await queueList(
@@ -91,13 +90,11 @@ export default function useQueueList({token, logout}) {
         }
 
         fetchQueues()
-        console.log(`fetchQueues is called with selectedDate: ${selectedDate}, status: ${status}, debouncedSearchTerm: ${debouncedSearchTerm}, selectedServiceIds: ${selectedServiceIds}`)
 
         return () => controller.abort()
     }, [token, selectedDate, status, debouncedSearchTerm, selectedServiceIds, logout])
 
     const updateStatus = useCallback(async (id, nextStatus) => {
-        console.log("update status is called")
         setIsUpdating(true)
 
         try {
@@ -105,8 +102,7 @@ export default function useQueueList({token, logout}) {
             const body = await response.json()
 
             if (response.status === 200) {
-                const nextQueues
-                 = normalizeQueueList(body)
+                const nextQueues = normalizeQueueList(body)
 
                 if (nextQueues) {
                     setQueues(nextQueues)
@@ -123,7 +119,7 @@ export default function useQueueList({token, logout}) {
                 logout()
             }
         } catch (error) {
-            console.error(error)
+
         } finally {
             setIsUpdating(false)
         }
@@ -139,8 +135,6 @@ export default function useQueueList({token, logout}) {
                 item.visit_id === String(id) ? {...item, visit_status: "present"} : item
             )
         )
-        console.log(`new queues is here :`)
-        console.log(queues)
         updateStatus(id, "present").catch(() => { //lakukan update status ke server
             setQueues(oldQueues) // kembalikan state queue lama jika update gagal
         })

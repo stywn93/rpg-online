@@ -1,5 +1,4 @@
 import {useState} from "react"
-import {useNavigate} from "react-router-dom"
 import toast from "react-hot-toast"
 import {useLocalStorage} from "react-use"
 import useAuth from "../auth/UseAuth.js"
@@ -12,7 +11,6 @@ import QrScanner from "../components/QrScanner.jsx"
 export default function ReservationList() {
     const [token] = useLocalStorage("token", "")
     const {logout} = useAuth()
-    const navigate = useNavigate()
 
     const [isScannerOpen, setIsScannerOpen] = useState(false)
 
@@ -37,11 +35,8 @@ export default function ReservationList() {
     const {activeServiceOptions, isLoading: isLoadingServices} = useServiceOptions({token, logout})
 
     const handlePrimaryAction = (item) => {
-        console.log(item.visit_id)
         if (item.visit_status === "waiting") {
-            console.log("if condition is fulfilled")
             markCalled(item.visit_id)
-            // navigate(`/reservation/assesment/${item.queue_id}`)
             return
         }
 
@@ -57,7 +52,6 @@ export default function ReservationList() {
         const matchedQueue = queues.find((q) => String(q.visit_id) === String(scannedId))
 
         if (matchedQueue) {
-            console.log(`matched queue found` + ` with visit_id: ${matchedQueue.visit_id}`)
             markCalled(matchedQueue.visit_id)
             toast.success(`Pasien ${matchedQueue.patient_name} berhasil check-in.`, {duration: 3000})
         } else {

@@ -9,7 +9,7 @@ const rowStyles = {
     finished: "bg-green-100 dark:bg-green-900/50",
 }
 
-export default function QueueTable({queues, isLoading, error, isUpdating, onPrimaryAction, onAbsent}) {
+export default function QueueTable({queues, isLoading, error, isUpdating, onPrimaryAction}) {
     return (
         <>
             <div className="mt-5 overflow-x-auto">
@@ -59,16 +59,6 @@ export default function QueueTable({queues, isLoading, error, isUpdating, onPrim
                                             {queue.visit_status === "waiting" ? "Hadir" : "Pemeriksaan"}
                                         </ActionButton>
                                     )}
-
-                                    {/* {queue.status !== "checked_in" && queue.status !== "no_show" && queue.status !== "called" && (
-                                        <ActionButton
-                                            variant="secondary"
-                                            disabled={isUpdating}
-                                            onClick={() => onAbsent(queue.queue_id)}
-                                        >
-                                            Tidak Hadir
-                                        </ActionButton>
-                                    )} */}
                                 </div>
                             </td>
                         </tr>
