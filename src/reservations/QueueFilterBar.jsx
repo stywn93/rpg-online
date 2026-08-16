@@ -1,5 +1,5 @@
 import {useState} from "react"
-import {Calendar, Scan} from "lucide-react"
+import {Calendar, ChevronDown, Filter, Scan} from "lucide-react"
 
 export default function QueueFilterBar({
     totalCount,
@@ -18,8 +18,11 @@ export default function QueueFilterBar({
     onScan,
 }) {
     const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false)
+    const [isFilterOpen, setIsFilterOpen] = useState(() => window.matchMedia("(min-width: 640px)").matches)
 
     const canReset = !selectedDate && !status && !searchTerm && selectedServiceIds.length === 0
+
+    const activeFilterCount = [!!selectedDate, !!status, !!searchTerm, selectedServiceIds.length > 0].filter(Boolean).length
 
     const selectedServiceLabel = () => {
         if (selectedServiceIds.length === 0) {
@@ -44,13 +47,30 @@ export default function QueueFilterBar({
                         Daftar pasien yang sudah memiliki rencana kunjungan.
                     </p>
                 </div>
-                <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-                    Total {totalCount} pasien
+                <div className="flex items-center gap-2">
+                    <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                        Total {totalCount} pasien
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setIsFilterOpen((current) => !current)}
+                        aria-expanded={isFilterOpen}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 sm:hidden dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                    >
+                        <Filter size={16} />
+                        Filter
+                        {activeFilterCount > 0 && (
+                            <span className="rounded-full bg-blue-600 px-1.5 text-xs font-semibold text-white">
+                                {activeFilterCount}
+                            </span>
+                        )}
+                        <ChevronDown size={16} className={`transition-transform ${isFilterOpen ? "rotate-180" : ""}`} />
+                    </button>
                 </div>
             </div>
 
             <div
-                className="mt-5 flex flex-wrap items-end gap-3 rounded-2xl bg-slate-50 p-4 dark:bg-slate-950">
+                className={`mt-5 flex-wrap items-end gap-3 rounded-2xl bg-slate-50 p-4 dark:bg-slate-950 ${isFilterOpen ? "flex" : "hidden"} sm:flex`}>
                 <div className="flex min-w-56 flex-1 flex-col gap-1">
                     <label htmlFor="visit-date-filter" className="text-sm font-medium text-slate-700 dark:text-slate-100">
                         Tanggal
