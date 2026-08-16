@@ -4,7 +4,6 @@ import {useLocalStorage} from "react-use"
 import useAuth from "../auth/UseAuth.js"
 import useServiceList from "../lib/hooks/useServiceList.js"
 import ServiceTable from "./ServiceTable.jsx"
-import ActionButton from "../components/ActionButton.jsx"
 
 export default function Services() {
     const [token] = useLocalStorage("token", "")
@@ -46,7 +45,6 @@ export default function Services() {
                             Data Layanan yang telah terdaftar di sistem.
                         </p>
                     </div>
-                    <ActionButton to="/services/create">Tambah Layanan</ActionButton>
                 </div>
 
                 <ServiceTable

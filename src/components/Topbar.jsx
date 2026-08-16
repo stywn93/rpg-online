@@ -20,7 +20,12 @@ export default function Topbar({title, onNewReservation}) {
                     to: "/users/registration",
                     label: "Buat Pengguna Baru",
                 }
-                : null
+                : normalizedPath.startsWith("/services")
+                    ? {
+                        to: "/services/create",
+                        label: "Tambah Layanan",
+                    }
+                    : null
 
     return (
         <div
