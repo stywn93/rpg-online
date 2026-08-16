@@ -13,7 +13,7 @@ function useDebouncedValue(value, delay = 400) {
     return debounced
 }
 
-export default function useParentOptions({token, logout}) {
+export default function useParentOptions({token, logout, enabled = true}) {
     const [parents, setParents] = useState([])
     const [searchTerm, setSearchTerm] = useState("")
     const [isLoading, setIsLoading] = useState(false)
@@ -21,7 +21,7 @@ export default function useParentOptions({token, logout}) {
     const debouncedSearchTerm = useDebouncedValue(searchTerm, 400)
 
     useEffect(() => {
-        if (!token) {
+        if (!token || !enabled) {
             return
         }
 
@@ -55,7 +55,7 @@ export default function useParentOptions({token, logout}) {
         fetchParents()
 
         return () => controller.abort()
-    }, [token, debouncedSearchTerm, logout])
+    }, [token, enabled, debouncedSearchTerm, logout])
 
     return {
         parents,
