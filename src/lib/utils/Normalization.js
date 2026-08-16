@@ -73,3 +73,71 @@ export function normalizeServiceList(payload) {
         }))
         .filter((item) => item.id && item.name)
 }
+
+export function normalizePatientList(payload) {
+    const source = Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload?.data?.data)
+            ? payload.data.data
+            : Array.isArray(payload)
+                ? payload
+                : []
+
+    return source
+        .map((item) => ({
+            ...item,
+            id: String(item?.id ?? ""),
+            name: item?.name ?? item?.nama ?? "",
+        }))
+        .filter((item) => item.id && item.name)
+}
+
+export function normalizeUserList(payload) {
+    const source = Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload?.data?.data)
+            ? payload.data.data
+            : Array.isArray(payload)
+                ? payload
+                : []
+
+    return source
+        .map((item) => ({
+            ...item,
+            id: String(item?.id ?? ""),
+            name: item?.name ?? item?.nama ?? "",
+        }))
+        .filter((item) => item.id && item.name)
+}
+
+export function normalizePatientDetail(payload) {
+    const item = payload?.data
+
+    if (!item || typeof item !== "object") {
+        return null
+    }
+
+    return {
+        ...item,
+        id: String(item?.id ?? ""),
+        name: item?.name ?? item?.nama ?? "",
+    }
+}
+
+export function normalizeVisitServiceList(payload) {
+    const source = Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload?.data?.data)
+            ? payload.data.data
+            : Array.isArray(payload)
+                ? payload
+                : []
+
+    return source
+        .map((item) => ({
+            ...item,
+            id: String(item?.visit_id ?? item?.id ?? ""),
+            services: item?.services ?? "",
+        }))
+        .filter((item) => item.id)
+}

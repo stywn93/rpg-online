@@ -1,55 +1,23 @@
-
-import {useEffect, useEffectEvent, useState} from "react";
 import {useParams} from "react-router-dom";
 import {useLocalStorage} from "react-use";
+import useAuth from "../auth/UseAuth.js";
+import usePatientDetail from "../lib/hooks/usePatientDetail.js";
 import PatientProfile from "./PatientProfile.jsx";
-import AnamnesaHistory from "../assessments/AnamnesaHistory.jsx";
-import {getPatientDetail} from "../lib/api/Patient.js";
-import {listAssesment} from "../lib/api/Assesment.js";
+import VisitHistory from "./VisitHistory.jsx";
 
 export default function PatientDetails() {
     const {patientId} = useParams()
-    const [token, _] = useLocalStorage("token", "")
-    const [patient, setPatient] = useState(null)
-    const [riwayat, setRiwayat] = useState([])
+    const [token] = useLocalStorage("token", "")
+    const {logout} = useAuth()
 
-    const fetchPatientDetail = useEffectEvent(async function getDetailPatient() {
-        try {
-            const [patientResponse, riwayatResponse] = await Promise.all([
-                getPatientDetail(token, patientId),
-                listAssesment(token, patientId),
-            ])
-
-            const patientBody = await patientResponse.json()
-            const riwayatBody = await riwayatResponse.json()
-
-            if (patientResponse.ok) {
-                setPatient(patientBody.data)
-            }
-
-            if (riwayatResponse.ok) {
-                setRiwayat(riwayatBody.data ?? [])
-                console.log(riwayatBody.data)
-            }
-        } catch (e) {
-            console.error(e)
-        }
-    })
-
-    useEffect(() => {
-        if (!token || !patientId) {
-            return
-        }
-
-        fetchPatientDetail()
-    }, [token, patientId])
+    const {patient, visits, isLoading, error} = usePatientDetail({token, patientId, logout})
 
     return (
         <section>
             <div className="mx-auto flex flex-col gap-6 xl:flex-row xl:items-start">
                 <div className="flex w-full min-w-0 flex-1 flex-col gap-6">
-                    <PatientProfile patient={patient ?? {}}/>
-                    <AnamnesaHistory riwayat={riwayat}/>
+                    <PatientProfile patient={patient}/>
+                    <VisitHistory visits={visits} isLoading={isLoading} error={error}/>
                 </div>
             </div>
         </section>

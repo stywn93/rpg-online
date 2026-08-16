@@ -1,78 +1,19 @@
-import {useEffect, useEffectEvent, useMemo, useState} from "react"
-import { Link } from "react-router-dom"
-import {listPatients} from "../lib/api/Patient.js"
 import {useLocalStorage} from "react-use"
-import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
 import useAuth from "../auth/UseAuth.js"
-
-function ActionButton({ children, variant = "primary", to }) {
-    const variants = {
-        primary: "bg-blue-600 text-white hover:bg-blue-800 cursor-pointer",
-        secondary: "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 cursor-pointer",
-    }
-
-    if (to) {
-        return (
-            <Link
-                to={to}
-                className={`inline-flex items-center justify-center rounded-lg px-3 py-2 text-xs font-medium transition ${variants[variant]}`}
-            >
-                {children}
-            </Link>
-        )
-    }
-
-    return (
-        <button
-            type="button"
-            className={`inline-flex items-center justify-center rounded-lg px-3 py-2 text-xs font-medium transition ${variants[variant]}`}
-        >
-            {children}
-        </button>
-    )
-}
+import usePatientList from "../lib/hooks/usePatientList.js"
+import PatientTable from "./PatientTable.jsx"
 
 export default function Patients() {
-    const [searchTerm, setSearchTerm] = useState("")
-    const [token, _] = useLocalStorage("token", "")
-    const [patients, setPatients] = useState([])
+    const [token] = useLocalStorage("token", "")
     const {logout} = useAuth()
 
-    const filteredPatients = useMemo(() => {
-        const keyword = searchTerm.trim().toLowerCase()
-
-        if (!keyword) {
-            return patients
-        }
-
-        return patients.filter((patient) =>
-            [
-                patient.id,
-                patient.nama,
-                patient.alamat,
-                patient.jenis_kelamin,
-                patient.usia,
-            ].some((value) => String(value).toLowerCase().includes(keyword))
-        )
-    }, [patients, searchTerm])
-
-    const fetchPatients = useEffectEvent(async function getPatients(){
-        try {
-            const response = await listPatients(token)
-            const responseBody = await response.json()
-            // console.log(responseBody)
-            setPatients(responseBody.data)
-            if (response.status === 401) {
-                logout()
-            }
-        } catch (e) {
-            console.error(e)
-        }
-    })
-
-    useEffect(() => {
-        fetchPatients()
-    }, [token])
+    const {
+        patients,
+        isLoading,
+        error,
+        searchTerm,
+        setSearchTerm,
+    } = usePatientList({token, logout})
 
     return (
         <section className="space-y-5">
@@ -87,7 +28,7 @@ export default function Patients() {
                         </p>
                     </div>
                     <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-                        Total {filteredPatients.length} pasien
+                        Total {patients.length} pasien
                     </div>
                 </div>
 
@@ -107,59 +48,11 @@ export default function Patients() {
                     </div>
                 </div>
 
-                <div className="mt-5 overflow-x-auto">
-                    <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
-                        <thead>
-                            <tr className="text-slate-500 dark:text-slate-400">
-                                <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">ID</th>
-                                <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Nama Pasien</th>
-                                <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Tanggal Lahir</th>
-                                <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Jenis Kelamin</th>
-                                <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Usia</th>
-                                <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Alamat</th>
-                                <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredPatients.map((patient) => (
-                                <tr key={patient.id} className="bg-white dark:bg-slate-900">
-                                    <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700">
-                                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                                            {patient.id}
-                                        </span>
-                                    </td>
-                                    <td className="border-b border-slate-100 px-4 py-4 font-medium text-slate-900 dark:border-slate-700 dark:text-slate-100">
-                                        {patient.nama}
-                                    </td>
-                                    <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
-                                        {formatIndonesianDate(patient.tanggal_lahir)}
-                                    </td>
-                                    <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
-                                        {patient.jenis_kelamin === "L" ? "Laki-laki" : patient.jenis_kelamin === "P" ? "Perempuan" : patient.jenis_kelamin}
-                                    </td>
-                                    <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
-                                        {patient.usia}
-                                    </td>
-                                    <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
-                                        {patient.alamat}
-                                    </td>
-                                    <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700">
-                                        <div className="flex flex-wrap gap-2">
-                                            <ActionButton to={`/patients/${patient.id}`}>Detail</ActionButton>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                            {filteredPatients.length === 0 && (
-                                <tr>
-                                    <td colSpan={9} className="px-4 py-6 text-center text-sm text-slate-500">
-                                        Pasien tidak ditemukan.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                <PatientTable
+                    patients={patients}
+                    isLoading={isLoading}
+                    error={error}
+                />
             </div>
         </section>
     )
