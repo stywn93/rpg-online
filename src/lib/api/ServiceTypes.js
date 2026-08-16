@@ -7,7 +7,7 @@ export const listService = async (token, { page = 1, perPage = 10, searchTerm = 
     });
 
     if (searchTerm) {
-        params.set("searchTerm", searchTerm);
+        params.set("service_name", searchTerm);
     }
 
     return await fetch(`${apiBaseUrl}/medical-services?${params.toString()}`, {
@@ -20,7 +20,7 @@ export const listService = async (token, { page = 1, perPage = 10, searchTerm = 
 };
 
 export const getServiceTypeDetail = async (token, id) => {
-    return await fetch(`${apiBaseUrl}/servicetypes/${id}`, {
+    return await fetch(`${apiBaseUrl}/medical-services/${id}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -30,7 +30,7 @@ export const getServiceTypeDetail = async (token, id) => {
 };
 
 export const createServiceType = async (token, payload) => {
-    return await fetch(`${apiBaseUrl}/servicetypes`, {
+    return await fetch(`${apiBaseUrl}/medical-services`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -41,8 +41,8 @@ export const createServiceType = async (token, payload) => {
 };
 
 export const updateServiceType = async (token, id, payload) => {
-    return await fetch(`${apiBaseUrl}/servicetypes/${id}`, {
-        method: "PATCH",
+    return await fetch(`${apiBaseUrl}/medical-services/${id}`, {
+        method: "PUT",
         headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
@@ -52,7 +52,7 @@ export const updateServiceType = async (token, id, payload) => {
 };
 
 export const deleteServiceType = async (token, id) => {
-    return await fetch(`${apiBaseUrl}/servicetypes/${id}`, {
+    return await fetch(`${apiBaseUrl}/medical-services/${id}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
