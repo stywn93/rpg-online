@@ -65,13 +65,15 @@ export default function PatientRegistration() {
 
     const navigate = useNavigate()
     const [token] = useLocalStorage("token", "")
-    const {logout} = useAuth()
+    const {logout, user} = useAuth()
+
+    const isAdmin = String(user?.role ?? "").toLowerCase() === "admin"
 
     const [isLoading, setIsLoading] = useState(false)
     const [selectedParent, setSelectedParent] = useState(null)
     const [isParentDropdownOpen, setIsParentDropdownOpen] = useState(false)
 
-    const {parents, isLoading: isLoadingParents, searchTerm, setSearchTerm} = useParentOptions({token, logout})
+    const {parents, isLoading: isLoadingParents, searchTerm, setSearchTerm} = useParentOptions({token, logout, enabled: isAdmin})
 
     const selectedDob = useWatch({control, name: "dob"})
     const ageParts = calculateAgeParts(selectedDob)
@@ -87,8 +89,15 @@ export default function PatientRegistration() {
     }
 
     const onSubmit = async (data) => {
-        if (!selectedParent) {
+        const parentUserId = isAdmin ? (selectedParent ? Number(selectedParent.id) : null) : Number(user?.id ?? 0)
+
+        if (isAdmin && !selectedParent) {
             toast.error("Silakan pilih orang tua terlebih dahulu.")
+            return
+        }
+
+        if (!parentUserId) {
+            toast.error("Data orang tua tidak valid.")
             return
         }
 
@@ -99,7 +108,7 @@ export default function PatientRegistration() {
             const response = await createPatient(token, {
                 name: data.name,
                 dob: formatDateForApi(data.dob),
-                user_id: Number(selectedParent.id),
+                user_id: parentUserId,
                 address: data.address,
                 gender_code: data.gender_code,
             })
@@ -149,51 +158,63 @@ export default function PatientRegistration() {
                                 <label htmlFor="parent" className="mb-2 block text-sm font-medium text-gray-900">
                                     Nama Orang Tua <span className="text-red-500">*</span>
                                 </label>
-                                <div className="relative">
+                                {isAdmin ? (
+                                    <>
+                                        <div className="relative">
+                                            <input
+                                                id="parent"
+                                                type="text"
+                                                className={inputClassName}
+                                                placeholder="Ketik nama orang tua untuk mencari"
+                                                value={selectedParent ? selectedParent.name : searchTerm}
+                                                onChange={(event) => {
+                                                    handleClearParent()
+                                                    setSearchTerm(event.target.value)
+                                                    setIsParentDropdownOpen(true)
+                                                }}
+                                                onFocus={() => setIsParentDropdownOpen(true)}
+                                                onBlur={() => setTimeout(() => setIsParentDropdownOpen(false), 150)}
+                                            />
+                                            {isParentDropdownOpen && (
+                                                <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900">
+                                                    {parents.map((parent) => (
+                                                        <li key={parent.id}>
+                                                            <button
+                                                                type="button"
+                                                                onMouseDown={(event) => {
+                                                                    event.preventDefault()
+                                                                    handleSelectParent(parent)
+                                                                }}
+                                                                className="w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800"
+                                                            >
+                                                                <span className="block font-medium text-slate-900 dark:text-slate-100">{parent.name}</span>
+                                                                <span className="block text-xs text-slate-500 dark:text-slate-400">{parent.email}</span>
+                                                            </button>
+                                                        </li>
+                                                    ))}
+                                                    {isLoadingParents && (
+                                                        <li className="px-3 py-2 text-sm text-slate-500">Memuat...</li>
+                                                    )}
+                                                    {!isLoadingParents && parents.length === 0 && (
+                                                        <li className="px-3 py-2 text-sm text-slate-500">Tidak ada orang tua ditemukan.</li>
+                                                    )}
+                                                </ul>
+                                            )}
+                                        </div>
+                                        {selectedParent && (
+                                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                                Orang tua terpilih: {selectedParent.name} ({selectedParent.email})
+                                            </p>
+                                        )}
+                                    </>
+                                ) : (
                                     <input
                                         id="parent"
                                         type="text"
-                                        className={inputClassName}
-                                        placeholder="Ketik nama orang tua untuk mencari"
-                                        value={selectedParent ? selectedParent.name : searchTerm}
-                                        onChange={(event) => {
-                                            handleClearParent()
-                                            setSearchTerm(event.target.value)
-                                            setIsParentDropdownOpen(true)
-                                        }}
-                                        onFocus={() => setIsParentDropdownOpen(true)}
-                                        onBlur={() => setTimeout(() => setIsParentDropdownOpen(false), 150)}
+                                        className={`${inputClassName} cursor-not-allowed opacity-70`}
+                                        value={user?.name ?? "-"}
+                                        readOnly
                                     />
-                                    {isParentDropdownOpen && (
-                                        <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900">
-                                            {parents.map((parent) => (
-                                                <li key={parent.id}>
-                                                    <button
-                                                        type="button"
-                                                        onMouseDown={(event) => {
-                                                            event.preventDefault()
-                                                            handleSelectParent(parent)
-                                                        }}
-                                                        className="w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800"
-                                                    >
-                                                        <span className="block font-medium text-slate-900 dark:text-slate-100">{parent.name}</span>
-                                                        <span className="block text-xs text-slate-500 dark:text-slate-400">{parent.email}</span>
-                                                    </button>
-                                                </li>
-                                            ))}
-                                            {isLoadingParents && (
-                                                <li className="px-3 py-2 text-sm text-slate-500">Memuat...</li>
-                                            )}
-                                            {!isLoadingParents && parents.length === 0 && (
-                                                <li className="px-3 py-2 text-sm text-slate-500">Tidak ada orang tua ditemukan.</li>
-                                            )}
-                                        </ul>
-                                    )}
-                                </div>
-                                {selectedParent && (
-                                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                        Orang tua terpilih: {selectedParent.name} ({selectedParent.email})
-                                    </p>
                                 )}
                             </div>
 
