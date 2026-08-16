@@ -101,12 +101,11 @@ export default function useQueueList({token, logout}) {
         setIsUpdating(true)
 
         try {
-            // ini salah API endpoint
             const response = await updateQueue(token, id, nextStatus)
             const body = await response.json()
 
             if (response.status === 200) {
-                const next31
+                const nextQueues
                  = normalizeQueueList(body)
 
                 if (nextQueues) {
