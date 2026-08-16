@@ -30,7 +30,6 @@ export default function ReservationList() {
         selectedServiceIds,
         setSelectedServiceIds,
         toggleService,
-        markAbsent,
         markCalled,
         resetFilters,
     } = useQueueList({token, logout})
@@ -91,7 +90,6 @@ export default function ReservationList() {
                     error={error}
                     isUpdating={isUpdating}
                     onPrimaryAction={handlePrimaryAction}
-                    onAbsent={markAbsent}
                 />
             </div>
             <QrScanner
