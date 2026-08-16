@@ -30,7 +30,6 @@ export default function ReservationList() {
         selectedServiceIds,
         setSelectedServiceIds,
         toggleService,
-        checkIn,
         markAbsent,
         markCalled,
         resetFilters,
@@ -47,23 +46,23 @@ export default function ReservationList() {
             return
         }
 
-        // checkIn(item.queue_id)
     }
 
+    
     const handleQrScan = (scannedId) => {
         if (!scannedId) {
-            toast.error("QR code tidak valid.")
+            toast.error("QR code tidak valid.", {duration: 3000})
             return
         }
 
-        const matchedQueue = queues.find((q) => String(q.queue_id) === String(scannedId))
+        const matchedQueue = queues.find((q) => String(q.visit_id) === String(scannedId))
 
         if (matchedQueue) {
-            checkIn(matchedQueue.queue_id)
-            toast.success(`Pasien ${matchedQueue.nama_pasien} berhasil check-in.`)
+            console.log(`matched queue found` + ` with visit_id: ${matchedQueue.visit_id}`)
+            markCalled(matchedQueue.visit_id)
+            toast.success(`Pasien ${matchedQueue.patient_name} berhasil check-in.`, {duration: 3000})
         } else {
-            checkIn(scannedId)
-            toast.success(`Check-in berhasil untuk ID ${scannedId}.`, {id: "scan-checkin"})
+            toast.error(`ID Kunjungan ${scannedId} tidak ditemukan.`, {duration: 3000})
         }
     }
 

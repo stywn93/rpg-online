@@ -129,26 +129,12 @@ export default function useQueueList({token, logout}) {
             setIsUpdating(false)
         }
     }, [token, logout])
-
-    const checkIn = useCallback((id) => {
-        const oldQueues = queues // simpan state queue lama sebelum diubah
-        setQueues((current) =>
-            current.map((item) =>
-                item.queue_id === String(id)
-                    ? {...item, status: "checked_in"}
-                    : item
-            )
-        )
-        updateStatus(id, "checked_in").catch(() => {
-            setQueues(oldQueues) // kembalikan state queue lama jika update gagal
-        })
-    }, [updateStatus, queues])
-
+    
     const markAbsent = useCallback((id) => {
         const oldQueues = queues // simpan state queue lama sebelum diubah
         setQueues((current) =>
             current.map((item) =>
-                item.queue_id === String(id)
+                item.vi_id === String(id)
                     ? {...item, status: "no_show"}
                     : item
             )
@@ -160,10 +146,9 @@ export default function useQueueList({token, logout}) {
 
     //event handler untuk update status panggil menjadi present
     const markCalled = useCallback((id) => {
-        console.log(`what is id here : ${id}`)
+
         const oldQueues = queues // simpan state queue lama sebelum diubah
-        console.log(`old queues is here : `)
-        console.log(oldQueues)
+
         setQueues((current) =>
             current.map((item) => //kenapa dilakukan mapping? karena kita ingin mengubah UI secara cepat tanpa menunggu response dari server
                 item.visit_id === String(id) ? {...item, visit_status: "present"} : item
@@ -205,7 +190,6 @@ export default function useQueueList({token, logout}) {
         selectedServiceIds,
         setSelectedServiceIds,
         toggleService,
-        checkIn,
         markAbsent,
         markCalled,
         resetFilters,
