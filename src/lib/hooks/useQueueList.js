@@ -128,20 +128,6 @@ export default function useQueueList({token, logout}) {
             setIsUpdating(false)
         }
     }, [token, logout])
-    
-    const markAbsent = useCallback((id) => {
-        const oldQueues = queues // simpan state queue lama sebelum diubah
-        setQueues((current) =>
-            current.map((item) =>
-                item.vi_id === String(id)
-                    ? {...item, status: "no_show"}
-                    : item
-            )
-        )
-        updateStatus(id, "no_show").catch(() => {
-            setQueues(oldQueues) // kembalikan state queue lama jika update gagal
-        })
-    }, [updateStatus, queues])
 
     //event handler untuk update status panggil menjadi present
     const markCalled = useCallback((id) => {
@@ -189,7 +175,6 @@ export default function useQueueList({token, logout}) {
         selectedServiceIds,
         setSelectedServiceIds,
         toggleService,
-        markAbsent,
         markCalled,
         resetFilters,
     }
