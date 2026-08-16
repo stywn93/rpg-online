@@ -50,6 +50,25 @@ export const queueDetails = async(token, id) => {
     })
 }
 
+export const listVisitServices = async (token, {patientId = "", page = 1, perPage = 100} = {}) => {
+    const params = new URLSearchParams({
+        page: String(page),
+        per_page: String(perPage),
+    })
+
+    if (patientId) {
+        params.set("patient_id", String(patientId))
+    }
+
+    return await fetch(`${apiBaseUrl}/visit-services?${params.toString()}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    })
+}
+
 export const createQueue = async (token, payload) => {
     return await fetch(`${apiBaseUrl}/queues`, {
         method: "POST",
