@@ -1,25 +1,19 @@
-import {useState} from "react"
-import {useNavigate} from "react-router-dom"
-import toast from "react-hot-toast"
 import {useLocalStorage} from "react-use"
+import {useNavigate} from "react-router-dom"
 import useAuth from "../auth/UseAuth.js"
-import useQueueList from "../lib/hooks/useQueueList.js"
+import useVisitServiceList from "../lib/hooks/useVisitServiceList.js"
 import useServiceOptions from "../lib/hooks/useServiceOptions.js"
 import QueueFilterBar from "./QueueFilterBar.jsx"
 import QueueTable from "./QueueTable.jsx"
-import QrScanner from "../components/QrScanner.jsx"
 
-export default function ReservationList() {
+export default function VisitServiceQueue() {
     const [token] = useLocalStorage("token", "")
     const {logout, user} = useAuth()
     const navigate = useNavigate()
 
-    const [isScannerOpen, setIsScannerOpen] = useState(false)
-
     const {
         queues,
         isLoading,
-        isUpdating,
         error,
         selectedDate,
         setSelectedDate,
@@ -27,35 +21,16 @@ export default function ReservationList() {
         setStatus,
         searchTerm,
         setSearchTerm,
-        markCalled,
+        selectedServiceIds,
+        setSelectedServiceIds,
+        toggleService,
         resetFilters,
-    } = useQueueList({token, logout})
+    } = useVisitServiceList({token, logout})
 
     const {activeServiceOptions, isLoading: isLoadingServices} = useServiceOptions({token, logout})
 
     const handlePrimaryAction = (item) => {
-        if (item.visit_status === "waiting") {
-            markCalled(item.id ?? item.visit_id)
-            return
-        }
-
         navigate(`/reservation/assesment/${item.id ?? item.visit_id}`)
-    }
-
-    const handleQrScan = (scannedId) => {
-        if (!scannedId) {
-            toast.error("QR code tidak valid.", {duration: 3000})
-            return
-        }
-
-        const matchedQueue = queues.find((q) => String(q.id ?? q.visit_id) === String(scannedId))
-
-        if (matchedQueue) {
-            markCalled(matchedQueue.id ?? matchedQueue.visit_id)
-            toast.success(`Pasien ${matchedQueue.patient_name} berhasil check-in.`, {duration: 3000})
-        } else {
-            toast.error(`ID Kunjungan ${scannedId} tidak ditemukan.`, {duration: 3000})
-        }
     }
 
     return (
@@ -63,36 +38,33 @@ export default function ReservationList() {
             <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                 <QueueFilterBar
                     totalCount={queues.length}
+                    title="Antrian Layanan"
+                    description="Daftar pasien yang sudah hadir dan siap dilayani."
                     selectedDate={selectedDate}
                     onDateChange={(event) => setSelectedDate(event.target.value)}
                     status={status}
                     onStatusChange={(event) => setStatus(event.target.value)}
                     searchTerm={searchTerm}
                     onSearchChange={(event) => setSearchTerm(event.target.value)}
-                    showServiceFilter={false}
-                    selectedServiceIds={[]}
+                    selectedServiceIds={selectedServiceIds}
                     activeServiceOptions={activeServiceOptions}
                     isServicesLoading={isLoadingServices}
-                    onToggleService={() => {}}
-                    onClearServices={() => {}}
+                    onToggleService={toggleService}
+                    onClearServices={() => setSelectedServiceIds([])}
+                    showScan={false}
                     onReset={resetFilters}
-                    onScan={() => setIsScannerOpen(true)}
+                    onScan={() => {}}
                 />
                 <QueueTable
                     queues={queues}
                     isLoading={isLoading}
                     error={error}
-                    isUpdating={isUpdating}
+                    isUpdating={false}
                     userRole={user?.role}
-                    showServices={false}
+                    showServices
                     onPrimaryAction={handlePrimaryAction}
                 />
             </div>
-            <QrScanner
-                isOpen={isScannerOpen}
-                onClose={() => setIsScannerOpen(false)}
-                onScan={handleQrScan}
-            />
         </section>
     )
 }

@@ -34,7 +34,7 @@ export function normalizeQueueItem(item) {
         return null
     }
 
-    const queueId = String(item.queue_id ?? item.id ?? "")
+    const queueId = String(item.queue_id ?? item.id ?? item.visit_id ?? "")
 
     return {
         ...item,

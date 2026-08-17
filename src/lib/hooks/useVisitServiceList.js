@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useState} from "react"
 import {useLocalStorage} from "react-use"
-import {queueList, updateQueue} from "../api/Queue.js"
+import {visitServiceList} from "../api/Queue.js"
 import {normalizeQueueList} from "../utils/Normalization.js"
 
 function getTodayDate() {
@@ -33,16 +33,16 @@ function useDebouncedValue(value, delay = 400) {
     return debounced
 }
 
-export default function useQueueList({token, logout}) {
-    const [selectedDate, setSelectedDate] = useLocalStorage("tanggalKunjungan", getTodayDate(), {
+export default function useVisitServiceList({token, logout}) {
+    const [selectedDate, setSelectedDate] = useLocalStorage("tanggalLayanan", getTodayDate(), {
         serializer: (value) => JSON.stringify(value),
         deserializer: sanitizeStoredDate,
     })
-    const [status, setStatus] = useState("")
+    const [status, setStatus] = useState("present")
     const [searchTerm, setSearchTerm] = useState("")
+    const [selectedServiceIds, setSelectedServiceIds] = useState([])
     const [queues, setQueues] = useState([])
     const [isLoading, setIsLoading] = useState(false)
-    const [isUpdating, setIsUpdating] = useState(false)
     const [error, setError] = useState(null)
 
     const debouncedSearchTerm = useDebouncedValue(searchTerm, 400)
@@ -59,13 +59,14 @@ export default function useQueueList({token, logout}) {
             setError(null)
 
             try {
-                const response = await queueList(
+                const response = await visitServiceList(
                     token,
                     selectedDate,
                     1,
                     10,
                     debouncedSearchTerm,
-                    status
+                    status,
+                    selectedServiceIds
                 )
                 const body = await response.json()
 
@@ -90,64 +91,26 @@ export default function useQueueList({token, logout}) {
         fetchQueues()
 
         return () => controller.abort()
-    }, [token, selectedDate, status, debouncedSearchTerm, logout])
+    }, [token, selectedDate, status, debouncedSearchTerm, selectedServiceIds, logout])
 
-    const updateStatus = useCallback(async (id, nextStatus) => {
-        setIsUpdating(true)
-
-        try {
-            const response = await updateQueue(token, id, nextStatus)
-            const body = await response.json()
-
-            if (response.status === 200) {
-                const nextQueues = normalizeQueueList(body)
-
-                if (nextQueues) {
-                    setQueues(nextQueues)
-                } else if (body?.data && typeof body.data === "object") {
-                    setQueues((current) =>
-                        current.map((item) =>
-                            item.queue_id === String(id)
-                                ? {...item, ...body.data, id: String(id), queue_id: String(id)}
-                                : item
-                        )
-                    )
-                }
-            } else if (response.status === 401) {
-                logout()
-            }
-        } catch (error) {
-            // gagal update, biarkan state kembali normal
-        } finally {
-            setIsUpdating(false)
-        }
-    }, [token, logout])
-
-    //event handler untuk update status panggil menjadi present
-    const markCalled = useCallback((id) => {
-
-        const oldQueues = queues // simpan state queue lama sebelum diubah
-
-        setQueues((current) =>
-            current.map((item) => //kenapa dilakukan mapping? karena kita ingin mengubah UI secara cepat tanpa menunggu response dari server
-                item.id === String(id) ? {...item, visit_status: "present"} : item
-            )
+    const toggleService = useCallback((serviceId) => {
+        setSelectedServiceIds((current) =>
+            current.includes(serviceId)
+                ? current.filter((id) => id !== serviceId)
+                : [...current, serviceId]
         )
-        updateStatus(id, "present").catch(() => { //lakukan update status ke server
-            setQueues(oldQueues) // kembalikan state queue lama jika update gagal
-        })
-    }, [updateStatus, queues])
+    }, [])
 
     const resetFilters = useCallback(() => {
-        setStatus("")
+        setStatus("present")
         setSearchTerm("")
+        setSelectedServiceIds([])
         setSelectedDate(getTodayDate())
     }, [setSelectedDate])
 
     return {
         queues,
         isLoading,
-        isUpdating,
         error,
         selectedDate,
         setSelectedDate,
@@ -155,7 +118,9 @@ export default function useQueueList({token, logout}) {
         setStatus,
         searchTerm,
         setSearchTerm,
-        markCalled,
+        selectedServiceIds,
+        setSelectedServiceIds,
+        toggleService,
         resetFilters,
     }
 }
