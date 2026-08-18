@@ -3,9 +3,8 @@ import {useForm} from "react-hook-form"
 import toast from "react-hot-toast"
 import {useLocation, useNavigate, useSearchParams} from "react-router-dom"
 import {useLocalStorage} from "react-use"
-import {createQueue} from "../lib/api/Queue.js"
+import {createVisit} from "../lib/api/Queue.js"
 import useAuth from "../auth/UseAuth.js"
-import useServiceOptions from "../lib/hooks/useServiceOptions.js"
 import usePatientOptions from "../lib/hooks/usePatientOptions.js"
 import useLastVisit from "../lib/hooks/useLastVisit.js"
 import ReservationForm from "./ReservationForm.jsx"
@@ -25,6 +24,18 @@ function formatVisitDateForApi(value) {
     const localDate = new Date(value.getTime() - value.getTimezoneOffset() * 60000)
 
     return localDate.toISOString().split("T")[0]
+}
+
+function getGenderLabel(genderCode) {
+    if (genderCode === "L") {
+        return "Laki-laki"
+    }
+
+    if (genderCode === "P") {
+        return "Perempuan"
+    }
+
+    return "-"
 }
 
 export default function CreateReservation() {
@@ -50,8 +61,6 @@ export default function CreateReservation() {
     const userId = String(user?.id ?? "")
     const initialPatientId = getInitialPatientId(searchParams, location.state)
 
-    const {activeServiceOptions, isLoading: isLoadingServices} = useServiceOptions({token, logout})
-
     const {
         selectedPatient,
         setSelectedPatient,
@@ -72,8 +81,6 @@ export default function CreateReservation() {
         patientId: selectedPatient?.id,
     })
 
-    const [selectedServiceIds, setSelectedServiceIds] = useState([])
-    const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
     function handlePatientSearchChange(event) {
@@ -85,7 +92,7 @@ export default function CreateReservation() {
             setShowAllPatients(false)
         }
 
-        if (selectedPatient && selectedPatient.nama !== nextValue) {
+        if (selectedPatient && selectedPatient.name !== nextValue) {
             setSelectedPatient(null)
         }
     }
@@ -123,20 +130,8 @@ export default function CreateReservation() {
 
     function handleSelectPatient(patient) {
         setSelectedPatient(patient)
-        setPatientSearchTerm(patient.nama)
+        setPatientSearchTerm(patient.name)
         setIsPatientDropdownOpen(false)
-    }
-
-    function handleServiceFilterChange(serviceId) {
-        setSelectedServiceIds((currentIds) =>
-            currentIds.includes(serviceId)
-                ? currentIds.filter((id) => id !== serviceId)
-                : [...currentIds, serviceId]
-        )
-    }
-
-    function handleClearServices() {
-        setSelectedServiceIds([])
     }
 
     const onSubmit = async (data) => {
@@ -145,23 +140,16 @@ export default function CreateReservation() {
             return
         }
 
-        if (selectedServiceIds.length === 0) {
-            toast.error("Pilih minimal satu jenis layanan.")
-            return
-        }
-
         const toastId = toast.loading("Memproses...")
         setIsLoading(true)
 
         try {
             const payload = {
-                patient_id: Number(selectedPatient.id),
-                tanggal_kunjungan: formatVisitDateForApi(data.visitDate),
-                service_type_ids: selectedServiceIds.map((id) => Number(id)),
-                status: "booked"
+                patient_id: String(selectedPatient.id),
+                visit_date: formatVisitDateForApi(data.visitDate),
             }
 
-            const response = await createQueue(token, payload)
+            const response = await createVisit(token, payload)
             const responseBody = await response.json()
 
             if (response.status === 401) {
@@ -177,20 +165,19 @@ export default function CreateReservation() {
                 )
             }
 
-            const savedQueue = responseBody?.data ?? responseBody ?? {}
+            const savedVisit = responseBody?.data ?? responseBody ?? {}
 
             navigate("/reservation/confirm", {
                 state: {
                     reservation: {
                         patientId: selectedPatient.id,
-                        name: selectedPatient.nama,
-                        gender: selectedPatient.jenis_kelamin === "L" ? "Laki-laki" : selectedPatient.jenis_kelamin === "P" ? "Perempuan" : "-",
-                        age: selectedPatient.usia ?? "-",
+                        name: selectedPatient.name,
+                        gender: getGenderLabel(selectedPatient.gender_code),
+                        age: selectedPatient.age ?? "-",
                         visitDate: data.visitDate,
-                        services: selectedServiceIds,
-                        referenceNumber: savedQueue.kode_booking ?? savedQueue.referenceCode ?? savedQueue.reference_number ?? "-",
-                        queueNumber: savedQueue.nomor_antrian ?? savedQueue.queue_number ?? "-",
-                        queueId: savedQueue.id ?? null,
+                        referenceNumber: savedVisit.kode_booking ?? savedVisit.referenceCode ?? savedVisit.reference_number ?? savedVisit.id ?? "-",
+                        queueNumber: savedVisit.nomor_antrian ?? savedVisit.queue_number ?? "-",
+                        queueId: savedVisit.id ?? null,
                     },
                 },
             })
@@ -222,13 +209,6 @@ export default function CreateReservation() {
             onSelectPatient={handleSelectPatient}
             isLoadingPatients={isLoadingPatients}
             visiblePatientOptions={visiblePatientOptions}
-            activeServiceOptions={activeServiceOptions}
-            selectedServiceIds={selectedServiceIds}
-            isLoadingServices={isLoadingServices}
-            isServiceDropdownOpen={isServiceDropdownOpen}
-            onToggleServiceDropdown={() => setIsServiceDropdownOpen((current) => !current)}
-            onSelectService={handleServiceFilterChange}
-            onClearServices={handleClearServices}
         />
     )
 }

@@ -18,28 +18,16 @@ function parseAgeParts(ageValue) {
     }
 }
 
-function getGenderLabel(gender) {
-    if (gender === "L") {
+function getGenderLabel(genderCode) {
+    if (genderCode === "L") {
         return "Laki-laki"
     }
 
-    if (gender === "P") {
+    if (genderCode === "P") {
         return "Perempuan"
     }
 
     return ""
-}
-
-function getServiceButtonLabel(selectedServiceIds, serviceOptions) {
-    if (selectedServiceIds.length === 0) {
-        return "Pilih layanan"
-    }
-
-    if (selectedServiceIds.length === 1) {
-        return serviceOptions.find((item) => item.id === selectedServiceIds[0])?.name ?? "1 layanan"
-    }
-
-    return `${selectedServiceIds.length} layanan dipilih`
 }
 
 export default function ReservationForm({
@@ -60,16 +48,8 @@ export default function ReservationForm({
     onSelectPatient,
     isLoadingPatients,
     visiblePatientOptions,
-    activeServiceOptions,
-    selectedServiceIds,
-    isLoadingServices,
-    isServiceDropdownOpen,
-    onToggleServiceDropdown,
-    onSelectService,
-    onClearServices,
 }) {
-    const ageParts = parseAgeParts(selectedPatient?.usia)
-    const serviceButtonLabel = getServiceButtonLabel(selectedServiceIds, activeServiceOptions)
+    const ageParts = parseAgeParts(selectedPatient?.age)
 
     return (
         <section>
@@ -121,9 +101,9 @@ export default function ReservationForm({
                                                     onClick={() => onSelectPatient(patient)}
                                                     className="block w-full rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
                                                 >
-                                                    <span className="block font-medium text-slate-900">{patient.nama}</span>
+                                                    <span className="block font-medium text-slate-900">{patient.name}</span>
                                                     <span className="block text-xs text-slate-500">
-                                                        {patient.usia ?? "-"} • {patient.jenis_kelamin === "L" ? "Laki-laki" : "Perempuan"}
+                                                        {patient.age ?? "-"} • {patient.gender_code === "L" ? "Laki-laki" : "Perempuan"}
                                                     </span>
                                                 </button>
                                             ))}
@@ -140,7 +120,7 @@ export default function ReservationForm({
                                     readOnly
                                     type="text"
                                     id="gender"
-                                    value={getGenderLabel(selectedPatient?.jenis_kelamin)}
+                                    value={getGenderLabel(selectedPatient?.gender_code)}
                                     className="read-only:cursor-not-allowed bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                     placeholder="Jenis kelamin"
                                 />
@@ -200,66 +180,6 @@ export default function ReservationForm({
                                     className="read-only:cursor-not-allowed bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                     placeholder="Riwayat kunjungan terakhir"
                                 />
-                            </div>
-
-                            <div>
-                                <label className="block mb-2 text-sm font-medium text-gray-900">
-                                    Jenis Layanan
-                                </label>
-                                <div className="relative">
-                                    <button
-                                        type="button"
-                                        onClick={onToggleServiceDropdown}
-                                        className="inline-flex w-full items-center justify-between rounded-lg border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:border-primary-600 focus:outline-none"
-                                    >
-                                        <span className="truncate">{serviceButtonLabel}</span>
-                                        <span className="ml-3 text-xs text-slate-500">{isServiceDropdownOpen ? "Tutup" : "Pilih"}</span>
-                                    </button>
-
-                                    {isServiceDropdownOpen && (
-                                        <div className="absolute left-0 z-10 mt-2 w-full rounded-xl border border-slate-200 bg-white p-3 shadow-lg">
-                                            <div className="mb-2 flex items-center justify-between">
-                                                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                                                    Pilih layanan
-                                                </p>
-                                                {selectedServiceIds.length > 0 && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={onClearServices}
-                                                        className="text-xs font-medium text-blue-600 hover:text-blue-800"
-                                                    >
-                                                        Bersihkan
-                                                    </button>
-                                                )}
-                                            </div>
-
-                                            <div className="max-h-60 space-y-2 overflow-y-auto pr-1">
-                                                {isLoadingServices && (
-                                                    <p className="py-2 text-sm text-slate-500">Memuat layanan...</p>
-                                                )}
-
-                                                {!isLoadingServices && activeServiceOptions.length === 0 && (
-                                                    <p className="py-2 text-sm text-slate-500">Data layanan tidak tersedia.</p>
-                                                )}
-
-                                                {!isLoadingServices && activeServiceOptions.map((service) => (
-                                                    <label
-                                                        key={service.id}
-                                                        className="flex cursor-pointer items-start gap-3 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                                                    >
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={selectedServiceIds.includes(service.id)}
-                                                            onChange={() => onSelectService(service.id)}
-                                                            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                                                        />
-                                                        <span>{service.name}</span>
-                                                    </label>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
                             </div>
 
                             <div>

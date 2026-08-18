@@ -44,7 +44,7 @@ export default function usePatientOptions({
         return {
             ...patient,
             id: String(patient.id ?? patientId),
-            nama: patient?.nama_lengkap ?? patient?.nama ?? "",
+            name: patient?.name ?? patient?.nama_lengkap ?? patient?.nama ?? "",
         }
     })
 
@@ -95,7 +95,7 @@ export default function usePatientOptions({
 
                 if (children.length === 1) {
                     setSelectedPatient(children[0])
-                    setPatientSearchTerm(children[0].nama)
+                    setPatientSearchTerm(children[0].name)
                 }
             }
 
@@ -123,7 +123,7 @@ export default function usePatientOptions({
 
             if (!isCancelled && patient) {
                 setSelectedPatient(patient)
-                setPatientSearchTerm(patient.nama)
+                setPatientSearchTerm(patient.name)
             }
         }
 
@@ -187,8 +187,7 @@ export default function usePatientOptions({
 
         return patientOptions.filter((patient) =>
             [
-                patient.nama,
-                patient.nama_lengkap,
+                patient.name,
                 patient.id,
             ].some((value) => String(value ?? "").toLowerCase().includes(keyword))
         )

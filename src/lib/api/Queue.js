@@ -82,6 +82,20 @@ export const queueDetails = async(token, id) => {
     })
 }
 
+export const listPatientVisits = async (token, patientId) => {
+    const params = new URLSearchParams({
+        patient_id: String(patientId),
+    })
+
+    return await fetch(`${apiBaseUrl}/visits?${params.toString()}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    })
+}
+
 export const listVisitServices = async (token, {patientId = "", page = 1, perPage = 100} = {}) => {
     const params = new URLSearchParams({
         page: String(page),
@@ -98,6 +112,17 @@ export const listVisitServices = async (token, {patientId = "", page = 1, perPag
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         }
+    })
+}
+
+export const createVisit = async (token, payload) => {
+    return await fetch(`${apiBaseUrl}/visits`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
     })
 }
 

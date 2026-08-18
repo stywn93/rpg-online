@@ -12,9 +12,11 @@ export function normalizePeopleDetail(payload){
         .map((item) => ({
             ...item,
             id: String(item?.id ?? ""),
-            nama: item?.nama_lengkap ?? item?.nama ?? "",
+            name: item?.name ?? item?.nama_lengkap ?? item?.nama ?? "",
+            gender_code: item?.gender_code ?? item?.jenis_kelamin ?? "",
+            age: item?.age ?? item?.usia ?? "",
         }))
-        .filter((item) => item.id && item.nama)
+        .filter((item) => item.id && item.name)
 }
 
 export function normalizeAssessment(payload){
