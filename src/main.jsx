@@ -23,6 +23,7 @@ import UserEdit from "./users/UserEdit.jsx"
 import Services from "./services/Services.jsx"
 import ServiceForm from "./services/ServiceForm.jsx"
 import VisitServiceQueue from "./reservations/VisitServiceQueue.jsx"
+import FillService from "./reservations/FillService.jsx"
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
@@ -40,6 +41,7 @@ createRoot(document.getElementById('root')).render(
                             <Route path='confirm' element={<ConfirmedReservation/>}/>
                             <Route path='revisit' element={<Revisit/>}/>
                             <Route path="assesment/:id" element={<AssesmentLayout/>}/>
+                            <Route path="fill-service/:id" element={<FillService/>}/>
                         </Route>
                         <Route path={"patients"}>
                             <Route index element={<Patients/>}/>

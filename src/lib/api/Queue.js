@@ -126,6 +126,17 @@ export const createVisit = async (token, payload) => {
     })
 }
 
+export const createVisitService = async (token, payload) => {
+    return await fetch(`${apiBaseUrl}/visit-services`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+    })
+}
+
 export const createQueue = async (token, payload) => {
     return await fetch(`${apiBaseUrl}/queues`, {
         method: "POST",
