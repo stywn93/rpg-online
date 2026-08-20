@@ -28,14 +28,18 @@ export default function Register({withinDashboard = false}) {
                 phone: data.phone,
                 password: data.thePassword
             });
-            const responseBody = await response.json()
-            // console.log(response.status)
+            const responseBody = await response.json().catch(() => null)
 
             if (response.status == 200) {
                 toast.success(withinDashboard ? "Pengguna berhasil dibuat" : "Signed up successfully", {id: toastId})
                 navigate(withinDashboard ? "/users" : "/")
             } else {
-                toast.error(responseBody.messages.error, {id: toastId})
+                const message =
+                    responseBody?.message ??
+                    responseBody?.messages?.error ??
+                    responseBody?.error ??
+                    "Gagal mendaftar. Coba lagi."
+                toast.error(message, {id: toastId})
             }
         } catch (error) {
             toast.error(`Terjadi kesalahan, coba lagi. ${error}`, {id: toastId})
