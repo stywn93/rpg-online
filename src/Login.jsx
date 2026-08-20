@@ -46,7 +46,7 @@ export default function Login() {
                 email: data.theEmail,
                 password: data.thePassword
             });
-            const responseBody = await response.json()
+            const responseBody = await response.json().catch(() => null)
             if (response.status === 200) {
                 const {token, expires_in, ...user} = responseBody.data ?? {} //spread variables
                 if (!token) {
@@ -60,7 +60,12 @@ export default function Login() {
                 await sleep(500)
                 navigate("/reservation", {replace: true})
             } else {
-                toast.error(responseBody.messages.error, {id: toastId})
+                const message =
+                    responseBody?.message ??
+                    responseBody?.messages?.error ??
+                    responseBody?.error ??
+                    "Login gagal. Coba lagi."
+                toast.error(message, {id: toastId})
             }
         } catch (error) {
             toast.error("Terjadi kesalahan, coba lagi.", {id: toastId})

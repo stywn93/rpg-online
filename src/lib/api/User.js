@@ -75,13 +75,26 @@ export const userLogout = async (token) => {
 }
 
 export const userActivate = async (token, id) => {
-    return await fetch(`${apiBaseUrl}/users/${id}/activate`, {
-        method: 'POST',
+    return await fetch(`${apiBaseUrl}/users/${id}`, {
+        method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'Authorization': `Bearer ${token}`
-        }
+        },
+        body: JSON.stringify({status: 'active'})
+    })
+}
+
+export const userSuspend = async (token, id) => {
+    return await fetch(`${apiBaseUrl}/users/${id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({status: 'suspended'})
     })
 }
 
