@@ -58,7 +58,7 @@ function PaginationButton({children, disabled = false, onClick}) {
 }
 
 function StatusBadge({value}) {
-    const isLowStatus = value.toLowerCase() === "suspended"
+    const isLowStatus = String(value ?? "").toLowerCase() === "suspended"
 
     return (
         <span
@@ -66,13 +66,13 @@ function StatusBadge({value}) {
                 isLowStatus ? "bg-red-100 text-red-700" : "bg-green-500 text-slate-50"
             }`}
         >
-            {value}
+            {value ?? "-"}
         </span>
     )
 }
 
 function RoleBadge({value}) {
-    const isLowStatus = value.toLowerCase() === "admin"
+    const isLowStatus = String(value ?? "").toLowerCase() === "admin"
 
     return (
         <span
@@ -81,7 +81,7 @@ function RoleBadge({value}) {
             }`}
         >
             {isLowStatus && <Key size={14} />}
-            {value}
+            {value ?? "-"}
         </span>
     )
 }
@@ -447,7 +447,7 @@ export default function Users() {
                                             {user.alamat}
                                         </td>
                                         <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
-                                            <RoleBadge value={user.peran}/>
+                                            <RoleBadge value={user.role}/>
                                         </td>
                                         <td className="border-b border-slate-100 dark:border-slate-500 px-4 py-4 text-slate-700 dark:text-slate-100">
                                             <StatusBadge value={user.status}/>
