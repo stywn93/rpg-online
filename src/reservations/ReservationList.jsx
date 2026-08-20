@@ -33,9 +33,18 @@ export default function ReservationList() {
 
     const {activeServiceOptions, isLoading: isLoadingServices} = useServiceOptions({token, logout})
 
+    const isStaff = ["admin", "staff"].includes(String(user?.role ?? "").toLowerCase())
+
     const handlePrimaryAction = (item) => {
         if (item.visit_status === "waiting") {
             markCalled(item.id ?? item.visit_id)
+            return
+        }
+
+        if (isStaff) {
+            navigate(`/reservation/fill-service/${item.id ?? item.visit_id}`, {
+                state: {visit: item},
+            })
             return
         }
 

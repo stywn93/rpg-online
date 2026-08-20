@@ -30,7 +30,9 @@ export default function VisitServiceQueue() {
     const {activeServiceOptions, isLoading: isLoadingServices} = useServiceOptions({token, logout})
 
     const handlePrimaryAction = (item) => {
-        navigate(`/reservation/assesment/${item.id ?? item.visit_id}`)
+        navigate(`/reservation/fill-service/${item.id ?? item.visit_id}`, {
+            state: {visit: item},
+        })
     }
 
     return (
