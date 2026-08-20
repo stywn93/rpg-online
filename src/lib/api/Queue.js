@@ -115,6 +115,22 @@ export const listVisitServices = async (token, {patientId = "", page = 1, perPag
     })
 }
 
+export const listVisitServicesByVisit = async (token, visitId) => {
+    const params = new URLSearchParams({
+        visit_id: String(visitId),
+        page: "1",
+        per_page: "100",
+    })
+
+    return await fetch(`${apiBaseUrl}/visit-services?${params.toString()}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    })
+}
+
 export const createVisit = async (token, payload) => {
     return await fetch(`${apiBaseUrl}/visits`, {
         method: "POST",

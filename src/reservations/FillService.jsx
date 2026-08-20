@@ -3,7 +3,8 @@ import {useLocation, useNavigate, useParams} from "react-router-dom"
 import toast from "react-hot-toast"
 import {useLocalStorage} from "react-use"
 import useAuth from "../auth/UseAuth.js"
-import {createVisitService} from "../lib/api/Queue.js"
+import {createVisitService, listVisitServicesByVisit} from "../lib/api/Queue.js"
+import {normalizeVisitServiceList} from "../lib/utils/Normalization.js"
 import useServiceOptions from "../lib/hooks/useServiceOptions.js"
 import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
 
@@ -17,6 +18,53 @@ function getGenderLabel(genderValue) {
     }
 
     return "-"
+}
+
+function extractAssignedServiceIds(payload) {
+    const visits = normalizeVisitServiceList(payload)
+    const services = visits[0]?.services
+
+    // console.log("Assigned services:", services)
+
+    // if (Array.isArray(services)) {
+    //     console.log("array if condition is fulfilled")
+    //     return services
+    //         .map((item) => {
+    //             if (item && typeof item === "object") {
+    //                 return String(item.service_id ?? item.id ?? "")
+    //             }
+
+    //             return String(item ?? "")
+    //         })
+    //         .filter(Boolean)
+    // }
+
+    // if (typeof services === "string" && services.trim()) {
+        // console.log("string if condition is fulfilled")
+        const trimmed = services.trim()
+        const parsed = trimmed.startsWith("[") ? JSON.parse(trimmed) : null
+
+        if (Array.isArray(parsed)) {
+            // console.log("parsed if condition is fulfilled")
+            return parsed
+                .map((item) => String(
+                    item && typeof item === "object"
+                        ? (item.service_id ?? item.id ?? "")
+                        : (item ?? "")
+                ))
+                .filter(Boolean)
+        } else{
+            // console.log("else parse if condition is fulfilled")
+        }
+
+        // console.log("trimmed string:", trimmed)
+
+        let a = trimmed.split(",").map((item) => item.trim()).filter(Boolean)
+        console.log("new trimmed string :", trimmed)
+        return a
+    // }
+
+    return []
 }
 
 function InfoRow({label, value}) {
@@ -44,6 +92,8 @@ export default function FillService() {
 
     const [selectedServiceIds, setSelectedServiceIds] = useState([])
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isLoadingAssignedServices, setIsLoadingAssignedServices] = useState(false)
+    const [hasExistingServices, setHasExistingServices] = useState(false)
 
     const visitId = String(visit.id ?? id ?? "")
 
@@ -52,6 +102,70 @@ export default function FillService() {
             toast.error("Data kunjungan tidak ditemukan.", {duration: 3000})
         }
     }, [visitId])
+
+    useEffect(() => {
+        if (!visitId || !token || isLoadingServices) {
+            return
+        }
+
+        let isCancelled = false
+
+        async function fetchAssignedServices() {
+            setIsLoadingAssignedServices(true)
+
+            try {
+                const response = await listVisitServicesByVisit(token, visitId)
+                const body = await response.json()
+
+                if (response.status === 401) {
+                    logout()
+                    return
+                }
+
+                if (response.status === 200 && !isCancelled) {
+                    const assignedServiceNames = extractAssignedServiceIds(body)
+
+                    console.log("assignedServiceNames:", assignedServiceNames)
+                    console.log("activeServiceOptions:", activeServiceOptions)
+
+                    const assignedIds = assignedServiceNames
+                        .map((serviceName) => {
+                            const service = activeServiceOptions.find(
+                                (option) =>
+                                    option.name.trim().toLowerCase() ===
+                                    serviceName.trim().toLowerCase()
+                            )
+
+                            return service?.id
+                        })
+                        .filter(Boolean)
+
+                    console.log("assignedIds:", assignedIds)
+
+                    setSelectedServiceIds(assignedIds)
+                    setHasExistingServices(assignedIds.length > 0)
+                }
+            } catch (fetchError) {
+                console.error(fetchError)
+            } finally {
+                if (!isCancelled) {
+                    setIsLoadingAssignedServices(false)
+                }
+            }
+        }
+
+        fetchAssignedServices()
+
+        return () => {
+            isCancelled = true
+        }
+    }, [
+        token,
+        visitId,
+        logout,
+        isLoadingServices,
+        activeServiceOptions,
+    ])
 
     function toggleService(serviceId) {
         setSelectedServiceIds((current) =>
@@ -78,7 +192,7 @@ export default function FillService() {
             return
         }
 
-        const toastId = toast.loading("Menyimpan layanan...")
+        const toastId = toast.loading(hasExistingServices ? "Memperbarui layanan..." : "Menyimpan layanan...")
         setIsSubmitting(true)
 
         try {
@@ -116,6 +230,10 @@ export default function FillService() {
         }
     }
 
+    useEffect(() => {
+        console.log("selected service :", selectedServiceIds)
+    }, [selectedServiceIds])
+
     return (
         <section>
             <div className="flex flex-col items-center px-6 py-8">
@@ -141,15 +259,15 @@ export default function FillService() {
                                 Pilih Layanan
                             </label>
                             <div className="max-h-72 space-y-2 overflow-y-auto rounded-xl border border-slate-200 p-3">
-                                {isLoadingServices && (
+                                {(isLoadingServices || isLoadingAssignedServices) && (
                                     <p className="px-2 py-2 text-sm text-slate-500">Memuat layanan...</p>
                                 )}
 
-                                {!isLoadingServices && activeServiceOptions.length === 0 && (
+                                {!isLoadingServices && !isLoadingAssignedServices && activeServiceOptions.length === 0 && (
                                     <p className="px-2 py-2 text-sm text-slate-500">Data layanan tidak tersedia.</p>
                                 )}
 
-                                {!isLoadingServices && activeServiceOptions.map((service) => (
+                                {!isLoadingServices && !isLoadingAssignedServices && activeServiceOptions.map((service) => (
                                     <label
                                         key={service.id}
                                         className="flex cursor-pointer items-start gap-3 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50"
@@ -171,7 +289,7 @@ export default function FillService() {
                             disabled={isSubmitting}
                             className="w-full cursor-pointer rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                            {isSubmitting ? "Memproses..." : "Simpan Layanan"}
+                            {isSubmitting ? "Memproses..." : (hasExistingServices ? "Update Layanan" : "Simpan Layanan")}
                         </button>
 
                         <button
