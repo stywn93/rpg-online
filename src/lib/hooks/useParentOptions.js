@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react"
-import {listUsers} from "../api/Patient.js"
+import {listUsers} from "../api/User.js"
 import {normalizeUserList} from "../utils/Normalization.js"
 
 function useDebouncedValue(value, delay = 400) {
