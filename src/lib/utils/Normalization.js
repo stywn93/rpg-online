@@ -19,6 +19,25 @@ export function normalizePeopleDetail(payload){
         .filter((item) => item.id && item.name)
 }
 
+export function normalizeChildren(payload) {
+    const source = Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload?.data?.data)
+            ? payload.data.data
+            : Array.isArray(payload?.patients)
+                ? payload.patients
+                : Array.isArray(payload)
+                    ? payload
+                    : []
+
+    return source
+        .map((item) => ({
+            ...item,
+            id: String(item?.id ?? item?.patient_id ?? ""),
+        }))
+        .filter((item) => item.id)
+}
+
 export function normalizeAssessment(payload){
     if (Array.isArray(payload?.data)) {
         return payload.data

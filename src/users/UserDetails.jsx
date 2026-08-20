@@ -2,8 +2,10 @@ import {useEffect, useEffectEvent, useState} from "react";
 import {useParams} from "react-router-dom";
 import {useLocalStorage} from "react-use";
 import toast from "react-hot-toast";
-import {getUserDetail, updateUserDetail} from "../lib/api/Patient.js";
+import {getUserDetail, updateUserDetail} from "../lib/api/User.js";
 import {userActivate, changeUserPassword} from "../lib/api/User.js";
+import {listPatientsByParent} from "../lib/api/Patient.js";
+import {normalizeChildren} from "../lib/utils/Normalization.js";
 import useAuth from "../auth/UseAuth.js";
 
 
@@ -12,17 +14,17 @@ const USER_FORM_FIELDS = [
     {label: "Email", name: "email", type: "email"},
     {label: "Telepon", name: "phone"},
     {label: "Status", name: "status", readOnly: true},
-    {label: "Alamat", name: "alamat"},
+    {label: "Alamat", name: "address"},
 ]
 
-const UPDATABLE_USER_FIELDS = ["name", "email", "phone"]
+const UPDATABLE_USER_FIELDS = ["name", "email", "phone", "address"]
 
 function createFormData(user) {
     return {
         name: user?.name ?? "",
         email: user?.email ?? "",
         phone: user?.phone ?? "",
-        alamat: user?.alamat ?? "",
+        address: user?.address ?? user?.alamat ?? "",
         status: user?.status ?? "",
     }
 }
@@ -144,7 +146,11 @@ export default function UserDetails() {
     const [isChangingPassword, setIsChangingPassword] = useState(false)
     const [isChangingRole, setIsChangingRole] = useState(false)
     const [role, setRole] = useState("")
-    const children = resolveChildren(user)
+    const [children, setChildren] = useState([])
+    const [isLoadingChildren, setIsLoadingChildren] = useState(false)
+    const [childrenError, setChildrenError] = useState(null)
+    const embeddedChildren = resolveChildren(user)
+    const displayChildren = children.length > 0 ? children : embeddedChildren
     const canActivate = Boolean(user) && user?.status?.toLowerCase() !== "active"
 
     useEffect(() => {
@@ -345,6 +351,52 @@ export default function UserDetails() {
         syncForm(user)
     }, [user])
 
+    useEffect(() => {
+        if (!token || !userID) {
+            return
+        }
+
+        const controller = new AbortController()
+
+        async function fetchChildren() {
+            setIsLoadingChildren(true)
+            setChildrenError(null)
+
+            try {
+                const response = await listPatientsByParent(token, userID)
+                const body = await response.json().catch(() => null)
+
+                if (response.status === 401) {
+                    logout()
+                    return
+                }
+
+                if (!response.ok) {
+                    setChildrenError(
+                        body?.message
+                        ?? body?.messages?.error
+                        ?? "Gagal memuat data anak."
+                    )
+                    return
+                }
+
+                setChildren(normalizeChildren(body))
+            } catch (fetchError) {
+                if (fetchError.name !== "AbortError") {
+                    setChildrenError(fetchError.message ?? "Gagal memuat data anak.")
+                }
+            } finally {
+                if (!controller.signal.aborted) {
+                    setIsLoadingChildren(false)
+                }
+            }
+        }
+
+        fetchChildren()
+
+        return () => controller.abort()
+    }, [token, userID, logout])
+
     return (
         <section className="w-full space-y-5">
             <div>
@@ -484,8 +536,23 @@ export default function UserDetails() {
                     title="Data Anak"
                     description="Data anak yang terhubung dengan akun pengguna ini."
                 >
-                    {children.length > 0 ? (
-                        children.map((child, index) => (
+                    {isLoadingChildren && displayChildren.length === 0 && (
+                        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+                            Memuat data anak...
+                        </div>
+                    )}
+                    {!isLoadingChildren && childrenError && (
+                        <div className="rounded-xl border border-dashed border-red-300 bg-red-50 px-4 py-6 text-sm text-red-600">
+                            {childrenError}
+                        </div>
+                    )}
+                    {!isLoadingChildren && !childrenError && displayChildren.length === 0 && (
+                        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+                            Data anak belum tersedia untuk pengguna ini.
+                        </div>
+                    )}
+                    {!isLoadingChildren && !childrenError && displayChildren.length > 0 && (
+                        displayChildren.map((child, index) => (
                             <div
                                 key={child?.id ?? child?.patient_id ?? `child-${index}`}
                                 className="space-y-5 rounded-xl border border-slate-200 bg-slate-50 p-4"
@@ -511,10 +578,6 @@ export default function UserDetails() {
                                 <InfoRow label="Alamat" value={getChildValue(child, ["alamat", "address"])}/>
                             </div>
                         ))
-                    ) : (
-                        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-500">
-                            Data anak belum tersedia untuk pengguna ini.
-                        </div>
                     )}
                 </DetailCard>
             </div>
