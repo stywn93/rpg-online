@@ -3,7 +3,7 @@ import {useLocation, useNavigate, useParams} from "react-router-dom"
 import toast from "react-hot-toast"
 import {useLocalStorage} from "react-use"
 import useAuth from "../auth/UseAuth.js"
-import {createVisitService, listVisitServicesByVisit} from "../lib/api/Queue.js"
+import {createVisitService, listVisitServicesByVisit, updateVisitService} from "../lib/api/Queue.js"
 import {normalizeVisitServiceList} from "../lib/utils/Normalization.js"
 import useServiceOptions from "../lib/hooks/useServiceOptions.js"
 import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
@@ -62,9 +62,6 @@ function extractAssignedServiceIds(payload) {
         let a = trimmed.split(",").map((item) => item.trim()).filter(Boolean)
         console.log("new trimmed string :", trimmed)
         return a
-    // }
-
-    return []
 }
 
 function InfoRow({label, value}) {
@@ -196,15 +193,8 @@ export default function FillService() {
         setIsSubmitting(true)
 
         try {
-            for (const serviceId of selectedServiceIds) {
-                const payload = {
-                    visit_id: visitId,
-                    service_id: serviceId,
-                    result: "",
-                    performed_by: null,
-                }
-
-                const response = await createVisitService(token, payload)
+            if (hasExistingServices) {
+                const response = await updateVisitService(token, visitId, {service_id: selectedServiceIds})
                 const responseBody = await response.json()
 
                 if (response.status === 401) {
@@ -216,8 +206,33 @@ export default function FillService() {
                     throw new Error(
                         responseBody?.message
                         ?? responseBody?.messages?.error
-                        ?? "Layanan gagal disimpan."
+                        ?? "Layanan gagal diperbarui."
                     )
+                }
+            } else {
+                for (const serviceId of selectedServiceIds) {
+                    const payload = {
+                        visit_id: visitId,
+                        service_id: serviceId,
+                        result: "",
+                        performed_by: null,
+                    }
+
+                    const response = await createVisitService(token, payload)
+                    const responseBody = await response.json()
+
+                    if (response.status === 401) {
+                        logout()
+                        return
+                    }
+
+                    if (response.status !== 200 && response.status !== 201) {
+                        throw new Error(
+                            responseBody?.message
+                            ?? responseBody?.messages?.error
+                            ?? "Layanan gagal disimpan."
+                        )
+                    }
                 }
             }
 

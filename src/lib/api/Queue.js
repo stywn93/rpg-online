@@ -153,6 +153,17 @@ export const createVisitService = async (token, payload) => {
     })
 }
 
+export const updateVisitService = async (token, visitId, payload) => {
+    return await fetch(`${apiBaseUrl}/visit-services/${visitId}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+    })
+}
+
 export const createQueue = async (token, payload) => {
     return await fetch(`${apiBaseUrl}/queues`, {
         method: "POST",
