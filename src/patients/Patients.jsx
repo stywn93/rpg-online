@@ -5,7 +5,11 @@ import PatientTable from "./PatientTable.jsx"
 
 export default function Patients() {
     const [token] = useLocalStorage("token", "")
-    const {logout} = useAuth()
+    const {logout, user} = useAuth()
+
+    const normalizedRole = String(user?.role ?? "").toLowerCase()
+    const isUserRole = normalizedRole === "user"
+    const userId = String(user?.id ?? "")
 
     const {
         patients,
@@ -13,7 +17,7 @@ export default function Patients() {
         error,
         searchTerm,
         setSearchTerm,
-    } = usePatientList({token, logout})
+    } = usePatientList({token, logout, isUserRole, userId})
 
     return (
         <section className="space-y-5">
@@ -24,7 +28,9 @@ export default function Patients() {
                             Daftar Pasien
                         </h1>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Data pasien yang telah terdaftar di sistem.
+                            {isUserRole
+                                ? "Data anak Anda yang terdaftar di sistem."
+                                : "Data pasien yang telah terdaftar di sistem."}
                         </p>
                     </div>
                     <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-300">
