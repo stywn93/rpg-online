@@ -33,6 +33,40 @@ export const queueList = async (
   })
 }
 
+export const queueListByParent = async (
+    token,
+    parentId,
+    tanggal,
+    page = 1,
+    perPage = 10,
+    searchTerm = "",
+    status = ""
+) => {
+    const params = new URLSearchParams({
+        parent_id: String(parentId),
+        visit_date: String(tanggal),
+        searchTerm,
+        page: String(page),
+        per_page: String(perPage),
+    })
+
+    if (status) {
+        params.set("visit_status", status)
+    }
+
+    if(searchTerm) {
+        params.set("patient_name", searchTerm)
+    }
+
+    return await fetch(`${apiBaseUrl}/visits-by-parent?${params.toString()}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    }
+  })
+}
+
 export const visitServiceList = async (
     token,
     tanggal,

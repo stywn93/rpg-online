@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useState} from "react"
 import {useLocalStorage} from "react-use"
-import {queueList, updateQueue} from "../api/Queue.js"
+import {queueList, queueListByParent, updateQueue} from "../api/Queue.js"
 import {normalizeQueueList} from "../utils/Normalization.js"
 
 function getTodayDate() {
@@ -33,7 +33,7 @@ function useDebouncedValue(value, delay = 400) {
     return debounced
 }
 
-export default function useQueueList({token, logout}) {
+export default function useQueueList({token, logout, isUserRole = false, userId = ""}) {
     const [selectedDate, setSelectedDate] = useLocalStorage("tanggalKunjungan", getTodayDate(), {
         serializer: (value) => JSON.stringify(value),
         deserializer: sanitizeStoredDate,
@@ -48,7 +48,7 @@ export default function useQueueList({token, logout}) {
     const debouncedSearchTerm = useDebouncedValue(searchTerm, 400)
 
     useEffect(() => {
-        if (!token) {
+        if (!token || (isUserRole && !userId)) {
             return
         }
 
@@ -59,14 +59,24 @@ export default function useQueueList({token, logout}) {
             setError(null)
 
             try {
-                const response = await queueList(
-                    token,
-                    selectedDate,
-                    1,
-                    10,
-                    debouncedSearchTerm,
-                    status
-                )
+                const response = isUserRole
+                    ? await queueListByParent(
+                        token,
+                        userId,
+                        selectedDate,
+                        1,
+                        10,
+                        debouncedSearchTerm,
+                        status
+                    )
+                    : await queueList(
+                        token,
+                        selectedDate,
+                        1,
+                        10,
+                        debouncedSearchTerm,
+                        status
+                    )
                 const body = await response.json()
 
                 if (response.status === 200) {
@@ -90,7 +100,7 @@ export default function useQueueList({token, logout}) {
         fetchQueues()
 
         return () => controller.abort()
-    }, [token, selectedDate, status, debouncedSearchTerm, logout])
+    }, [token, selectedDate, status, debouncedSearchTerm, logout, isUserRole, userId])
 
     const updateStatus = useCallback(async (id, nextStatus) => {
         setIsUpdating(true)
