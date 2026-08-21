@@ -121,10 +121,17 @@ export default function usePatientOptions({
         async function hydrateInitialPatient() {
             const patient = await fetchPatientDetailById(initialPatientId)
 
-            if (!isCancelled && patient) {
-                setSelectedPatient(patient)
-                setPatientSearchTerm(patient.name)
+            if (isCancelled || !patient) {
+                return
             }
+
+            if (isUserRole && String(patient.user_id ?? "") !== String(userId)) {
+                toast.error("Pasien tersebut bukan anak Anda.")
+                return
+            }
+
+            setSelectedPatient(patient)
+            setPatientSearchTerm(patient.name)
         }
 
         hydrateInitialPatient()
@@ -132,7 +139,7 @@ export default function usePatientOptions({
         return () => {
             isCancelled = true
         }
-    }, [token, initialPatientId])
+    }, [token, initialPatientId, isUserRole, userId])
 
     useEffect(() => {
         if (!token) {
