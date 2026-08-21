@@ -99,7 +99,7 @@ export const userSuspend = async (token, id) => {
 }
 
 export const changeUserPassword = async (token, id, password) => {
-    return await fetch(`${apiBaseUrl}/users/${id}/password`, {
+    return await fetch(`${apiBaseUrl}/users/${id}`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
