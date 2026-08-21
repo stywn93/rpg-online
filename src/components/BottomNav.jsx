@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom";
-import { BOTTOM_NAV_ITEMS } from "./navConfig";
+import { getBottomNavItemsForRole } from "./navConfig";
 import { cn } from "../lib/utils/cn.js";
 
-export default function BottomNav({activeKey, onNavigate}) {
+export default function BottomNav({activeKey, onNavigate, role}) {
+    const items = getBottomNavItemsForRole(role);
+
     return (
         <nav className="md:hidden h-[68px] bg-white border-t border-black/[0.08] shrink-0">
             <div className="flex h-full px-1">
-                {BOTTOM_NAV_ITEMS.map((item) => {
+                {items.map((item) => {
                     const active = item.key === activeKey;
                     const Icon = item.icon;
                     const className = cn(

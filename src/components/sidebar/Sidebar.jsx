@@ -9,7 +9,7 @@ export default function Sidebar({ activeKey, onNavigate, user }) {
     return (
         <aside className="hidden md:flex w-60 shrink-0 flex-col bg-slate-50 dark:bg-slate-950 border-r border-slate-300 dark:border-slate-800">
             <SidebarLogo/>
-            <SidebarNav activeKey={activeKey} onNavigate={onNavigate}/>
+            <SidebarNav activeKey={activeKey} onNavigate={onNavigate} role={user?.role}/>
             <SidebarUserMenu
                 user={resolvedUser}
                 isUserMenuOpen={isUserMenuOpen}

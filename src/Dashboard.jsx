@@ -59,7 +59,7 @@ export default function Dashboard(
                 <main className="flex-1 overflow-y-auto p-5">
                     <Outlet/>
                 </main>
-                <BottomNav activeKey={resolvedActivePage} onNavigate={onNavigate}/>
+                <BottomNav activeKey={resolvedActivePage} onNavigate={onNavigate} role={user?.role}/>
             </div>
         </div>
     );
