@@ -24,6 +24,8 @@ import Services from "./services/Services.jsx"
 import ServiceForm from "./services/ServiceForm.jsx"
 import VisitServiceQueue from "./reservations/VisitServiceQueue.jsx"
 import FillService from "./reservations/FillService.jsx"
+import RequireRole from "./auth/RequireRole.jsx"
+import {STAFF_ROLES} from "./lib/utils/roles.js"
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
@@ -41,7 +43,10 @@ createRoot(document.getElementById('root')).render(
                             <Route path='confirm' element={<ConfirmedReservation/>}/>
                             <Route path='revisit' element={<Revisit/>}/>
                             <Route path="assesment/:id" element={<AssesmentLayout/>}/>
-                            <Route path="fill-service/:id" element={<FillService/>}/>
+                            <Route
+                                path="fill-service/:id"
+                                element={<RequireRole roles={STAFF_ROLES}><FillService/></RequireRole>}
+                            />
                         </Route>
                         <Route path={"patients"}>
                             <Route index element={<Patients/>}/>
@@ -49,18 +54,27 @@ createRoot(document.getElementById('root')).render(
                             <Route path={":patientId"} element={<PatientDetails/>}/>
                             <Route path={":patientId/edit"} element={<PatientEdit/>}/>
                         </Route>
-                        <Route path={"users"}>
+                        <Route
+                            path={"users"}
+                            element={<RequireRole roles={STAFF_ROLES}/>}
+                        >
                             <Route index element={<Users/>}/>
                             <Route path={":userID"} element={<UserDetails/>}/>
                             <Route path={"registration"} element={<UserRegistration/>}/>
                             <Route path={":patientId/edit"} element={<UserEdit/>}/>
                         </Route>
-                        <Route path={"services"}>
+                        <Route
+                            path={"services"}
+                            element={<RequireRole roles={STAFF_ROLES}/>}
+                        >
                             <Route index element={<Services/>}/>
                             <Route path={"create"} element={<ServiceForm/>}/>
                             <Route path={":id/edit"} element={<ServiceForm/>}/>
                         </Route>
-                        <Route path={"visit-services"} element={<VisitServiceQueue/>}/>
+                        <Route
+                            path={"visit-services"}
+                            element={<RequireRole roles={STAFF_ROLES}><VisitServiceQueue/></RequireRole>}
+                        />
                     </Route>
                 </Routes>
             </BrowserRouter>
