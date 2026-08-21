@@ -13,7 +13,7 @@ export default function Topbar({title, onNewReservation}) {
         : normalizedPath.startsWith("/patients")
             ? {
                 to: "/patients/registration",
-                label: "Buat Patients Baru",
+                label: "Buat Pasien Baru",
             }
             : normalizedPath.startsWith("/users")
                 ? {
