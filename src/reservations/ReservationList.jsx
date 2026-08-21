@@ -17,6 +17,10 @@ export default function ReservationList() {
 
     const [isScannerOpen, setIsScannerOpen] = useState(false)
 
+    const isStaff = isStaffRole(user?.role)
+    const isUserRole = String(user?.role ?? "").toLowerCase() === "user"
+    const userId = String(user?.id ?? "")
+
     const {
         queues,
         isLoading,
@@ -30,11 +34,9 @@ export default function ReservationList() {
         setSearchTerm,
         markCalled,
         resetFilters,
-    } = useQueueList({token, logout})
+    } = useQueueList({token, logout, isUserRole, userId})
 
     const {activeServiceOptions, isLoading: isLoadingServices} = useServiceOptions({token, logout})
-
-    const isStaff = isStaffRole(user?.role)
 
     const handlePrimaryAction = (item) => {
         if (!isStaff) {
