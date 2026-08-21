@@ -42,7 +42,10 @@ createRoot(document.getElementById('root')).render(
                             <Route path='new' element={<CreateReservation/>}/>
                             <Route path='confirm' element={<ConfirmedReservation/>}/>
                             <Route path='revisit' element={<Revisit/>}/>
-                            <Route path="assesment/:id" element={<AssesmentLayout/>}/>
+                            <Route
+                                path="assesment/:id"
+                                element={<RequireRole roles={STAFF_ROLES}><AssesmentLayout/></RequireRole>}
+                            />
                             <Route
                                 path="fill-service/:id"
                                 element={<RequireRole roles={STAFF_ROLES}><FillService/></RequireRole>}

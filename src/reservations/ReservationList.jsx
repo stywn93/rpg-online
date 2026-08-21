@@ -37,19 +37,18 @@ export default function ReservationList() {
     const isStaff = isStaffRole(user?.role)
 
     const handlePrimaryAction = (item) => {
+        if (!isStaff) {
+            return
+        }
+
         if (item.visit_status === "waiting") {
             markCalled(item.id ?? item.visit_id)
             return
         }
 
-        if (isStaff) {
-            navigate(`/reservation/fill-service/${item.id ?? item.visit_id}`, {
-                state: {visit: item},
-            })
-            return
-        }
-
-        navigate(`/reservation/assesment/${item.id ?? item.visit_id}`)
+        navigate(`/reservation/fill-service/${item.id ?? item.visit_id}`, {
+            state: {visit: item},
+        })
     }
 
     const handleQrScan = (scannedId) => {
@@ -86,6 +85,7 @@ export default function ReservationList() {
                     onToggleService={() => {}}
                     onClearServices={() => {}}
                     onReset={resetFilters}
+                    showScan={isStaff}
                     onScan={() => setIsScannerOpen(true)}
                 />
                 <QueueTable
@@ -98,11 +98,13 @@ export default function ReservationList() {
                     onPrimaryAction={handlePrimaryAction}
                 />
             </div>
-            <QrScanner
-                isOpen={isScannerOpen}
-                onClose={() => setIsScannerOpen(false)}
-                onScan={handleQrScan}
-            />
+            {isStaff && (
+                <QrScanner
+                    isOpen={isScannerOpen}
+                    onClose={() => setIsScannerOpen(false)}
+                    onScan={handleQrScan}
+                />
+            )}
         </section>
     )
 }

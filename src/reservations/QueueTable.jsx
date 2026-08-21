@@ -12,7 +12,8 @@ const rowStyles = {
 
 export default function QueueTable({queues, isLoading, error, isUpdating, userRole, showServices = false, onPrimaryAction}) {
     const isStaff = isStaffRole(userRole)
-    const colSpan = showServices ? 7 : 6
+    const showActions = isStaff
+    const colSpan = (showServices ? 7 : 6) - (showActions ? 0 : 1)
 
     const primaryLabel = (queue) => {
         if (queue.visit_status === "waiting") {
@@ -36,7 +37,9 @@ export default function QueueTable({queues, isLoading, error, isUpdating, userRo
                         {showServices && (
                             <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Layanan</th>
                         )}
-                        <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Aksi</th>
+                        {showActions && (
+                            <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Aksi</th>
+                        )}
                     </tr>
                     </thead>
                     <tbody>
@@ -64,19 +67,21 @@ export default function QueueTable({queues, isLoading, error, isUpdating, userRo
                                     </div>
                                 </td>
                             )}
-                            <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700">
-                                <div className={`${queue.visit_status === "finished" ? "hidden" : "flex"} flex-wrap gap-2`}>
-                                    {queue.status !== "no_show" && (
-                                        <ActionButton
-                                            variant={queue.visit_status === "waiting" ? "primary" : "accent"}
-                                            disabled={isUpdating}
-                                            onClick={() => onPrimaryAction(queue)}
-                                        >
-                                            {primaryLabel(queue)}
-                                        </ActionButton>
-                                    )}
-                                </div>
-                            </td>
+                            {showActions && (
+                                <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700">
+                                    <div className={`${queue.visit_status === "finished" ? "hidden" : "flex"} flex-wrap gap-2`}>
+                                        {queue.status !== "no_show" && (
+                                            <ActionButton
+                                                variant={queue.visit_status === "waiting" ? "primary" : "accent"}
+                                                disabled={isUpdating}
+                                                onClick={() => onPrimaryAction(queue)}
+                                            >
+                                                {primaryLabel(queue)}
+                                            </ActionButton>
+                                        )}
+                                    </div>
+                                </td>
+                            )}
                         </tr>
                     ))}
                     {isLoading && queues.length === 0 && (
