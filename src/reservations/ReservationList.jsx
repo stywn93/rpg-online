@@ -8,6 +8,7 @@ import useServiceOptions from "../lib/hooks/useServiceOptions.js"
 import QueueFilterBar from "./QueueFilterBar.jsx"
 import QueueTable from "./QueueTable.jsx"
 import QrScanner from "../components/QrScanner.jsx"
+import {isStaffRole} from "../lib/utils/roles.js"
 
 export default function ReservationList() {
     const [token] = useLocalStorage("token", "")
@@ -33,7 +34,7 @@ export default function ReservationList() {
 
     const {activeServiceOptions, isLoading: isLoadingServices} = useServiceOptions({token, logout})
 
-    const isStaff = ["admin", "staff"].includes(String(user?.role ?? "").toLowerCase())
+    const isStaff = isStaffRole(user?.role)
 
     const handlePrimaryAction = (item) => {
         if (item.visit_status === "waiting") {

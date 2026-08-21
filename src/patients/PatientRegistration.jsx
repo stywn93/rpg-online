@@ -7,6 +7,7 @@ import {Datepicker} from "flowbite-react"
 import useAuth from "../auth/UseAuth.js"
 import useParentOptions from "../lib/hooks/useParentOptions.js"
 import {createPatient} from "../lib/api/Patient.js"
+import {isStaffRole} from "../lib/utils/roles.js"
 
 function formatDateForApi(value) {
     if (!(value instanceof Date) || Number.isNaN(value.getTime())) {
@@ -67,13 +68,13 @@ export default function PatientRegistration() {
     const [token] = useLocalStorage("token", "")
     const {logout, user} = useAuth()
 
-    const isAdmin = String(user?.role ?? "").toLowerCase() === "admin"
+    const isStaff = isStaffRole(user?.role)
 
     const [isLoading, setIsLoading] = useState(false)
     const [selectedParent, setSelectedParent] = useState(null)
     const [isParentDropdownOpen, setIsParentDropdownOpen] = useState(false)
 
-    const {parents, isLoading: isLoadingParents, searchTerm, setSearchTerm} = useParentOptions({token, logout, enabled: isAdmin})
+    const {parents, isLoading: isLoadingParents, searchTerm, setSearchTerm} = useParentOptions({token, logout, enabled: isStaff})
 
     const selectedDob = useWatch({control, name: "dob"})
     const ageParts = calculateAgeParts(selectedDob)
@@ -89,9 +90,9 @@ export default function PatientRegistration() {
     }
 
     const onSubmit = async (data) => {
-        const parentUserId = isAdmin ? (selectedParent ? Number(selectedParent.id) : null) : Number(user?.id ?? 0)
+        const parentUserId = isStaff ? (selectedParent ? Number(selectedParent.id) : null) : Number(user?.id ?? 0)
 
-        if (isAdmin && !selectedParent) {
+        if (isStaff && !selectedParent) {
             toast.error("Silakan pilih orang tua terlebih dahulu.")
             return
         }
@@ -158,7 +159,7 @@ export default function PatientRegistration() {
                                 <label htmlFor="parent" className="mb-2 block text-sm font-medium text-gray-900">
                                     Nama Orang Tua <span className="text-red-500">*</span>
                                 </label>
-                                {isAdmin ? (
+                                {isStaff ? (
                                     <>
                                         <div className="relative">
                                             <input

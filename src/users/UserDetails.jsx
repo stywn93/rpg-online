@@ -7,6 +7,7 @@ import {userActivate, changeUserPassword} from "../lib/api/User.js";
 import {listPatientsByParent} from "../lib/api/Patient.js";
 import {normalizeChildren} from "../lib/utils/Normalization.js";
 import useAuth from "../auth/UseAuth.js";
+import {isStaffRole} from "../lib/utils/roles.js";
 
 
 const USER_FORM_FIELDS = [
@@ -488,7 +489,7 @@ export default function UserDetails() {
                                     {isSaving ? "Menyimpan..." : isEditing ? "Simpan" : "Edit"}
                                 </button>
                             )}
-                            {currentUser?.role === "admin" && !isEditing && !isEditingPassword && (
+                            {isStaffRole(currentUser?.role) && !isEditing && !isEditingPassword && (
                                 <button
                                     type="button"
                                     onClick={isEditingRole ? handleSaveRole : handleEditRole}

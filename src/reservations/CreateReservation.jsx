@@ -7,6 +7,7 @@ import {createVisit} from "../lib/api/Queue.js"
 import useAuth from "../auth/UseAuth.js"
 import usePatientOptions from "../lib/hooks/usePatientOptions.js"
 import useLastVisit from "../lib/hooks/useLastVisit.js"
+import {isStaffRole} from "../lib/utils/roles.js"
 import ReservationForm from "./ReservationForm.jsx"
 
 function getInitialPatientId(searchParams, locationState) {
@@ -56,7 +57,7 @@ export default function CreateReservation() {
     })
 
     const normalizedRole = String(user?.role ?? "").toLowerCase()
-    const isAdmin = normalizedRole === "admin"
+    const isAdmin = isStaffRole(user?.role)
     const isUserRole = normalizedRole === "user"
     const userId = String(user?.id ?? "")
     const initialPatientId = getInitialPatientId(searchParams, location.state)

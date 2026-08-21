@@ -1,5 +1,6 @@
 import ActionButton from "../components/ActionButton.jsx"
 import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
+import {isStaffRole} from "../lib/utils/roles.js"
 
 // di sini belum ada key untuk "present", maka kita tambahkan key "present" dengan warna kuning
 const rowStyles = {
@@ -10,7 +11,7 @@ const rowStyles = {
 }
 
 export default function QueueTable({queues, isLoading, error, isUpdating, userRole, showServices = false, onPrimaryAction}) {
-    const isStaff = ["admin", "staff"].includes(String(userRole ?? "").toLowerCase())
+    const isStaff = isStaffRole(userRole)
     const colSpan = showServices ? 7 : 6
 
     const primaryLabel = (queue) => {
