@@ -2,7 +2,6 @@ import ActionButton from "../components/ActionButton.jsx"
 import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
 import {isStaffRole} from "../lib/utils/roles.js"
 
-// di sini belum ada key untuk "present", maka kita tambahkan key "present" dengan warna kuning
 const rowStyles = {
     present: "bg-blue-100 dark:bg-blue-900/50",
     no_show: "bg-red-100 dark:bg-red-900/50",
@@ -10,18 +9,10 @@ const rowStyles = {
     finished: "bg-green-100 dark:bg-green-900/50",
 }
 
-export default function QueueTable({queues, isLoading, error, isUpdating, userRole, showServices = false, onPrimaryAction, primaryActionLabel = ""}) {
+export default function VisitServiceRowsTable({rows, isLoading, error, isUpdating, userRole, onPrimaryAction, primaryActionLabel = "Entri Hasil Layanan"}) {
     const isStaff = isStaffRole(userRole)
     const showActions = isStaff
-    const colSpan = (showServices ? 7 : 6) - (showActions ? 0 : 1)
-
-    const primaryLabel = (queue) => {
-        if (queue.visit_status === "waiting") {
-            return primaryActionLabel || "Hadir"
-        }
-
-        return primaryActionLabel || (isStaff ? "Isi Layanan" : "Pemeriksaan")
-    }
+    const colSpan = showActions ? 6 : 5
 
     return (
         <>
@@ -29,54 +20,53 @@ export default function QueueTable({queues, isLoading, error, isUpdating, userRo
                 <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
                     <thead>
                     <tr className="text-slate-500 dark:text-slate-400">
-                        <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Nomor Antrian</th>
                         <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Nama Pasien</th>
                         <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Jenis Kelamin</th>
                         <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Usia</th>
                         <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Tanggal Kunjungan</th>
-                        {showServices && (
-                            <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Layanan</th>
-                        )}
+                        <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Layanan</th>
                         {showActions && (
                             <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Aksi</th>
                         )}
                     </tr>
                     </thead>
                     <tbody>
-                    {queues.map((queue) => (
-                        <tr key={queue.id ?? queue.visit_id} className={rowStyles[queue.visit_status] ?? rowStyles.waiting}>
+                    {rows.map((row) => (
+                        <tr key={row.visit_service_id || row.id} className={rowStyles[row.visit_status] ?? rowStyles.waiting}>
                             <td className="border-b border-slate-100 px-4 py-4 text-slate-900 dark:border-slate-700 dark:text-slate-100">
-                                {queue.id ?? queue.visit_id}
-                            </td>
-                            <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
-                                {queue.patient_name}
-                            </td>
-                            <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
-                                {queue.patient_gender ?? queue.gender}
-                            </td>
-                            <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
-                                {queue.age}
-                            </td>
-                            <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
-                                {formatIndonesianDate(queue.visit_date)}
-                            </td>
-                            {showServices && (
-                                <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700 dark:text-slate-300">
-                                    <div className="flex flex-wrap gap-2">
-                                        {queue.services}
+                                <div className="font-medium">{row.patient_name}</div>
+                                {row.parent_name && (
+                                    <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                                        Orang tua: {row.parent_name}
                                     </div>
-                                </td>
-                            )}
+                                )}
+                            </td>
+                            <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
+                                {row.gender}
+                            </td>
+                            <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
+                                {row.age}
+                            </td>
+                            <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
+                                {formatIndonesianDate(row.visit_date)}
+                            </td>
+                            <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700 dark:text-slate-300">
+                                <div className="flex flex-wrap gap-2">
+                                    <span className="inline-flex items-center rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-700 dark:text-slate-200">
+                                        {row.service_name}
+                                    </span>
+                                </div>
+                            </td>
                             {showActions && (
                                 <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700">
-                                    <div className={`${queue.visit_status === "finished" ? "hidden" : "flex"} flex-wrap gap-2`}>
-                                        {queue.status !== "no_show" && (
+                                    <div className={`${row.visit_status === "finished" ? "hidden" : "flex"} flex-wrap gap-2`}>
+                                        {row.visit_status !== "no_show" && (
                                             <ActionButton
-                                                variant={queue.visit_status === "waiting" ? "primary" : "accent"}
+                                                variant="accent"
                                                 disabled={isUpdating}
-                                                onClick={() => onPrimaryAction(queue)}
+                                                onClick={() => onPrimaryAction(row)}
                                             >
-                                                {primaryLabel(queue)}
+                                                {primaryActionLabel}
                                             </ActionButton>
                                         )}
                                     </div>
@@ -84,7 +74,7 @@ export default function QueueTable({queues, isLoading, error, isUpdating, userRo
                             )}
                         </tr>
                     ))}
-                    {isLoading && queues.length === 0 && (
+                    {isLoading && rows.length === 0 && (
                         <tr>
                             <td colSpan={colSpan} className="px-4 py-6 text-center text-sm text-slate-500 dark:text-slate-400">
                                 Memuat data...
@@ -94,14 +84,14 @@ export default function QueueTable({queues, isLoading, error, isUpdating, userRo
                     {!isLoading && error && (
                         <tr>
                             <td colSpan={colSpan} className="px-4 py-6 text-center text-sm text-red-500">
-                                {`isLoading: ${isLoading}, error: ${JSON.stringify(error)}`} Gagal memuat data.
+                                Gagal memuat data.
                             </td>
                         </tr>
                     )}
-                    {!isLoading && !error && queues.length === 0 && (
+                    {!isLoading && !error && rows.length === 0 && (
                         <tr>
                             <td colSpan={colSpan} className="px-4 py-6 text-center text-sm text-slate-500 dark:text-slate-400">
-                                Tidak ada data kunjungan pada tanggal yang dipilih.
+                                Tidak ada data layanan pada tanggal yang dipilih.
                             </td>
                         </tr>
                     )}

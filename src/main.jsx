@@ -24,6 +24,7 @@ import Services from "./services/Services.jsx"
 import ServiceForm from "./services/ServiceForm.jsx"
 import VisitServiceQueue from "./reservations/VisitServiceQueue.jsx"
 import FillService from "./reservations/FillService.jsx"
+import ServiceResultEntry from "./reservations/ServiceResultEntry.jsx"
 import RequireRole from "./auth/RequireRole.jsx"
 import {STAFF_ROLES} from "./lib/utils/roles.js"
 
@@ -49,6 +50,10 @@ createRoot(document.getElementById('root')).render(
                             <Route
                                 path="fill-service/:id"
                                 element={<RequireRole roles={STAFF_ROLES}><FillService/></RequireRole>}
+                            />
+                            <Route
+                                path="service-result/:id"
+                                element={<RequireRole roles={STAFF_ROLES}><ServiceResultEntry/></RequireRole>}
                             />
                         </Route>
                         <Route path={"patients"}>

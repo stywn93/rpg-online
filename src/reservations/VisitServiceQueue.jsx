@@ -1,10 +1,10 @@
 import {useLocalStorage} from "react-use"
 import {useNavigate} from "react-router-dom"
 import useAuth from "../auth/UseAuth.js"
-import useVisitServiceList from "../lib/hooks/useVisitServiceList.js"
+import useVisitServiceRows from "../lib/hooks/useVisitServiceRows.js"
 import useServiceOptions from "../lib/hooks/useServiceOptions.js"
 import QueueFilterBar from "./QueueFilterBar.jsx"
-import QueueTable from "./QueueTable.jsx"
+import VisitServiceRowsTable from "./VisitServiceRowsTable.jsx"
 
 export default function VisitServiceQueue() {
     const [token] = useLocalStorage("token", "")
@@ -12,7 +12,7 @@ export default function VisitServiceQueue() {
     const navigate = useNavigate()
 
     const {
-        queues,
+        rows,
         isLoading,
         error,
         selectedDate,
@@ -25,13 +25,13 @@ export default function VisitServiceQueue() {
         setSelectedServiceIds,
         toggleService,
         resetFilters,
-    } = useVisitServiceList({token, logout})
+    } = useVisitServiceRows({token, logout})
 
     const {activeServiceOptions, isLoading: isLoadingServices} = useServiceOptions({token, logout})
 
     const handlePrimaryAction = (item) => {
-        navigate(`/reservation/fill-service/${item.id ?? item.visit_id}`, {
-            state: {visit: item},
+        navigate(`/reservation/service-result/${item.visit_service_id}`, {
+            state: {visit: {...item, id: item.visit_id}, visitServiceId: item.visit_service_id},
         })
     }
 
@@ -39,7 +39,7 @@ export default function VisitServiceQueue() {
         <section className="space-y-5">
             <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                 <QueueFilterBar
-                    totalCount={queues.length}
+                    totalCount={rows.length}
                     title="Antrian Layanan"
                     description="Daftar pasien yang sudah hadir dan siap dilayani."
                     selectedDate={selectedDate}
@@ -57,13 +57,12 @@ export default function VisitServiceQueue() {
                     onReset={resetFilters}
                     onScan={() => {}}
                 />
-                <QueueTable
-                    queues={queues}
+                <VisitServiceRowsTable
+                    rows={rows}
                     isLoading={isLoading}
                     error={error}
                     isUpdating={false}
                     userRole={user?.role}
-                    showServices
                     onPrimaryAction={handlePrimaryAction}
                 />
             </div>
