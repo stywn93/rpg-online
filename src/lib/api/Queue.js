@@ -141,6 +141,16 @@ export const visitServiceRowList = async (
     })
 }
 
+export const getVisitServiceDetail = async (token, visitServiceId) => {
+    return await fetch(`${apiBaseUrl}/visit-services/${visitServiceId}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    })
+}
+
 export const queueDetails = async(token, id) => {
     const url = `${apiBaseUrl}/queues/${id}`
 

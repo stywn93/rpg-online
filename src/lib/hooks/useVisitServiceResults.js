@@ -30,7 +30,7 @@ export default function useVisitServiceResults({token, logout, visitId}) {
 
                 if (response.status === 200 && !isCancelled) {
                     setRecords(normalizeVisitServiceRecords(body))
-                    setVisit(body?.data?.[0] ?? {})
+                    setVisit(Array.isArray(body?.data) ? (body.data[0] ?? {}) : (body?.data ?? {}))
                 } else if (!isCancelled) {
                     setError(body)
                 }
