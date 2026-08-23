@@ -1,9 +1,9 @@
-import {useState} from "react"
+import {useEffect, useState} from "react"
 import {useLocation, useNavigate, useParams} from "react-router-dom"
 import toast from "react-hot-toast"
 import {useLocalStorage} from "react-use"
 import useAuth from "../auth/UseAuth.js"
-import {updateVisitServiceResult} from "../lib/api/Queue.js"
+import {getVisitServiceDetail, updateVisitServiceResult} from "../lib/api/Queue.js"
 import useVisitServiceResults from "../lib/hooks/useVisitServiceResults.js"
 import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
 
@@ -45,23 +45,54 @@ export default function ServiceResultEntry() {
         visit,
         isLoading,
         error,
-    } = useVisitServiceResults({token, logout, visitId})
+    } = useVisitServiceResults({token, logout, visitId: visitServiceId ? "" : visitId})
 
     const localRecords = visitServiceId
         ? [{
             recordId: visitServiceId,
             serviceId: String(stateVisit.service_id ?? ""),
             serviceName: stateVisit.service_name ?? "",
-            result: "",
         }]
         : []
 
-    const fetchedMatches = visitServiceId
-        ? allRecords.filter((record) => record.recordId === visitServiceId)
-        : []
+    const [savedResult, setSavedResult] = useState("")
+
+    useEffect(() => {
+        if (!token || !visitServiceId) {
+            return
+        }
+
+        let isCancelled = false
+
+        async function fetchSavedResult() {
+            try {
+                const response = await getVisitServiceDetail(token, visitServiceId)
+                const body = await response.json()
+
+                if (response.status === 401) {
+                    logout()
+                    return
+                }
+
+                if (response.status === 200 && !isCancelled) {
+                    setSavedResult(body?.data?.result ?? "")
+                }
+            } catch {
+                if (!isCancelled) {
+                    setSavedResult("")
+                }
+            }
+        }
+
+        fetchSavedResult()
+
+        return () => {
+            isCancelled = true
+        }
+    }, [token, visitServiceId, logout])
 
     const records = visitServiceId
-        ? (fetchedMatches.length > 0 ? fetchedMatches : localRecords)
+        ? [{...localRecords[0], result: savedResult}]
         : allRecords
 
     const detail = Object.keys(stateVisit).length > 0 ? stateVisit : visit
@@ -206,9 +237,16 @@ export default function ServiceResultEntry() {
                                         key={record.recordId || `${record.serviceId}-${index}`}
                                         className="rounded-xl border border-slate-200 p-3"
                                     >
-                                        <p className="text-sm font-medium text-slate-700">
-                                            {record.serviceName || `Layanan #${record.serviceId}`}
-                                        </p>
+                                        <div className="flex items-center justify-between gap-2">
+                                            <p className="text-sm font-medium text-slate-700">
+                                                {record.serviceName || `Layanan #${record.serviceId}`}
+                                            </p>
+                                            {(results[index] ?? record.result ?? "").trim() !== "" && (
+                                                <span className="inline-flex shrink-0 items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                                                    Hasil tersimpan
+                                                </span>
+                                            )}
+                                        </div>
                                         <input
                                             type="text"
                                             value={results[index] ?? record.result ?? ""}

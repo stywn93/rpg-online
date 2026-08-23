@@ -234,9 +234,11 @@ function splitListValue(value) {
 export function normalizeVisitServiceRecords(payload) {
     const source = Array.isArray(payload?.data)
         ? payload.data
-        : Array.isArray(payload)
-            ? payload
-            : []
+        : payload?.data && typeof payload.data === "object"
+            ? [payload.data]
+            : Array.isArray(payload)
+                ? payload
+                : []
 
     const records = []
 
