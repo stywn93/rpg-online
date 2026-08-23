@@ -104,6 +104,43 @@ export const visitServiceList = async (
     })
 }
 
+export const visitServiceRowList = async (
+    token,
+    tanggal,
+    page = 1,
+    perPage = 10,
+    searchTerm = "",
+    status = "",
+    serviceTypeIds = []
+) => {
+    const params = new URLSearchParams({
+        visit_date: String(tanggal),
+        searchTerm,
+        page: String(page),
+        per_page: String(perPage),
+    })
+
+    if (status) {
+        params.set("visit_status", status)
+    }
+
+    if (searchTerm) {
+        params.set("patient_name", searchTerm)
+    }
+
+    if (Array.isArray(serviceTypeIds) && serviceTypeIds.length > 0) {
+        params.set("service_id", serviceTypeIds.map((id) => String(id).trim()).filter(Boolean).join(","))
+    }
+
+    return await fetch(`${apiBaseUrl}/visit-service-rows?${params.toString()}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    })
+}
+
 export const queueDetails = async(token, id) => {
     const url = `${apiBaseUrl}/queues/${id}`
 

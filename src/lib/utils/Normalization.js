@@ -78,6 +78,48 @@ export function normalizeQueueList(payload) {
     return source.map(normalizeQueueItem).filter(Boolean)
 }
 
+export function normalizeVisitServiceRowItem(item) {
+    if (!item || typeof item !== "object") {
+        return null
+    }
+
+    const visitServiceId = String(item.visit_service_id ?? item.id ?? "")
+    const visitId = String(item.visit_id ?? "")
+
+    if (!visitServiceId && !visitId) {
+        return null
+    }
+
+    return {
+        ...item,
+        id: visitServiceId || visitId,
+        visit_service_id: visitServiceId,
+        visit_id: visitId,
+        patient_name: item.patient_name ?? "",
+        gender: item.gender ?? item.patient_gender ?? "",
+        age: item.age ?? "",
+        parent_name: item.parent_name ?? "",
+        visit_date: item.visit_date ?? "",
+        visit_status: item.visit_status ?? "waiting",
+        service_id: String(item.service_id ?? ""),
+        service_name: item.service_name ?? "",
+    }
+}
+
+export function normalizeVisitServiceRows(payload) {
+    const source = Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload)
+            ? payload
+            : null
+
+    if (!Array.isArray(source)) {
+        return null
+    }
+
+    return source.map(normalizeVisitServiceRowItem).filter(Boolean)
+}
+
 export function normalizeServiceList(payload) {
     const source = Array.isArray(payload?.data)
         ? payload.data

@@ -36,15 +36,33 @@ export default function ServiceResultEntry() {
     const {logout, user} = useAuth()
 
     const stateVisit = location.state?.visit ?? {}
+    const visitServiceId = String(location.state?.visitServiceId ?? "")
 
-    const visitId = String(stateVisit.id ?? stateVisit.visit_id ?? id ?? "")
+    const visitId = String(stateVisit.visit_id ?? stateVisit.id ?? id ?? "")
 
     const {
-        records,
+        records: allRecords,
         visit,
         isLoading,
         error,
     } = useVisitServiceResults({token, logout, visitId})
+
+    const localRecords = visitServiceId
+        ? [{
+            recordId: visitServiceId,
+            serviceId: String(stateVisit.service_id ?? ""),
+            serviceName: stateVisit.service_name ?? "",
+            result: "",
+        }]
+        : []
+
+    const fetchedMatches = visitServiceId
+        ? allRecords.filter((record) => record.recordId === visitServiceId)
+        : []
+
+    const records = visitServiceId
+        ? (fetchedMatches.length > 0 ? fetchedMatches : localRecords)
+        : allRecords
 
     const detail = Object.keys(stateVisit).length > 0 ? stateVisit : visit
 
@@ -167,19 +185,23 @@ export default function ServiceResultEntry() {
                                 Daftar Layanan
                             </label>
                             <div className="space-y-3">
-                                {isLoading && (
+                                {!visitServiceId && isLoading && (
                                     <p className="px-2 py-2 text-sm text-slate-500">Memuat layanan...</p>
                                 )}
 
-                                {!isLoading && error && (
+                                {!isLoading && error && !visitServiceId && (
                                     <p className="px-2 py-2 text-sm text-red-500">Gagal memuat data layanan.</p>
                                 )}
 
                                 {!isLoading && !error && records.length === 0 && (
-                                    <p className="px-2 py-2 text-sm text-slate-500">Tidak ada layanan pada kunjungan ini.</p>
+                                    <p className="px-2 py-2 text-sm text-slate-500">
+                                        {visitServiceId
+                                            ? "Layanan tidak ditemukan pada kunjungan ini."
+                                            : "Tidak ada layanan pada kunjungan ini."}
+                                    </p>
                                 )}
 
-                                {!isLoading && records.map((record, index) => (
+                                {records.map((record, index) => (
                                     <div
                                         key={record.recordId || `${record.serviceId}-${index}`}
                                         className="rounded-xl border border-slate-200 p-3"
@@ -189,7 +211,7 @@ export default function ServiceResultEntry() {
                                         </p>
                                         <input
                                             type="text"
-                                            value={results[index] ?? ""}
+                                            value={results[index] ?? record.result ?? ""}
                                             onChange={(event) => handleResultChange(index, event.target.value)}
                                             placeholder="Isi hasil layanan"
                                             className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-blue-500"
