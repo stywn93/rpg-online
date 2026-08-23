@@ -10,17 +10,17 @@ const rowStyles = {
     finished: "bg-green-100 dark:bg-green-900/50",
 }
 
-export default function QueueTable({queues, isLoading, error, isUpdating, userRole, showServices = false, onPrimaryAction}) {
+export default function QueueTable({queues, isLoading, error, isUpdating, userRole, showServices = false, onPrimaryAction, primaryActionLabel = ""}) {
     const isStaff = isStaffRole(userRole)
     const showActions = isStaff
     const colSpan = (showServices ? 7 : 6) - (showActions ? 0 : 1)
 
     const primaryLabel = (queue) => {
         if (queue.visit_status === "waiting") {
-            return "Hadir"
+            return primaryActionLabel || "Hadir"
         }
 
-        return isStaff ? "Isi Layanan" : "Pemeriksaan"
+        return primaryActionLabel || (isStaff ? "Isi Layanan" : "Pemeriksaan")
     }
 
     return (

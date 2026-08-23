@@ -30,7 +30,7 @@ export default function VisitServiceQueue() {
     const {activeServiceOptions, isLoading: isLoadingServices} = useServiceOptions({token, logout})
 
     const handlePrimaryAction = (item) => {
-        navigate(`/reservation/fill-service/${item.id ?? item.visit_id}`, {
+        navigate(`/reservation/service-result/${item.id ?? item.visit_id}`, {
             state: {visit: item},
         })
     }
@@ -64,6 +64,7 @@ export default function VisitServiceQueue() {
                     isUpdating={false}
                     userRole={user?.role}
                     showServices
+                    primaryActionLabel="Entri Hasil Layanan"
                     onPrimaryAction={handlePrimaryAction}
                 />
             </div>

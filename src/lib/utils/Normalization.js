@@ -162,3 +162,81 @@ export function normalizeVisitServiceList(payload) {
         }))
         .filter((item) => item.id)
 }
+
+function splitListValue(value) {
+    if (Array.isArray(value)) {
+        return value
+    }
+
+    if (typeof value === "string" && value.trim()) {
+        const trimmed = value.trim()
+
+        if (trimmed.startsWith("[")) {
+            try {
+                const parsed = JSON.parse(trimmed)
+
+                if (Array.isArray(parsed)) {
+                    return parsed
+                }
+            } catch {
+                return []
+            }
+        }
+
+        return trimmed.split(",").map((item) => item.trim()).filter(Boolean)
+    }
+
+    return []
+}
+
+export function normalizeVisitServiceRecords(payload) {
+    const source = Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload)
+            ? payload
+            : []
+
+    const records = []
+
+    source.forEach((item) => {
+        if (Array.isArray(item?.items)) {
+            item.items.forEach((record) => {
+                records.push({
+                    recordId: String(record.id ?? ""),
+                    serviceId: String(record.service_id ?? ""),
+                    serviceName: record.service_name ?? record.name ?? "",
+                    result: record.result ?? "",
+                })
+            })
+
+            return
+        }
+
+        const recordKey = item?.visit_service_id ?? item?.id
+
+        if (recordKey !== undefined && recordKey !== null && String(recordKey) !== "") {
+            records.push({
+                recordId: String(recordKey),
+                serviceId: String(item.service_id ?? ""),
+                serviceName: item.service_name ?? item.services ?? item.name ?? "",
+                result: item.result ?? "",
+            })
+
+            return
+        }
+
+        const serviceIds = splitListValue(item?.service_id)
+        const serviceNames = splitListValue(item?.services)
+
+        serviceNames.forEach((serviceName, index) => {
+            records.push({
+                recordId: "",
+                serviceId: String(serviceIds[index] ?? ""),
+                serviceName: typeof serviceName === "string" ? serviceName : String(serviceName?.name ?? ""),
+                result: "",
+            })
+        })
+    })
+
+    return records.filter((record) => record.serviceId || record.serviceName)
+}
