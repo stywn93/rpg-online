@@ -46,7 +46,7 @@ export default function QueueTable({queues, isLoading, error, isUpdating, userRo
                     {queues.map((queue) => (
                         <tr key={queue.id ?? queue.visit_id} className={rowStyles[queue.visit_status] ?? rowStyles.waiting}>
                             <td className="border-b border-slate-100 px-4 py-4 text-slate-900 dark:border-slate-700 dark:text-slate-100">
-                                {queue.id ?? queue.visit_id}
+                                {queue.queue_number}
                             </td>
                             <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
                                 {queue.patient_name}
