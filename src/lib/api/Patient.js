@@ -49,3 +49,14 @@ export const getPatientDetail = async (token, id) => {
         }
     })
 }
+
+export const updatePatient = async (token, id, payload) => {
+    return await fetch(`${apiBaseUrl}/patients/${id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+    })
+}

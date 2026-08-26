@@ -1,46 +1,126 @@
-import { Controller, useForm } from "react-hook-form"
+import { useEffect, useState } from "react"
+import { useNavigate, useParams } from "react-router-dom"
+import { useLocalStorage } from "react-use"
+import { Controller, useForm, useWatch } from "react-hook-form"
 import { Datepicker } from "flowbite-react"
 import toast from "react-hot-toast"
-import { useNavigate, useParams } from "react-router-dom"
-import { patientData } from "../data/patients.js"
+import useAuth from "../auth/UseAuth.js"
+import { getPatientDetail, updatePatient } from "../lib/api/Patient.js"
+import { normalizePatientDetail } from "../lib/utils/Normalization.js"
+
+function formatDateForApi(value) {
+    if (!(value instanceof Date) || Number.isNaN(value.getTime())) return ""
+    const localDate = new Date(value.getTime() - value.getTimezoneOffset() * 60000)
+    return localDate.toISOString().split("T")[0]
+}
+
+const calculateAgeParts = (dob) => {
+    if (!(dob instanceof Date) || Number.isNaN(dob.getTime())) return { years: "", months: "" }
+    const today = new Date()
+    let years = today.getFullYear() - dob.getFullYear()
+    let months = today.getMonth() - dob.getMonth()
+    if (today.getDate() < dob.getDate()) months -= 1
+    if (months < 0) { years -= 1; months += 12 }
+    if (years < 0) return { years: "", months: "" }
+    return { years: String(years), months: String(months) }
+}
+
+const inputClassName = "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
 
 export default function PatientEdit() {
     const navigate = useNavigate()
     const { patientId } = useParams()
-    const patient = patientData.find((item) => item.id === patientId)
+    const [token] = useLocalStorage("token", "")
+    const { logout } = useAuth()
 
-    const {
-        register,
-        control,
-        handleSubmit,
-        formState: { errors },
-    } = useForm({
-        defaultValues: {
-            fullName: patient?.name ?? "",
-            dob: new Date(),
-            age: patient?.age ?? "",
-            birthPlace: patient?.birthPlace ?? "",
-            parentName: patient?.parentName ?? "",
-            bloodType: patient?.bloodType ?? "O",
-            address: patient?.address ?? "",
-        },
+    const { register, control, handleSubmit, reset, formState: { errors } } = useForm({
+        defaultValues: { name: "", dob: null, gender_code: "", address: "" },
     })
 
-    const onSubmit = async () => {
-        toast.success("Perubahan data pasien berhasil disimpan.")
-        navigate(`/patients/${patientId}`)
+    const [isFetching, setIsFetching] = useState(true)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [notFound, setNotFound] = useState(false)
+
+    const selectedDob = useWatch({ control, name: "dob" })
+    const ageParts = calculateAgeParts(selectedDob)
+
+    useEffect(() => {
+        if (!token || !patientId) return
+        let cancelled = false
+        async function fetchDetail() {
+            setIsFetching(true)
+            setNotFound(false)
+            try {
+                const response = await getPatientDetail(token, patientId)
+                const body = await response.json()
+                if (response.status === 401) { logout(); return }
+                if (response.status !== 200 || body?.status === "error") {
+                    if (!cancelled) setNotFound(true)
+                    return
+                }
+                const patient = normalizePatientDetail(body)
+                if (!patient) { if (!cancelled) setNotFound(true); return }
+                if (!cancelled) {
+                    const dobDate = patient.dob ? new Date(patient.dob) : null
+                    const validDob = dobDate && !Number.isNaN(dobDate.getTime()) ? dobDate : null
+                    reset({
+                        name: patient.name ?? "",
+                        dob: validDob,
+                        gender_code: patient.gender_code ?? "",
+                        address: patient.address ?? "",
+                    })
+                }
+            } catch {
+                if (!cancelled) setNotFound(true)
+            } finally {
+                if (!cancelled) setIsFetching(false)
+            }
+        }
+        fetchDetail()
+        return () => { cancelled = true }
+    }, [token, patientId, logout, reset])
+
+    const onSubmit = async (data) => {
+        setIsSubmitting(true)
+        const toastId = toast.loading("Menyimpan...")
+        try {
+            const response = await updatePatient(token, patientId, {
+                name: data.name,
+                dob: formatDateForApi(data.dob),
+                gender_code: data.gender_code,
+                address: data.address,
+            })
+            const body = await response.json()
+            if (response.status === 401) { logout(); return }
+            if (body?.status !== "success" && response.status !== 200) {
+                throw new Error(body?.message ?? "Gagal menyimpan perubahan.")
+            }
+            toast.success("Perubahan data pasien berhasil disimpan.", { id: toastId })
+            navigate(`/patients/${patientId}`)
+        } catch (error) {
+            toast.error(error.message, { id: toastId })
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
-    if (!patient) {
+    if (isFetching) {
         return (
             <section className="space-y-5">
                 <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-                    <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
-                        Ubah Data Pasien
-                    </h1>
-                    <p className="mt-3 text-sm text-slate-500">
-                        Data pasien dengan ID {patientId} tidak ditemukan.
-                    </p>
+                    <p className="text-sm text-slate-500">Memuat data pasien...</p>
+                </div>
+            </section>
+        )
+    }
+
+    if (notFound) {
+        return (
+            <section className="space-y-5">
+                <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                    <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">Ubah Data Pasien</h1>
+                    <p className="mt-3 text-sm text-slate-500">Data pasien dengan ID {patientId} tidak ditemukan.</p>
+                    <button type="button" onClick={() => navigate(-1)} className="mt-4 cursor-pointer rounded-lg bg-rose-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-rose-800">Kembali</button>
                 </div>
             </section>
         )
@@ -48,148 +128,63 @@ export default function PatientEdit() {
 
     return (
         <section>
-            <div className="flex flex-col items-center px-6 mx-auto md:h-screen lg:py-0">
-                        <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0 dark:bg-slate-900 dark:border dark:border-slate-700">
+            <div className="flex flex-col items-center px-6 mx-auto lg:py-0">
+                <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
                     <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                         <div className="space-y-1">
-                            <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                                Ubah Data Pasien
-                            </h1>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
-                                Perbarui data pasien dengan ID {patient.id}.
-                            </p>
+                            <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">Ubah Data Pasien</h1>
+                            <p className="text-sm text-slate-500">Perbarui data pasien dengan ID {patientId}.</p>
                         </div>
 
                         <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit(onSubmit)}>
                             <div>
-                                <label htmlFor="fullName" className="mb-2 block text-sm font-medium text-gray-900 dark:text-slate-200">
-                                    Nama Pasien <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    {...register("fullName", { required: "Nama pasien wajib diisi" })}
-                                    type="text"
-                                    id="fullName"
-                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-                                    placeholder="Budi Santoso"
-                                />
-                                {errors.fullName && <span className="text-red-500 text-sm">{errors.fullName.message}</span>}
+                                <label htmlFor="name" className="mb-2 block text-sm font-medium text-gray-900">Nama Pasien <span className="text-red-500">*</span></label>
+                                <input id="name" type="text" className={inputClassName} placeholder="Budi Santoso" {...register("name", { required: "Nama wajib diisi", minLength: { value: 3, message: "Nama minimal 3 karakter" } })} />
+                                {errors.name && <span className="text-red-500 text-sm">{errors.name.message}</span>}
                             </div>
 
                             <div>
-                                <label htmlFor="dob" className="block mb-2 text-sm font-medium text-gray-900 dark:text-slate-200">
-                                    Tanggal Lahir <span className="text-red-500">*</span>
-                                </label>
-                                <Controller
-                                    name="dob"
-                                    control={control}
-                                    rules={{ required: "Tanggal lahir wajib diisi" }}
-                                    render={({ field }) => (
-                                        <Datepicker
-                                            language="id-ID"
-                                            selected={field.value}
-                                            onChange={(date) => field.onChange(date)}
-                                        />
-                                    )}
-                                />
+                                <label htmlFor="dob" className="block mb-2 text-sm font-medium text-gray-900">Tanggal Lahir <span className="text-red-500">*</span></label>
+                                <Controller name="dob" control={control} rules={{ required: "Tanggal wajib diisi" }} render={({ field }) => (
+                                    <Datepicker language="id-ID" maxDate={new Date()} selected={field.value} onChange={(date) => field.onChange(date)} />
+                                )} />
                                 {errors.dob && <span className="text-red-500 text-sm">{errors.dob.message}</span>}
                             </div>
 
                             <div>
-                                <label htmlFor="age" className="block mb-2 text-sm font-medium text-gray-900 dark:text-slate-200">
-                                    Usia
-                                </label>
-                                <input
-                                    {...register("age")}
-                                    type="text"
-                                    id="age"
-                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-                                    placeholder="5 tahun"
-                                />
-                            </div>
-
-                            <div>
-                                <label htmlFor="birthPlace" className="mb-2 block text-sm font-medium text-gray-900 dark:text-slate-200">
-                                    Tempat Lahir
-                                </label>
-                                <input
-                                    {...register("birthPlace")}
-                                    type="text"
-                                    id="birthPlace"
-                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-                                    placeholder="Situbondo"
-                                />
-                            </div>
-
-                            <div>
-                                <label htmlFor="parentName" className="mb-2 block text-sm font-medium text-gray-900 dark:text-slate-200">
-                                    Nama Orang Tua <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    {...register("parentName", { required: "Nama orang tua wajib diisi" })}
-                                    type="text"
-                                    id="parentName"
-                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-                                    placeholder="Nama Orang Tua"
-                                />
-                                {errors.parentName && <span className="text-red-500 text-sm">{errors.parentName.message}</span>}
-                            </div>
-
-                            <div>
-                                <label htmlFor="bloodType" className="block mb-2 text-sm font-medium text-gray-900 dark:text-slate-200">
-                                    Golongan Darah
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        {...register("bloodType")}
-                                        id="bloodType"
-                                        className="block w-full appearance-none rounded-lg border border-gray-300 bg-gray-50 p-2.5 pr-10 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-                                    >
-                                        <option value="A">A</option>
-                                        <option value="B">B</option>
-                                        <option value="AB">AB</option>
-                                        <option value="O">O</option>
-                                    </select>
-                                    <svg
-                                        className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 dark:text-slate-400"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20"
-                                        fill="currentColor"
-                                        aria-hidden="true"
-                                    >
-                                        <path
-                                            fillRule="evenodd"
-                                            d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z"
-                                            clipRule="evenodd"
-                                        />
-                                    </svg>
+                                <label className="block mb-2 text-sm font-medium text-gray-900">Usia</label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="flex w-full">
+                                        <input readOnly type="text" value={ageParts.years} className="read-only:cursor-not-allowed w-full bg-gray-50 border-gray-300 rounded-l-lg px-3 py-2.5 text-sm" placeholder="3" />
+                                        <span className="inline-flex items-center px-3 text-sm bg-gray-50 border border-l-0 border-gray-300 rounded-r-lg">thn</span>
+                                    </div>
+                                    <div className="flex w-full">
+                                        <input readOnly type="text" value={ageParts.months} className="read-only:cursor-not-allowed w-full bg-gray-50 border-gray-300 rounded-l-lg px-3 py-2.5 text-sm" placeholder="10" />
+                                        <span className="inline-flex items-center px-3 text-sm bg-gray-50 border border-l-0 border-gray-300 rounded-r-lg">bln</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="sm:col-span-2">
-                                <label htmlFor="address" className="block mb-2 text-sm font-medium text-gray-900 dark:text-slate-200">
-                                    Alamat <span className="text-red-500">*</span>
-                                </label>
-                                <textarea
-                                    {...register("address", { required: "Alamat wajib diisi" })}
-                                    id="address"
-                                    rows="8"
-                                    className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
-                                    placeholder="Alamat pasien"
-                                />
+                            <div>
+                                <label htmlFor="gender_code" className="mb-2 block text-sm font-medium text-gray-900">Jenis Kelamin <span className="text-red-500">*</span></label>
+                                <select id="gender_code" className={`${inputClassName} appearance-none`} {...register("gender_code", { required: "Jenis kelamin wajib diisi" })}>
+                                    <option value="">Pilih jenis kelamin</option>
+                                    <option value="L">Laki-laki</option>
+                                    <option value="P">Perempuan</option>
+                                </select>
+                                {errors.gender_code && <span className="text-red-500 text-sm">{errors.gender_code.message}</span>}
+                            </div>
+
+                            <div>
+                                <label htmlFor="address" className="block mb-2 text-sm font-medium text-gray-900">Alamat <span className="text-red-500">*</span></label>
+                                <textarea id="address" rows="4" className={`${inputClassName} resize-none`} placeholder="Alamat pasien" {...register("address", { required: "Alamat wajib diisi", minLength: { value: 5, message: "Alamat minimal 5 karakter" } })} />
                                 {errors.address && <span className="text-red-500 text-sm">{errors.address.message}</span>}
                             </div>
 
-                            <button
-                                type="submit"
-                                className="cursor-pointer w-full text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                            >
-                                Simpan Perubahan
+                            <button type="submit" disabled={isSubmitting} className="cursor-pointer w-full text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-50 disabled:cursor-not-allowed">
+                                {isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
                             </button>
-                            <button
-                                type="button"
-                                onClick={() => navigate(-1)}
-                                className="cursor-pointer w-full text-white bg-rose-600 hover:bg-rose-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                            >
+                            <button type="button" onClick={() => navigate(-1)} className="cursor-pointer w-full text-white bg-rose-600 hover:bg-rose-800 focus:ring-4 focus:outline-none focus:ring-rose-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                                 Kembali
                             </button>
                         </form>
