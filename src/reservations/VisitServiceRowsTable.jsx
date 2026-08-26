@@ -20,6 +20,7 @@ export default function VisitServiceRowsTable({rows, isLoading, error, isUpdatin
                 <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
                     <thead>
                     <tr className="text-slate-500 dark:text-slate-400">
+                        <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Nomor Antrian</th>
                         <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Nama Pasien</th>
                         <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Jenis Kelamin</th>
                         <th className="border-b border-slate-200 px-4 py-3 font-medium dark:border-slate-700">Usia</th>
@@ -33,6 +34,9 @@ export default function VisitServiceRowsTable({rows, isLoading, error, isUpdatin
                     <tbody>
                     {rows.map((row) => (
                         <tr key={row.visit_service_id || row.id} className={rowStyles[row.visit_status] ?? rowStyles.waiting}>
+                            <td className="border-b border-slate-100 px-4 py-4 text-slate-700 dark:border-slate-700 dark:text-slate-300">
+                                {row.queue_number}
+                            </td>
                             <td className="border-b border-slate-100 px-4 py-4 text-slate-900 dark:border-slate-700 dark:text-slate-100">
                                 <div className="font-medium">{row.patient_name}</div>
                                 {row.parent_name && (
