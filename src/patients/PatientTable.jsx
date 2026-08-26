@@ -56,6 +56,7 @@ export default function PatientTable({patients, isLoading, error}) {
                         <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700">
                             <div className="flex flex-wrap gap-2">
                                 <ActionButton to={`/patients/${patient.id}`}>Detail</ActionButton>
+                                <ActionButton to={`/patients/${patient.id}/edit`}>Edit</ActionButton>
                             </div>
                         </td>
                     </tr>
