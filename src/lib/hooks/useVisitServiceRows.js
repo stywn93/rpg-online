@@ -2,36 +2,8 @@ import {useCallback, useEffect, useState} from "react"
 import {useLocalStorage} from "react-use"
 import {visitServiceRowList} from "../api/Queue.js"
 import {normalizeVisitServiceRows} from "../utils/Normalization.js"
-
-function getTodayDate() {
-    const now = new Date()
-    const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-
-    return localDate.toISOString().split("T")[0]
-}
-
-const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
-
-function isDateString(value) {
-    return typeof value === "string" && DATE_PATTERN.test(value)
-}
-
-function sanitizeStoredDate(value) {
-    const parsed = JSON.parse(value)
-
-    return isDateString(parsed) ? parsed : getTodayDate()
-}
-
-function useDebouncedValue(value, delay = 400) {
-    const [debounced, setDebounced] = useState(value)
-
-    useEffect(() => {
-        const timer = setTimeout(() => setDebounced(value), delay)
-        return () => clearTimeout(timer)
-    }, [value, delay])
-
-    return debounced
-}
+import { getTodayDate, sanitizeStoredDate } from "../utils/date.js"
+import useDebouncedValue from "./useDebouncedValue.js"
 
 export default function useVisitServiceRows({token, logout}) {
     const [selectedDate, setSelectedDate] = useLocalStorage("tanggalLayanan", getTodayDate(), {

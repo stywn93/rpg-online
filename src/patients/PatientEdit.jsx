@@ -7,25 +7,7 @@ import toast from "react-hot-toast"
 import useAuth from "../auth/UseAuth.js"
 import { getPatientDetail, updatePatient } from "../lib/api/Patient.js"
 import { normalizePatientDetail } from "../lib/utils/Normalization.js"
-
-function formatDateForApi(value) {
-    if (!(value instanceof Date) || Number.isNaN(value.getTime())) return ""
-    const localDate = new Date(value.getTime() - value.getTimezoneOffset() * 60000)
-    return localDate.toISOString().split("T")[0]
-}
-
-const calculateAgeParts = (dob) => {
-    if (!(dob instanceof Date) || Number.isNaN(dob.getTime())) return { years: "", months: "" }
-    const today = new Date()
-    let years = today.getFullYear() - dob.getFullYear()
-    let months = today.getMonth() - dob.getMonth()
-    if (today.getDate() < dob.getDate()) months -= 1
-    if (months < 0) { years -= 1; months += 12 }
-    if (years < 0) return { years: "", months: "" }
-    return { years: String(years), months: String(months) }
-}
-
-const inputClassName = "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+import { formatDateForApi, calculateAgeParts, inputClassName } from "../lib/utils/date.js"
 
 export default function PatientEdit() {
     const navigate = useNavigate()

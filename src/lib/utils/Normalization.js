@@ -1,12 +1,13 @@
+function getArraySource(payload) {
+    if (Array.isArray(payload?.data)) return payload.data
+    if (Array.isArray(payload?.data?.data)) return payload.data.data
+    if (Array.isArray(payload)) return payload
+    return []
+}
+
 //digunakan untuk membuat normalisasi data orang (pasien/orang tua) agar setidaknya mempunyai id dan nama
 export function normalizePeopleDetail(payload){
-    const source = Array.isArray(payload?.data)
-        ? payload.data
-        : Array.isArray(payload?.data?.data)
-            ? payload.data.data
-            : Array.isArray(payload)
-                ? payload
-                : []
+    const source = getArraySource(payload)
 
     return source
         .map((item) => ({
@@ -121,13 +122,7 @@ export function normalizeVisitServiceRows(payload) {
 }
 
 export function normalizeServiceList(payload) {
-    const source = Array.isArray(payload?.data)
-        ? payload.data
-        : Array.isArray(payload?.data?.data)
-            ? payload.data.data
-            : Array.isArray(payload)
-                ? payload
-                : []
+    const source = getArraySource(payload)
 
     return source
         .map((item) => ({
@@ -138,13 +133,7 @@ export function normalizeServiceList(payload) {
 }
 
 export function normalizePatientList(payload) {
-    const source = Array.isArray(payload?.data)
-        ? payload.data
-        : Array.isArray(payload?.data?.data)
-            ? payload.data.data
-            : Array.isArray(payload)
-                ? payload
-                : []
+    const source = getArraySource(payload)
 
     return source
         .map((item) => ({
@@ -156,13 +145,7 @@ export function normalizePatientList(payload) {
 }
 
 export function normalizeUserList(payload) {
-    const source = Array.isArray(payload?.data)
-        ? payload.data
-        : Array.isArray(payload?.data?.data)
-            ? payload.data.data
-            : Array.isArray(payload)
-                ? payload
-                : []
+    const source = getArraySource(payload)
 
     return source
         .map((item) => ({
@@ -188,13 +171,7 @@ export function normalizePatientDetail(payload) {
 }
 
 export function normalizeVisitServiceList(payload) {
-    const source = Array.isArray(payload?.data)
-        ? payload.data
-        : Array.isArray(payload?.data?.data)
-            ? payload.data.data
-            : Array.isArray(payload)
-                ? payload
-                : []
+    const source = getArraySource(payload)
 
     return source
         .map((item) => ({

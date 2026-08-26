@@ -1,5 +1,16 @@
 import { apiBaseUrl } from "./baseUrl"
 
+function authHeaders(token) {
+    return { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
+}
+function visitParams(tanggal, page, perPage, searchTerm, status, serviceTypeIds) {
+    const p = new URLSearchParams({ visit_date: String(tanggal), searchTerm, page: String(page), per_page: String(perPage) })
+    if (status) p.set("visit_status", status)
+    if (searchTerm) p.set("patient_name", searchTerm)
+    if (Array.isArray(serviceTypeIds) && serviceTypeIds.length) p.set("service_id", serviceTypeIds.map(id => String(id).trim()).filter(Boolean).join(","))
+    return p
+}
+
 
 export const queueList = async (
     token,
@@ -24,13 +35,7 @@ export const queueList = async (
         params.set("patient_name", searchTerm)
     }
 
-    return await fetch(`${apiBaseUrl}/visits?${params.toString()}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
-    }
-  })
+    return await fetch(`${apiBaseUrl}/visits?${params.toString()}`, { method: "GET", headers: authHeaders(token) })
 }
 
 export const queueListByParent = async (
@@ -58,87 +63,17 @@ export const queueListByParent = async (
         params.set("patient_name", searchTerm)
     }
 
-    return await fetch(`${apiBaseUrl}/visits-by-parent?${params.toString()}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
-    }
-  })
+    return await fetch(`${apiBaseUrl}/visits-by-parent?${params.toString()}`, { method: "GET", headers: authHeaders(token) })
 }
 
-export const visitServiceList = async (
-    token,
-    tanggal,
-    page = 1,
-    perPage = 10,
-    searchTerm = "",
-    status = "",
-    serviceTypeIds = []
-) => {
-    const params = new URLSearchParams({
-        visit_date: String(tanggal),
-        searchTerm,
-        page: String(page),
-        per_page: String(perPage),
-    })
-
-    if (status) {
-        params.set("visit_status", status)
-    }
-
-    if (searchTerm) {
-        params.set("patient_name", searchTerm)
-    }
-
-    if (Array.isArray(serviceTypeIds) && serviceTypeIds.length > 0) {
-        params.set("service_id", serviceTypeIds.map((id) => String(id).trim()).filter(Boolean).join(","))
-    }
-
-    return await fetch(`${apiBaseUrl}/visit-services?${params.toString()}`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-        }
-    })
+export const visitServiceList = async (token, tanggal, page = 1, perPage = 10, searchTerm = "", status = "", serviceTypeIds = []) => {
+    const params = visitParams(tanggal, page, perPage, searchTerm, status, serviceTypeIds)
+    return await fetch(`${apiBaseUrl}/visit-services?${params.toString()}`, { method: "GET", headers: authHeaders(token) })
 }
 
-export const visitServiceRowList = async (
-    token,
-    tanggal,
-    page = 1,
-    perPage = 10,
-    searchTerm = "",
-    status = "",
-    serviceTypeIds = []
-) => {
-    const params = new URLSearchParams({
-        visit_date: String(tanggal),
-        searchTerm,
-        page: String(page),
-        per_page: String(perPage),
-    })
-
-    if (status) {
-        params.set("visit_status", status)
-    }
-
-    if (searchTerm) {
-        params.set("patient_name", searchTerm)
-    }
-
-    if (Array.isArray(serviceTypeIds) && serviceTypeIds.length > 0) {
-        params.set("service_id", serviceTypeIds.map((id) => String(id).trim()).filter(Boolean).join(","))
-    }
-
-    return await fetch(`${apiBaseUrl}/visit-service-rows?${params.toString()}`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-        }
-    })
+export const visitServiceRowList = async (token, tanggal, page = 1, perPage = 10, searchTerm = "", status = "", serviceTypeIds = []) => {
+    const params = visitParams(tanggal, page, perPage, searchTerm, status, serviceTypeIds)
+    return await fetch(`${apiBaseUrl}/visit-service-rows?${params.toString()}`, { method: "GET", headers: authHeaders(token) })
 }
 
 export const getVisitServiceDetail = async (token, visitServiceId) => {

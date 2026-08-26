@@ -1,17 +1,7 @@
 import {useEffect, useState} from "react"
 import {listUsers} from "../api/User.js"
 import {normalizeUserList} from "../utils/Normalization.js"
-
-function useDebouncedValue(value, delay = 400) {
-    const [debounced, setDebounced] = useState(value)
-
-    useEffect(() => {
-        const timer = setTimeout(() => setDebounced(value), delay)
-        return () => clearTimeout(timer)
-    }, [value, delay])
-
-    return debounced
-}
+import useDebouncedValue from "./useDebouncedValue.js"
 
 export default function useParentOptions({token, logout, enabled = true}) {
     const [parents, setParents] = useState([])

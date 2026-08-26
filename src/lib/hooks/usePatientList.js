@@ -1,17 +1,7 @@
 import {useEffect, useMemo, useState} from "react"
 import {listPatients, listPatientsByParent} from "../api/Patient.js"
 import {normalizePatientList} from "../utils/Normalization.js"
-
-function useDebouncedValue(value, delay = 400) {
-    const [debounced, setDebounced] = useState(value)
-
-    useEffect(() => {
-        const timer = setTimeout(() => setDebounced(value), delay)
-        return () => clearTimeout(timer)
-    }, [value, delay])
-
-    return debounced
-}
+import useDebouncedValue from "./useDebouncedValue.js"
 
 export default function usePatientList({token, logout, isUserRole = false, userId = ""}) {
     const [patients, setPatients] = useState([])

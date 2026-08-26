@@ -69,7 +69,7 @@ createRoot(document.getElementById('root')).render(
                             <Route index element={<Users/>}/>
                             <Route path={":userID"} element={<UserDetails/>}/>
                             <Route path={"registration"} element={<UserRegistration/>}/>
-                            <Route path={":patientId/edit"} element={<UserEdit/>}/>
+                            <Route path={":userID/edit"} element={<UserEdit/>}/>
                         </Route>
                         <Route
                             path={"services"}
