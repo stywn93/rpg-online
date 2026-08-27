@@ -125,7 +125,7 @@ export default function ServiceResultEntry() {
         }
 
         const emptyCount = records
-            .map((record, index) => (results[index] ?? "").trim())
+            .map((record, index) => (results[index] ?? record.result ?? "").trim())
             .reduce((count, value) => (value ? count : count + 1), 0)
 
         if (emptyCount > 0) {
@@ -139,10 +139,11 @@ export default function ServiceResultEntry() {
 
         try {
             for (const [index, record] of records.entries()) {
+                const effectiveResult = (results[index] ?? record.result ?? "").trim()
                 const payload = {
                     visit_id: String(detail.visit_id ?? visitId),
                     service_id: String(record.serviceId),
-                    result: results[index].trim(),
+                    result: effectiveResult,
                     performed_by: user?.id,
                 }
 
