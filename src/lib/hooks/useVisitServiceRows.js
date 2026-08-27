@@ -63,15 +63,35 @@ export default function useVisitServiceRows({token, logout}) {
                     token,
                     selectedDate,
                     1,
-                    10,
+                    100,
                     debouncedSearchTerm,
-                    status,
+                    "",
                     selectedServiceIds
                 )
                 const body = await response.json()
 
                 if (response.status === 200) {
-                    setRows(normalizeVisitServiceRows(body) ?? [])
+                    const normalized = normalizeVisitServiceRows(body) ?? []
+                    // ponytail: frontend-only status+result filter O(n) capped 100, push has_result to BE if >100/day
+                    const filtered = (() => {
+                        if (status === "present") {
+                            return normalized.filter(
+                                (row) =>
+                                    row.visit_status === "present" ||
+                                    (row.visit_status === "finished" && String(row.result ?? "").trim() === "")
+                            )
+                        }
+                        if (status === "finished") {
+                            return normalized.filter(
+                                (row) => row.visit_status === "finished" && String(row.result ?? "").trim() !== ""
+                            )
+                        }
+                        if (status) {
+                            return normalized.filter((row) => row.visit_status === status)
+                        }
+                        return normalized
+                    })()
+                    setRows(filtered)
                 } else if (response.status === 401) {
                     logout()
                 } else {
