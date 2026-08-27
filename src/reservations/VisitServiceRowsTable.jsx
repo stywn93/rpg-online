@@ -1,6 +1,6 @@
 import ActionButton from "../components/ActionButton.jsx"
 import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
-import {isStaffRole} from "../lib/utils/roles.js"
+import {isStaffRole, normalizeRole} from "../lib/utils/roles.js"
 
 const rowStyles = {
     present: "bg-blue-100 dark:bg-blue-900/50",
@@ -11,6 +11,7 @@ const rowStyles = {
 
 export default function VisitServiceRowsTable({rows, isLoading, error, isUpdating, userRole, onPrimaryAction, primaryActionLabel = "Entri Hasil Layanan"}) {
     const isStaff = isStaffRole(userRole)
+    const isAdmin = normalizeRole(userRole) === "admin"
     const showActions = isStaff
     const colSpan = showActions ? 6 : 5
 
@@ -63,7 +64,7 @@ export default function VisitServiceRowsTable({rows, isLoading, error, isUpdatin
                             </td>
                             {showActions && (
                                 <td className="border-b border-slate-100 px-4 py-4 dark:border-slate-700">
-                                    <div className={`${row.visit_status === "finished" ? "hidden" : "flex"} flex-wrap gap-2`}>
+                                    <div className={`${row.visit_status === "finished" && !isAdmin ? "hidden" : "flex"} flex-wrap gap-2`}>
                                         {row.visit_status !== "no_show" && (
                                             <ActionButton
                                                 variant="accent"

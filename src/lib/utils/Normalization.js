@@ -103,6 +103,7 @@ export function normalizeVisitServiceRowItem(item) {
         visit_status: item.visit_status ?? "waiting",
         service_id: String(item.service_id ?? ""),
         service_name: item.service_name ?? "",
+        result: item.result ?? item.visit_service_result ?? "",
     }
 }
 
