@@ -3,7 +3,7 @@ import {useLocation, useNavigate, useParams} from "react-router-dom"
 import toast from "react-hot-toast"
 import {useLocalStorage} from "react-use"
 import useAuth from "../auth/UseAuth.js"
-import {getVisitServiceDetail, updateVisitServiceResult} from "../lib/api/Queue.js"
+import {getVisitServiceDetail, updateQueue, updateVisitServiceResult} from "../lib/api/Queue.js"
 import useVisitServiceResults from "../lib/hooks/useVisitServiceResults.js"
 import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
 
@@ -179,6 +179,25 @@ export default function ServiceResultEntry() {
                             ?? responseBody?.messages?.error
                             ?? "Hasil layanan gagal disimpan."}`
                     )
+                }
+            }
+
+            const visitPatchId = String(detail.visit_id ?? visitId)
+            if (visitPatchId) {
+                const visitResponse = await updateQueue(token, visitPatchId, "finished")
+                if (visitResponse.status === 401) {
+                    logout()
+                    return
+                }
+                let visitBody = {}
+                try {
+                    visitBody = await visitResponse.json()
+                } catch {
+                    visitBody = {}
+                }
+                if (visitResponse.status !== 200 && visitResponse.status !== 201 && visitResponse.status !== 204) {
+                    console.error("PATCH visits gagal:", {url: visitPatchId, status: visitResponse.status, visitBody})
+                    throw new Error(`[${visitResponse.status}] ${visitBody?.message ?? visitBody?.messages?.error ?? "Hasil tersimpan, status kunjungan gagal diperbarui."}`)
                 }
             }
 
