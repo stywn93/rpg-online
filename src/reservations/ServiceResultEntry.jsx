@@ -3,7 +3,7 @@ import {useLocation, useNavigate, useParams} from "react-router-dom"
 import toast from "react-hot-toast"
 import {useLocalStorage} from "react-use"
 import useAuth from "../auth/UseAuth.js"
-import {getVisitServiceDetail, updateVisitServiceResult} from "../lib/api/Queue.js"
+import {getVisitServiceDetail, updateVisitServiceResult, updateQueue} from "../lib/api/Queue.js"
 import useVisitServiceResults from "../lib/hooks/useVisitServiceResults.js"
 import {formatIndonesianDate} from "../lib/utils/formatIndonesianDate.js"
 
@@ -148,7 +148,15 @@ export default function ServiceResultEntry() {
                 }
 
                 console.log(`PATCH #${index}:`, {urlId: record.recordId || visitId, payload})
+                const responseVisit = await updateQueue(token, visitId, "finished")
+                // let responseVisitBody = {}
+                // try {
+                //     responseVisitBody = await responseVisit.json()
+                // } catch {
+                //     responseVisitBody = {}
+                // }
 
+                //tambahkan update visit untuk menandai kunjungan sudah s
                 const response = await updateVisitServiceResult(
                     token,
                     record.recordId || visitId,
